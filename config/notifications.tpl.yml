@@ -1,0 +1,137 @@
+# yaml-language-server: $schema=./schemas/notifications.schema.json
+enabled: true
+label: Critical Task Monitoring
+criteria:
+  category:
+    - alert
+    - task_retry
+    - task_failed
+  task:
+    - app.test
+    - app.test.exception
+    - app.test.exception_retry
+services:
+  - enabled: true
+    name: mail
+    recipients:
+      - enabled: true
+        label: Your Name's Work Email
+        schedules:
+          - enabled: true
+            label: November Schedule
+            timezone: America/Indiana/Indianapolis
+            dates:
+              - start: '2025-11-01 7 am'
+                end: '2025-11-30 6:30 pm'
+            times:
+              - days:
+                  - monday
+                  - tuesday
+                  - wednesday
+                  - thursday
+                  - friday
+                start: '7 am'
+                end: '6:30 pm'
+        name: Your Name
+        email: your.name@domain.com
+      - enabled: true
+        label: Your Name's Work Email
+        schedules:
+          - enabled: true
+            label: Work Hours
+            timezone: America/Indiana/Indianapolis
+            times:
+              - days:
+                  - monday
+                  - tuesday
+                  - wednesday
+                  - thursday
+                  - friday
+                start: '8 am'
+                end: '5 pm'
+        name: Your Name
+        email: your.name@domain.com
+  - enabled: true
+    name: msteams
+    recipients:
+      - enabled: true
+        label: Microsoft Teams Notifications Channel
+        schedules:
+          - enabled: true
+            label: November Office Hours
+            timezone: America/Indiana/Indianapolis
+            dates:
+              - start: '2025-11-01'
+                end: '2025-11-30'
+            times:
+              - days:
+                  - monday
+                  - tuesday
+                  - wednesday
+                  - thursday
+                  - friday
+                start: '8 am'
+                end: '5 pm'
+        webhook: WEBHOOK_ID_HERE
+  - enabled: true
+    name: twilio
+    recipients:
+      - enabled: true
+        label: Your Name's Mobile
+        schedules:
+          - enabled: true
+            label: Work Hours
+            timezone: America/Indiana/Indianapolis
+            times:
+              - days:
+                  - monday
+                  - tuesday
+                  - wednesday
+                  - thursday
+                  - friday
+                start: '8 am'
+                end: '5 pm'
+          - enabled: true
+            label: December On-Call Weekend
+            timezone: America/Indiana/Indianapolis
+            dates:
+              - start: '2025-12-01'
+                end: '2025-12-30'
+            times:
+              - days:
+                  - monday
+                start: '12 am'
+                end: '8 am'
+              - days:
+                  - friday
+                start: '5 pm'
+                end: '11:59:59 pm'
+              - days:
+                  - saturday
+                  - sunday
+                start: '12 am'
+                end: '11:59:59 pm'
+        name: Your Name
+        number: '+18005555555'
+        types:
+          - voice
+          - message
+      - enabled: true
+        label: Your Name's Mobile
+        schedules:
+          - enabled: true
+            label: Work Hours
+            timezone: America/Indiana/Indianapolis
+            times:
+              - days:
+                  - monday
+                  - tuesday
+                  - wednesday
+                  - thursday
+                  - friday
+                start: '8 am'
+                end: '5 pm'
+        name: Your Name
+        number: '+18885555555'
+        types:
+          - message
