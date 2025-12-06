@@ -16,6 +16,7 @@ from models.enums import ResourceTypeEnum
 
 
 INVALID_ACCESS_CONFIG_MSG = 'Wrong access configuration'
+SESSION_IP_CHANGE_MSG = 'Client IP address changed in session'
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
@@ -100,9 +101,13 @@ async def get_principal(
     # Attempt Session Token Authentication
     session_token = request.cookies.get(cookie_name)
     if session_token:
-        # TODO: Implement hijack detection failsafe and terminate session if token matches but remote IP doesn't
-        db_session = await Session.get_by_token(session, session_token, request.client.host)
+        db_session = await Session.get_by_token(session, session_token)
         if db_session:
+            # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
+            if isinstance(db_session.client_ip, str) and db_session.client_ip != request.client.host:
+                await Session.destroy_session(session, db_session.id)
+                raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
+
             # Verify that the associated user matches the tenant associated with the request if any
             if isinstance(db_session.user.tenant_id, UUID) and not isinstance(tenant_id, UUID) \
                     or not isinstance(db_session.user.tenant_id, UUID) and isinstance(tenant_id, UUID) \
@@ -111,8 +116,6 @@ async def get_principal(
 
             # Extend the session's expiration timestamp
             await Session.extend_session(session, db_session)
-
-            # TODO: Load the user's permissions into the principal
 
             return Principal(id=db_session.user.id, tenant_id=tenant_id, type=PrincipalTypeEnum.user)
 
