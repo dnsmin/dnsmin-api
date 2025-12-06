@@ -134,6 +134,15 @@ class ServerView(BaseSqlModel):
     networks = relationship('ViewNetwork', back_populates='view', cascade='all, delete, delete-orphan')
     """A list of networks associated with the view."""
 
+    azones = relationship('AZone', back_populates='view', cascade='all, delete, delete-orphan')
+    """A list of authoritative zones associated with the view."""
+
+    azone_records = relationship('AZoneRecord', back_populates='view', cascade='all, delete, delete-orphan')
+    """A list of authoritative zone records associated with the view."""
+
+    azone_metadata = relationship('AZoneMetadata', back_populates='view', cascade='all, delete, delete-orphan')
+    """A list of authoritative zone metadata associated with the view."""
+
 
 class ServerNetwork(BaseSqlModel):
     """Represents a server network."""

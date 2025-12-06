@@ -44,5 +44,4 @@ from .settings import *
 from .system import *
 from .tasks import *
 from .tenants import *
-from .views import *
 from .zones import *

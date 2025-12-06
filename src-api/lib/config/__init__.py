@@ -1,5 +1,6 @@
 from lib.config.app import AppConfig
 from lib.config.api import ApiConfig
+from lib.config.base import BaseConfig
 from lib.config.celery import CeleryConfig
 from lib.config.db import DbConfig
 from lib.config.logging import LoggingConfig
@@ -9,7 +10,6 @@ from lib.config.paths import PathsConfig
 from lib.config.server import ServerConfig
 from lib.config.services import ServicesConfig
 from lib.config.tasks import TasksConfig
-from models import BaseConfig
 
 
 class Config(BaseConfig):

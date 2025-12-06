@@ -26,7 +26,12 @@ class AZone(BaseSqlModel):
     tenant_id: Mapped[UUID] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
-    """The unique identifier of the tenant that owns the zone if any."""
+    """The unique identifier of the tenant that owns this zone if any."""
+
+    view_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_server_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
+    """The unique identifier of the view associated with this zone if any."""
 
     fqdn: Mapped[str] = mapped_column(String(253), nullable=False)
     """The FQDN of the zone."""
@@ -99,6 +104,9 @@ class AZone(BaseSqlModel):
     tenant = relationship('Tenant', back_populates='azones', cascade='expunge, delete')
     """The tenant associated with the zone."""
 
+    view = relationship('ServerView', back_populates='azones', cascade='expunge, delete')
+    """The view associated with the zone."""
+
     records = relationship('AZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan')
     """A list of resource records associated with the zone."""
 
@@ -118,12 +126,17 @@ class AZoneRecord(BaseSqlModel):
     tenant_id: Mapped[UUID] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
-    """The unique identifier of the tenant that owns the record if any."""
+    """The unique identifier of the tenant that owns this record if any."""
 
     zone_id: Mapped[UUID] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_azones.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
     )
     """The unique identifier of the zone this record belongs to."""
+
+    view_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_server_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
+    """The unique identifier of the view associated with this record if any."""
 
     name: Mapped[str] = mapped_column(String(255), nullable=True)
     """The name of the record."""
@@ -160,6 +173,9 @@ class AZoneRecord(BaseSqlModel):
     zone = relationship('AZone', back_populates='records', cascade='expunge, delete')
     """The zone associated with the resource record."""
 
+    view = relationship('ServerView', back_populates='azone_records', cascade='expunge, delete')
+    """The view associated with the record."""
+
 
 class AZoneMetadata(BaseSqlModel):
     """Represents an authoritative DNS zone metadata record."""
@@ -173,12 +189,17 @@ class AZoneMetadata(BaseSqlModel):
     tenant_id: Mapped[UUID] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
-    """The unique identifier of the tenant that owns the metadata if any."""
+    """The unique identifier of the tenant that owns this metadata if any."""
 
     zone_id: Mapped[UUID] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_azones.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
     )
     """The unique identifier of the zone this metadata belongs to."""
+
+    view_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_server_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
+    """The unique identifier of the view associated with this record if any."""
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     """The kind of the metadata."""
@@ -199,6 +220,9 @@ class AZoneMetadata(BaseSqlModel):
 
     zone = relationship('AZone', back_populates='metadata_', cascade='expunge, delete')
     """The zone associated with the metadata."""
+
+    view = relationship('ServerView', back_populates='azone_metadata', cascade='expunge, delete')
+    """The view associated with the metadata."""
 
 
 class RZone(BaseSqlModel):

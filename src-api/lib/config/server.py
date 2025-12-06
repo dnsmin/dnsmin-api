@@ -1,5 +1,5 @@
 from typing import Union
-from models import BaseConfig
+from lib.config.base import BaseConfig
 
 
 class ServerConfig(BaseConfig):

@@ -1,14 +1,14 @@
 import re
 from datetime import date, datetime, time
-from pydantic import field_validator, model_validator
 from typing import Optional, Union, Any
 from zoneinfo import ZoneInfo
+
+from pydantic import BaseModel, field_validator, model_validator
+
 from lib.enums import (
-    TaskEnum, DayOfWeekEnum,
-    NotificationCategoryEnum, TwilioNotificationTypeEnum, NotificationServiceEnum
+    TaskEnum, DayOfWeekEnum, NotificationCategoryEnum, TwilioNotificationTypeEnum, NotificationServiceEnum
 )
 from lib.notifications.events import ALL_EVENTS
-from models import BaseModel
 
 UTC_TZ = ZoneInfo('UTC')
 

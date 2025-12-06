@@ -1,5 +1,5 @@
 from typing import Optional, Union
-from models import BaseConfig
+from lib.config.base import BaseConfig
 
 
 class DatabaseConnection(BaseConfig):

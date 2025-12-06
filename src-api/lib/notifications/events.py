@@ -1,13 +1,13 @@
+from datetime import datetime
+
 from billiard.einfo import ExceptionInfo
 from celery.app.task import Task, Context
 from celery.worker.request import Request
-from datetime import datetime
 from kombu.transport.virtual.base import Message
-from pydantic import PrivateAttr, ConfigDict, model_validator
+from pydantic import BaseModel, PrivateAttr, ConfigDict, model_validator
 from typing import Any, Optional, Union
 from zoneinfo import ZoneInfo
 from lib.enums import NotificationCategoryEnum
-from models import BaseModel
 
 UTC_TZ = ZoneInfo('UTC')
 BLOCK_STYLES = ("font-family: monospace, Consolas, 'Courier New', sans-serif; background-color: #f4f4f4; "
