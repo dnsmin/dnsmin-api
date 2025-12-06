@@ -137,9 +137,7 @@ const StyledBrandImage = styled(Image)`
     float: left;
     line-height: 0.8;
     margin: -1px 8px 0 6px;
-    opacity: 0.8;
-    --pf-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19),
-    0 6px 6px rgba(0, 0, 0, 0.23) !important;
+    
 `;
 
 const StyledUserImage = styled(Image)`
@@ -156,11 +154,10 @@ const MenuSidebar = () => {
         <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>
             <Link to="/" className="brand-link">
                 <StyledBrandImage
-                    src="img/logo.png"
+                    src="img/logo1-light-icon.svg"
                     alt=" DNSMin Logo"
-                    width={33}
-                    height={33}
-                    rounded
+                    width={35}
+                    height={35}
                 />
                 <span className="brand-text font-weight-light"> DNSMin</span>
             </Link>

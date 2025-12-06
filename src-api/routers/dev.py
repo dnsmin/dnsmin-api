@@ -187,7 +187,7 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
     tenant2 = Tenant(
         id=uuid4(),
         name='Test Tenant 2',
-        fqdn='local.dnsmin.org',
+        fqdn='t2.local.dnsmin.org',
     )
 
     session.add(tenant2)

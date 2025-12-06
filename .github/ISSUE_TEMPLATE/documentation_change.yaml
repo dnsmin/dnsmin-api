@@ -20,13 +20,13 @@ body:
       description: To what section of the documentation does this change primarily pertain?
       options:
         - Features
-        - Installation/upgrade
-        - Getting started
+        - Installation / Upgrade / Migration
+        - Getting Started
         - Configuration
         - Customization
-        - Database Setup
+        - Database Initialization
         - Debug
-        - Integrations/API
+        - Integrations / API
         - Administration
         - Development
         - Other
