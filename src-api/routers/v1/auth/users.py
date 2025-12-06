@@ -14,7 +14,7 @@ from routers.v1.auth import router
     '/users',
     response_model=UsersSchema,
     summary='List Users',
-    description='Lists authentication policies for the current authentication context.',
+    description='Lists authentication users for the current authentication context.',
     operation_id='auth:users:list',
 )
 async def record_list(

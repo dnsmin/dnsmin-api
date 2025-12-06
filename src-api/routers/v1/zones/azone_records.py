@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
 from models.api.auth.users import UserOutSchema
-from models.api.auth.clients import ClientSchema
+from models.api.auth.clients import ClientOutSchema
 from routers.v1.zones import router
 
 
@@ -17,7 +17,7 @@ from routers.v1.zones import router
 )
 async def list_azone_records(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """List authoritative zone records"""
 
@@ -30,7 +30,7 @@ async def list_azone_records(
 )
 async def azone_record_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Create an authoritative zone record"""
 
@@ -45,7 +45,7 @@ async def azone_read(
         zone_id:UUID,
         record_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Read an authoritative zone record"""
 
@@ -60,7 +60,7 @@ async def azone_record_update(
         zone_id:UUID,
         record_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Update an authoritative zone record"""
 
@@ -75,6 +75,6 @@ async def azone_record_delete(
         zone_id:UUID,
         record_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Delete an authoritative zone record"""

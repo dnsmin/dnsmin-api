@@ -208,7 +208,7 @@ class Session(BaseSqlModel):
     )
     """The unique identifier of the user associated with the session."""
 
-    remote_ip: Mapped[str] = mapped_column(String(45), nullable=False)
+    client_ip: Mapped[str] = mapped_column(String(45), nullable=False)
     """The IPv4 or IPv6 address of the session client."""
 
     token: Mapped[str] = mapped_column(TEXT, nullable=False)
@@ -247,17 +247,17 @@ class Session(BaseSqlModel):
         return (await session.execute(stmt)).scalar_one_or_none()
 
     @staticmethod
-    async def get_by_token(session: AsyncSession, token: str, remote_ip: Optional[str] = None) -> 'Session | None':
+    async def get_by_token(session: AsyncSession, token: str, client_ip: Optional[str] = None) -> 'Session | None':
         """Retrieves a session object by its token and optionally remote ip."""
         from sqlalchemy import select
         from sqlalchemy.orm import selectinload
         stmt = select(Session).options(selectinload(Session.user)).where(Session.token == token)
-        if isinstance(remote_ip, str):
-            stmt.where(Session.remote_ip == remote_ip)
+        if isinstance(client_ip, str):
+            stmt.where(Session.client_ip == client_ip)
         return (await session.execute(stmt)).scalar_one_or_none()
 
     @staticmethod
-    async def create_session(session: AsyncSession, user: UserOutSchema, remote_ip: Optional[str] = None) -> 'Session':
+    async def create_session(session: AsyncSession, user: UserOutSchema, client_ip: Optional[str] = None) -> 'Session':
         """Creates an auth session and returns it."""
         import secrets
         from datetime import timedelta, timezone
@@ -272,7 +272,7 @@ class Session(BaseSqlModel):
         db_session = Session(
             tenant_id=user.tenant_id,
             user_id=user.id,
-            remote_ip=remote_ip,
+            client_ip=client_ip,
             token=secrets.token_hex(SESSION_TOKEN_LENGTH),
             expires_at=expires_at,
             data=None,

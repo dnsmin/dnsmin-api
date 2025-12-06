@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
 from models.api.auth.users import UserOutSchema
-from models.api.auth.clients import ClientSchema
+from models.api.auth.clients import ClientOutSchema
 from models.api.settings import SettingIn, SettingOut, SettingsOut
 from routers.root import router_responses
 
@@ -23,7 +23,7 @@ router = APIRouter(
 )
 async def list_settings(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """List settings"""
 
@@ -38,7 +38,7 @@ async def list_settings(
 async def setting_create(
         setting: SettingIn,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Create a setting"""
 
@@ -52,7 +52,7 @@ async def setting_create(
 async def setting_read(
         key: str,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Read a setting"""
 
@@ -66,7 +66,7 @@ async def setting_read(
 async def setting_update(
         key: str,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Update a setting"""
 
@@ -79,6 +79,6 @@ async def setting_update(
 async def setting_delete(
         key: str,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Delete a setting"""

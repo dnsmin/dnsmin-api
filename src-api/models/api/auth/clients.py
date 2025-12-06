@@ -8,8 +8,8 @@ from lib.permissions.definitions import Permission, Permissions
 from models.api import BaseApiModel
 
 
-class ClientSchema(BaseApiModel):
-    """Represents an authentication client for API interactions."""
+class ClientOutSchema(BaseApiModel):
+    """Provides an API response model for representing authentication clients."""
 
     id: Optional[UUID] = Field(
         title='Client ID',
@@ -50,15 +50,15 @@ class ClientSchema(BaseApiModel):
     )
     """The URL to redirect after authorization (if using auth code flow)."""
 
-    scopes: Optional[list[Permission]] = Field(
+    scopes: Optional[list[str]] = Field(
         title='Scopes',
         description='The scopes associated with this client.',
         default=None,
-        examples=[
-            Permissions.auth_users,
-            Permissions.auth_sessions,
-            Permissions.auth_clients,
-        ],
+        examples=[[
+            Permissions.auth_users.uri,
+            Permissions.auth_sessions.uri,
+            Permissions.auth_clients.uri,
+        ]],
     )
     """A list of scopes associated with the client."""
 
@@ -95,9 +95,9 @@ class ClientSchema(BaseApiModel):
 
 
 class ClientsSchema(BaseApiModel):
-    """Represents a list of authentication client for API interactions."""
+    """Provides an API response model for retrieving authentication clients."""
 
-    records: list[ClientSchema] = Field(
+    records: list[ClientOutSchema] = Field(
         title='Clients',
         description='A list of client found based on the current request criteria.',
         default_factory=list,

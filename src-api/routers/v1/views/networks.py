@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
 from models.api.auth.users import UserOutSchema
-from models.api.auth.clients import ClientSchema
+from models.api.auth.clients import ClientOutSchema
 from routers.v1.views import router
 
 
@@ -17,7 +17,7 @@ from routers.v1.views import router
 )
 async def list_view_networks(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """List view network"""
 
@@ -30,7 +30,7 @@ async def list_view_networks(
 )
 async def network_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Create a view network"""
 
@@ -45,7 +45,7 @@ async def network_read(
         view_id:UUID,
         network_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Read a view network"""
 
@@ -60,7 +60,7 @@ async def network_update(
         view_id:UUID,
         network_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Update a view network"""
 
@@ -75,6 +75,6 @@ async def network_delete(
         view_id:UUID,
         network_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
     """Delete a view network"""

@@ -7,8 +7,8 @@ from pydantic import Field
 from models.api import BaseApiModel
 
 
-class SessionSchema(BaseApiModel):
-    """Represents an authentication session for API interactions."""
+class SessionOutSchema(BaseApiModel):
+    """Provides an API response model for representing authentication sessions."""
 
     id: Optional[UUID] = Field(
         title='Session ID',
@@ -34,7 +34,7 @@ class SessionSchema(BaseApiModel):
     )
     """The unique identifier of the user associated with the session."""
 
-    remote_ip: str = Field(
+    client_ip: str = Field(
         title='Client IP',
         description='The IPv4 or IPv6 address of the session client.',
         examples=['1.1.1.1', '2001:0db8:85a3:0000:0000:8a2e:0370:7334'],
@@ -79,9 +79,9 @@ class SessionSchema(BaseApiModel):
 
 
 class SessionsSchema(BaseApiModel):
-    """Represents a list of authentication sessions for API interactions."""
+    """Provides an API response model for retrieving authentication sessions."""
 
-    records: list[SessionSchema] = Field(
+    records: list[SessionOutSchema] = Field(
         title='Sessions',
         description='A list of sessions found based on the current request criteria.',
         default_factory=list,
