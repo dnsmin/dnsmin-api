@@ -12,13 +12,13 @@ class PermissionsManager:
 
     @staticmethod
     def permission_matches(required: str, granted: str) -> bool:
+        # TODO: Beef this up to support current permission syntax
         return required == granted or required.startswith(f'{granted}:')
 
     @staticmethod
     async def expand_principal(redis: Redis, session: AsyncSession, principal_id: UUID,
                                use_cache: bool = True, ttl: int = 300) -> List[Tuple[str, Optional[UUID]]]:
         import json
-        from loguru import logger
         from sqlalchemy import select
         from sqlalchemy.orm import selectinload
         from models.db.acl import Role, Principal
@@ -85,7 +85,6 @@ class PermissionsManager:
     async def check_access(redis: Redis, session: AsyncSession, principal_id: UUID, tenant_id: Optional[UUID],
                            resource_type: ResourceTypeEnum, resource_id: Optional[UUID], required_permissions: List[str],
                            use_cache: bool = True, acl_version: str = '1', ttl: int = 60) -> bool:
-        from loguru import logger
         from sqlalchemy import select, and_, or_
         from models.db.acl import Policy
 
@@ -117,14 +116,15 @@ class PermissionsManager:
 
         policies = (await session.scalars(stmt)).all()
 
-        print(stmt.compile(compile_kwargs={"literal_binds": True}))
-
-        logger.warning(f'Resource Type: {resource_type} ({type(resource_type)})')
-        logger.warning(f'Resource ID: {resource_id} ({type(resource_id)})')
-        logger.warning(f'Principal ID: {principal_id} ({type(principal_id)})')
-        logger.warning(f'Tenant ID: {tenant_id}')
-        logger.warning(f'Principals: {expanded}')
-        logger.warning(f'Policies: {policies}')
+        # from loguru import logger
+        # logger.warning(f'Resource Type: {resource_type}')
+        # logger.warning(f'Resource ID: {resource_id}')
+        # logger.warning(f'Tenant ID: {tenant_id}')
+        # logger.warning(f'Principal ID: {principal_id}')
+        # logger.warning(f'Principals: {expanded}')
+        # logger.warning(f'Policies: {policies}')
+        # stmt_sql = str(stmt.compile(compile_kwargs={"literal_binds": True})).replace('\n', ' ')
+        #logger.warning(stmt_sql)
 
         result = True
 
