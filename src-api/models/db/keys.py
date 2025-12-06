@@ -24,7 +24,9 @@ class CryptoKey(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     """The unique identifier of the crypto key."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=False)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the tenant that owns the crypto key."""
 
     internal_id: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -68,7 +70,7 @@ class CryptoKey(BaseSqlModel):
     )
     """The timestamp representing when the crypto key was last updated."""
 
-    tenant = relationship('Tenant', back_populates='crypto_keys')
+    tenant = relationship('Tenant', back_populates='crypto_keys', cascade='expunge, delete')
     """The tenant associated with the cryptographic key."""
 
 
@@ -81,7 +83,9 @@ class TsigKey(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     """The unique identifier of the TSIG key."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=False)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the tenant that owns the TSIG key."""
 
     internal_id: Mapped[str] = mapped_column(String(100), nullable=True)
@@ -104,5 +108,5 @@ class TsigKey(BaseSqlModel):
     )
     """The timestamp representing when the TSIG key was last updated."""
 
-    tenant = relationship('Tenant', back_populates='tsig_keys')
+    tenant = relationship('Tenant', back_populates='tsig_keys', cascade='expunge, delete')
     """The tenant associated with the TSIG key."""

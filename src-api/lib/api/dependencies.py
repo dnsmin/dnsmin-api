@@ -10,7 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lib.api.oauth import oauth2_scheme, http_basic_scheme
 from lib.permissions.manager import PermissionsManager
 from lib.permissions.definitions import Permission
-from models.api.auth import Principal, UserSchema
+from models.api.auth import Principal
+from models.api.auth.users import UserOutSchema
 from models.enums import ResourceTypeEnum
 
 
@@ -125,7 +126,7 @@ async def get_principal(
 async def get_session_user(
         request: Request,
         session: AsyncSession = Depends(get_db_session),
-) -> Optional[UserSchema]:
+) -> Optional[UserOutSchema]:
     from typing import Optional
     from lib.security import TENANT_HEADER_NAME
     from lib.settings import SettingsManager
@@ -166,7 +167,7 @@ async def get_session_user(
             or db_session.user.tenant_id != tenant_id:
         return None
 
-    return UserSchema.model_validate(db_session.user)
+    return UserOutSchema.model_validate(db_session.user)
 
 
 def require_permission(

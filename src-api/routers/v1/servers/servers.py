@@ -4,7 +4,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api import UserSchema, ClientSchema
+from models.api.auth.users import UserOutSchema
+from models.api.auth.clients import ClientSchema
 from routers.v1.servers import router
 
 
@@ -16,7 +17,7 @@ from routers.v1.servers import router
 )
 async def list_servers(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """List servers"""
 
@@ -29,7 +30,7 @@ async def list_servers(
 )
 async def server_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Create a server"""
 
@@ -43,7 +44,7 @@ async def server_create(
 async def server_read(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Read a server"""
 
@@ -57,7 +58,7 @@ async def server_read(
 async def server_update(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Update a server"""
 
@@ -71,6 +72,6 @@ async def server_update(
 async def server_delete(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Delete a server"""

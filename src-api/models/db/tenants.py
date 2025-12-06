@@ -28,7 +28,9 @@ class Tenant(BaseSqlModel):
     fqdn: Mapped[str] = mapped_column(String(253), nullable=True)
     """The FQDN for the tenant UI."""
 
-    stopgap_domain_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_stopgap_domains.id'), nullable=True)
+    stopgap_domain_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_stopgap_domains.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the associated stopgap domain."""
 
     stopgap_hostname: Mapped[str] = mapped_column(String(253), nullable=True)

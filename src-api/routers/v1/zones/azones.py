@@ -4,7 +4,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api import UserSchema, ClientSchema
+from models.api.auth.users import UserOutSchema
+from models.api.auth.clients import ClientSchema
 from routers.v1.zones import router
 
 
@@ -16,7 +17,7 @@ from routers.v1.zones import router
 )
 async def list_azones(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """List authoritative zones"""
 
@@ -29,7 +30,7 @@ async def list_azones(
 )
 async def azone_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Create an authoritative zone"""
 
@@ -43,7 +44,7 @@ async def azone_create(
 async def azone_read(
         zone_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Read an authoritative zone"""
 
@@ -57,7 +58,7 @@ async def azone_read(
 async def azone_update(
         zone_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Update an authoritative zone"""
 
@@ -71,6 +72,6 @@ async def azone_update(
 async def azone_delete(
         zone_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Delete an authoritative zone"""

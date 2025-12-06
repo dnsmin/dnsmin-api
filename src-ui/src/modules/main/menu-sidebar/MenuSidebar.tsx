@@ -136,8 +136,7 @@ export const MENU: IMenuItem[] = [
 const StyledBrandImage = styled(Image)`
     float: left;
     line-height: 0.8;
-    margin: -1px 8px 0 6px;
-    
+    margin: -1px 0px 0 6px;
 `;
 
 const StyledUserImage = styled(Image)`
@@ -154,12 +153,11 @@ const MenuSidebar = () => {
         <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>
             <Link to="/" className="brand-link">
                 <StyledBrandImage
-                    src="img/logo1-light-icon.svg"
-                    alt=" DNSMin Logo"
-                    width={35}
+                    src="img/logo1-icon.png"
+                    alt="DNSMin Logo"
                     height={35}
                 />
-                <span className="brand-text font-weight-light"> DNSMin</span>
+                <span className="brand-text font-weight-light" style={{fontSize: 24}}>NSMin</span>
             </Link>
             <div className="sidebar">
                 <div className="user-panel mt-3 pb-3 mb-3 d-flex">

@@ -77,7 +77,7 @@ class TaskJob(BaseSqlModel):
     ended_at: Mapped[Optional[DateTime]] = mapped_column(DateTime)
     """The timestamp representing when the task job was completed."""
 
-    activities = relationship('TaskJobActivity', back_populates='task_job')
+    activities = relationship('TaskJobActivity', back_populates='task_job', cascade='all, delete, delete-orphan')
     """A list of activities associated with the task job."""
 
 
@@ -90,7 +90,9 @@ class TaskJobActivity(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the activity."""
 
-    task_job_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_task_jobs.id'), nullable=False)
+    task_job_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_task_jobs.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the task job associated with this activity update."""
 
     error: Mapped[Optional[str]] = mapped_column(TEXT)
@@ -104,5 +106,5 @@ class TaskJobActivity(BaseSqlModel):
     )
     """The timestamp representing when the activity was created."""
 
-    task_job = relationship('TaskJob', back_populates='activities')
+    task_job = relationship('TaskJob', back_populates='activities', cascade='expunge, delete')
     """The task job associated with the activity update."""

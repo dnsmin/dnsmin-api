@@ -23,7 +23,9 @@ class AZone(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the zone."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the zone if any."""
 
     fqdn: Mapped[str] = mapped_column(String(253), nullable=False)
@@ -94,13 +96,13 @@ class AZone(BaseSqlModel):
     )
     """The timestamp representing when the zone was last updated."""
 
-    tenant = relationship('Tenant', back_populates='azones')
+    tenant = relationship('Tenant', back_populates='azones', cascade='expunge, delete')
     """The tenant associated with the zone."""
 
-    records = relationship('AZoneRecord', back_populates='zone')
+    records = relationship('AZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan')
     """A list of resource records associated with the zone."""
 
-    metadata_ = relationship('AZoneMetadata', back_populates='zone')
+    metadata_ = relationship('AZoneMetadata', back_populates='zone', cascade='all, delete, delete-orphan')
     """A list of metadata records associated with the zone."""
 
 
@@ -113,10 +115,14 @@ class AZoneRecord(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the record."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the record if any."""
 
-    zone_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_azones.id'), nullable=False)
+    zone_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_azones.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the zone this record belongs to."""
 
     name: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -151,7 +157,7 @@ class AZoneRecord(BaseSqlModel):
     )
     """The timestamp representing when the record was last updated."""
 
-    zone = relationship('AZone', back_populates='records')
+    zone = relationship('AZone', back_populates='records', cascade='expunge, delete')
     """The zone associated with the resource record."""
 
 
@@ -164,10 +170,14 @@ class AZoneMetadata(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the metadata."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the metadata if any."""
 
-    zone_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_azones.id'), nullable=False)
+    zone_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_azones.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the zone this metadata belongs to."""
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -187,7 +197,7 @@ class AZoneMetadata(BaseSqlModel):
     )
     """The timestamp representing when the metadata was last updated."""
 
-    zone = relationship('AZone', back_populates='metadata_')
+    zone = relationship('AZone', back_populates='metadata_', cascade='expunge, delete')
     """The zone associated with the metadata."""
 
 
@@ -200,7 +210,9 @@ class RZone(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the zone."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the zone if any."""
 
     fqdn: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -229,10 +241,10 @@ class RZone(BaseSqlModel):
     )
     """The timestamp representing when the zone was last updated."""
 
-    tenant = relationship('Tenant', back_populates='rzones')
+    tenant = relationship('Tenant', back_populates='rzones', cascade='expunge, delete')
     """The tenant associated with the zone."""
 
-    records = relationship('RZoneRecord', back_populates='zone')
+    records = relationship('RZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan')
     """A list of resource records associated with the zone."""
 
 
@@ -245,10 +257,14 @@ class RZoneRecord(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the resource record."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the resource record if any."""
 
-    zone_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_rzones.id'), nullable=False)
+    zone_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_rzones.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the zone this resource record belongs to."""
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -283,5 +299,5 @@ class RZoneRecord(BaseSqlModel):
     )
     """The timestamp representing when the resource record was last updated."""
 
-    zone = relationship('RZone', back_populates='records')
+    zone = relationship('RZone', back_populates='records', cascade='expunge, delete')
     """The zone associated with the resource record."""

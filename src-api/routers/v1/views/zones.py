@@ -4,7 +4,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api import UserSchema, ClientSchema
+from models.api.auth.users import UserOutSchema
+from models.api.auth.clients import ClientSchema
 from routers.v1.views import router
 
 
@@ -16,7 +17,7 @@ from routers.v1.views import router
 )
 async def list_view_zones(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """List view zones"""
 
@@ -29,7 +30,7 @@ async def list_view_zones(
 )
 async def zone_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Create a view zone"""
 
@@ -44,7 +45,7 @@ async def view_read(
         view_id:UUID,
         zone_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Read a view zone"""
 
@@ -59,7 +60,7 @@ async def zone_update(
         view_id:UUID,
         zone_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Update a view zone"""
 
@@ -74,6 +75,6 @@ async def zone_delete(
         view_id:UUID,
         zone_id:UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Delete a view zone"""

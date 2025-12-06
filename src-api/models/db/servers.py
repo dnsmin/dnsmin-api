@@ -23,7 +23,9 @@ class Server(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the server."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the server if any."""
 
     type_: Mapped[ServerTypeEnum] = mapped_column(String(20), nullable=False)
@@ -55,10 +57,10 @@ class Server(BaseSqlModel):
     )
     """The timestamp representing when the server was last updated."""
 
-    tenant = relationship('Tenant', back_populates='servers')
+    tenant = relationship('Tenant', back_populates='servers', cascade='expunge, delete')
     """The tenant associated with the server."""
 
-    auto_primaries = relationship('ServerAutoPrimary', back_populates='server')
+    auto_primaries = relationship('ServerAutoPrimary', back_populates='server', cascade='all, delete, delete-orphan')
     """A list of auto primary registrations associated with the server."""
 
 
@@ -71,10 +73,14 @@ class ServerAutoPrimary(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the auto-primary."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the auto-primary if any."""
 
-    server_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_servers.id'), nullable=False)
+    server_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_servers.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the server this auto-primary belongs to."""
 
     ip: Mapped[str] = mapped_column(String(45), nullable=False)
@@ -97,8 +103,8 @@ class ServerAutoPrimary(BaseSqlModel):
     )
     """The timestamp representing when the auto-primary was last updated."""
 
-    tenant = relationship('Tenant', back_populates='auto_primaries')
+    tenant = relationship('Tenant', back_populates='auto_primaries', cascade='expunge, delete')
     """The tenant associated with the auto primary registration."""
 
-    server = relationship('Server', back_populates='auto_primaries')
+    server = relationship('Server', back_populates='auto_primaries', cascade='expunge, delete')
     """The server associated with the auto primary registration."""

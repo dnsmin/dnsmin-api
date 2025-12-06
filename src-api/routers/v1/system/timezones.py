@@ -2,7 +2,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api import UserSchema, ClientSchema
+from models.api.auth.users import UserOutSchema
+from models.api.auth.clients import ClientSchema
 from routers.v1.system import router
 
 
@@ -14,7 +15,7 @@ from routers.v1.system import router
 )
 async def list_timezones(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """List timezones"""
 
@@ -27,7 +28,7 @@ async def list_timezones(
 )
 async def timezone_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Create a timezone"""
 
@@ -41,7 +42,7 @@ async def timezone_create(
 async def timezone_read(
         id: int,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Read a timezone"""
 
@@ -55,7 +56,7 @@ async def timezone_read(
 async def timezone_update(
         id: int,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Update a timezone"""
 
@@ -69,6 +70,6 @@ async def timezone_update(
 async def timezone_delete(
         id: int,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Delete a timezone"""

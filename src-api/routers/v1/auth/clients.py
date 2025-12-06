@@ -4,7 +4,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api import ClientsSchema, ListParamsModel, Principal, ClientSchema
+from models.api import ListParamsModel, Principal
+from models.api.auth.clients import ClientSchema, ClientsSchema
 from routers.v1.auth import router
 
 

@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api.auth import UserSchema, ClientSchema
+from models.api.auth.users import UserOutSchema
+from models.api.auth.clients import ClientSchema
 from routers.root import router_responses
 
 router = APIRouter(
@@ -22,7 +23,7 @@ router = APIRouter(
 )
 async def list_tenants(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """List tenants"""
 
@@ -35,7 +36,7 @@ async def list_tenants(
 )
 async def tenant_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Create a tenant"""
 
@@ -49,7 +50,7 @@ async def tenant_create(
 async def tenant_read(
         tenant_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Read a tenant"""
 
@@ -63,7 +64,7 @@ async def tenant_read(
 async def tenant_update(
         tenant_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Update a tenant"""
 
@@ -77,6 +78,6 @@ async def tenant_update(
 async def tenant_delete(
         tenant_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Delete a tenant"""

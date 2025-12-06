@@ -55,7 +55,7 @@ class Role(BaseSqlModel):
         'RoleInheritance',
         foreign_keys='[RoleInheritance.child_role_id]',
         back_populates='child',
-        cascade='all, delete-orphan',
+        cascade='all, delete, delete-orphan',
     )
     """The parent roles associated with the role."""
 
@@ -69,10 +69,14 @@ class RoleInheritance(BaseSqlModel):
     __tablename__ = f'{DB_PREFIX}_acl_role_inheritance'
     """Defines the database table name."""
 
-    child_role_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_acl_roles.id'), primary_key=True)
+    child_role_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_acl_roles.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True
+    )
     """The unique identifier of the child role."""
 
-    parent_role_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_acl_roles.id'), primary_key=True)
+    parent_role_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_acl_roles.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True
+    )
     """The unique identifier of the parent role."""
 
     created_at: Mapped[datetime] = mapped_column(
@@ -116,7 +120,7 @@ class Principal(BaseSqlModel):
     roles: Mapped[list['PrincipalRoleAssoc']] = relationship(
         'PrincipalRoleAssoc',
         back_populates='principal',
-        cascade='all, delete-orphan',
+        cascade='all, delete, delete-orphan',
     )
     """The parent roles associated with the role."""
 
@@ -127,10 +131,14 @@ class PrincipalRoleAssoc(BaseSqlModel):
     __tablename__ = f'{DB_PREFIX}_acl_principal_role_assoc'
     """Defines the database table name."""
 
-    principal_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_acl_principals.id'), primary_key=True)
+    principal_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_acl_principals.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True
+    )
     """The unique identifier of the associated principal role."""
 
-    role_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_acl_roles.id'), primary_key=True)
+    role_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_acl_roles.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True
+    )
     """The unique identifier of the associated role."""
 
     created_at: Mapped[datetime] = mapped_column(
@@ -138,10 +146,10 @@ class PrincipalRoleAssoc(BaseSqlModel):
     )
     """The timestamp representing when the association was created."""
 
-    principal: Mapped[Principal] = relationship('Principal', back_populates='roles')
+    principal: Mapped[Principal] = relationship('Principal', back_populates='roles', cascade='expunge, delete')
     """The principal of the association."""
 
-    role: Mapped[Role] = relationship('Role')
+    role: Mapped[Role] = relationship('Role', cascade='expunge, delete')
     """The role of the association."""
 
 

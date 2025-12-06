@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 import * as Yup from 'yup';
 import {setWindowClass} from '@app/utils/helpers';
 import {Form, InputGroup} from 'react-bootstrap';
-import {Checkbox} from '@profabric/react-components';
+import {Checkbox, Image} from '@profabric/react-components';
 
 import {setCurrentUser} from '@app/store/reducers/auth';
 import {Button} from '@app/styles/common';
@@ -66,7 +66,12 @@ const Register = () => {
             <div className="card card-outline card-primary">
                 <div className="card-header text-center">
                     <Link to="https://dnsmin.org" target="_blank" className="h1">
-                        <b>DNS</b>
+                        <img
+                            src="/img/logo1-icon-no-margin.svg"
+                            alt="DNSMin Logo"
+                            height={40}
+                        />
+                        <b>NS</b>
                         <span>Min</span>
                     </Link>
                 </div>

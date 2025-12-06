@@ -4,7 +4,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api import UserSchema, ClientSchema
+from models.api.auth.users import UserOutSchema
+from models.api.auth.clients import ClientSchema
 from routers.v1.system import router
 
 
@@ -16,7 +17,7 @@ from routers.v1.system import router
 )
 async def list_stopgap_domains(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """List stopgap domains"""
 
@@ -29,7 +30,7 @@ async def list_stopgap_domains(
 )
 async def stopgap_domain_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Create a stopgap domain"""
 
@@ -43,7 +44,7 @@ async def stopgap_domain_create(
 async def stopgap_domain_read(
         id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Read a stopgap domain"""
 
@@ -57,7 +58,7 @@ async def stopgap_domain_read(
 async def stopgap_domain_update(
         id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Update a stopgap domain"""
 
@@ -71,6 +72,6 @@ async def stopgap_domain_update(
 async def stopgap_domain_delete(
         id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserSchema | ClientSchema = Depends(get_principal),
+        principal: UserOutSchema | ClientSchema = Depends(get_principal),
 ):
     """Delete a stopgap domain"""

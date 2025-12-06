@@ -7,19 +7,19 @@ from fastapi.responses import Response, JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, authorize_oauth_client, get_session_user
-from models.api import UserSchema
+from models.api.auth.users import UserOutSchema
 from routers.v1.auth import router
 
 
 @router.get(
     '/session',
-    response_model=Optional[UserSchema],
+    response_model=Optional[UserOutSchema],
     summary='Current Session Data',
     description='Provides the session data for the currently authenticated user (if any).',
 )
 async def session(
-        user: UserSchema = Depends(get_session_user),
-) -> Optional[UserSchema]:
+        user: UserOutSchema = Depends(get_session_user),
+) -> Optional[UserOutSchema]:
     return user
 
 
@@ -119,14 +119,14 @@ async def token_refresh(
     }
 
 
-@router.post('/login', response_model=UserSchema)
+@router.post('/login', response_model=UserOutSchema)
 async def login(
         request: Request,
         response: Response,
         session: AsyncSession = Depends(get_db_session),
         username: str = Form(...),
         password: str = Form(...),
-) -> UserSchema:
+) -> UserOutSchema:
     from lib.tenants import TenantManager
     from lib.settings import SettingsManager
     from lib.settings.definitions import sd
@@ -182,7 +182,7 @@ async def login(
     await User.mark_authentication(session, db_user)
 
     # Create the user schema from the database user
-    user = UserSchema.model_validate(db_user)
+    user = UserOutSchema.model_validate(db_user)
 
     # Create a new auth session for the user
     auth_session = await Session.create_session(session, user, request.client.host)

@@ -28,7 +28,7 @@ const initialState: UiState = {
   screenSize: calculateWindowSize(window.innerWidth),
   darkMode: false,
   navbarVariant: 'navbar-light',
-  sidebarSkin: 'sidebar-dark-primary',
+  sidebarSkin: 'sidebar-light-primary',
   menuSidebarCollapsed: false,
   controlSidebarCollapsed: true,
   headerBorder: false,
@@ -36,7 +36,7 @@ const initialState: UiState = {
   footerFixed: false,
   layoutBoxed: false,
   menuItemFlat: false,
-  menuChildIndent: false,
+  menuChildIndent: true,
   layoutFixed: false,
   topNavigation: false,
 };

@@ -22,7 +22,9 @@ class View(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the view."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the view if any."""
 
     name: Mapped[str] = mapped_column(String(253), nullable=False)
@@ -39,13 +41,13 @@ class View(BaseSqlModel):
     )
     """The timestamp representing when the view was last updated."""
 
-    tenant = relationship('Tenant', back_populates='views')
+    tenant = relationship('Tenant', back_populates='views', cascade='expunge, delete')
     """The tenant associated with the view."""
 
-    zones = relationship('ViewZone', back_populates='view')
+    zones = relationship('ViewZone', back_populates='view', cascade='all, delete, delete-orphan')
     """A list of zones associated with the view."""
 
-    networks = relationship('ViewNetwork', back_populates='view')
+    networks = relationship('ViewNetwork', back_populates='view', cascade='all, delete, delete-orphan')
     """A list of networks associated with the view."""
 
 
@@ -58,10 +60,14 @@ class ViewZone(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the view zone."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the view zone if any."""
 
-    view_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_views.id'), nullable=False)
+    view_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the zone view this view zone belongs to."""
 
     fqdn: Mapped[str] = mapped_column(String(253), nullable=False)
@@ -78,10 +84,10 @@ class ViewZone(BaseSqlModel):
     )
     """The timestamp representing when the view zone was last updated."""
 
-    tenant = relationship('Tenant', back_populates='view_zones')
+    tenant = relationship('Tenant', back_populates='view_zones', cascade='expunge, delete')
     """The tenant associated with the view zone."""
 
-    view = relationship('View', back_populates='zones')
+    view = relationship('View', back_populates='zones', cascade='expunge, delete')
     """The view associated with the zone."""
 
 
@@ -94,10 +100,14 @@ class ViewNetwork(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the network."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant that owns the network if any."""
 
-    view_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_views.id'), nullable=False)
+    view_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
     """The unique identifier of the zone view this network assumes responsibility for."""
 
     network: Mapped[str] = mapped_column(String(45), nullable=False)
@@ -114,8 +124,8 @@ class ViewNetwork(BaseSqlModel):
     )
     """The timestamp representing when the network was last updated."""
 
-    tenant = relationship('Tenant', back_populates='view_networks')
+    tenant = relationship('Tenant', back_populates='view_networks', cascade='expunge, delete')
     """The tenant associated with the view network."""
 
-    view = relationship('View', back_populates='networks')
+    view = relationship('View', back_populates='networks', cascade='expunge, delete')
     """The view associated with the network."""

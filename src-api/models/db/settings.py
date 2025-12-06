@@ -22,10 +22,14 @@ class Setting(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the setting."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id'), nullable=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the tenant associated with the setting."""
 
-    user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id'), nullable=True)
+    user_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
     """The unique identifier of the user associated with the setting."""
 
     key: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -54,8 +58,8 @@ class Setting(BaseSqlModel):
     )
     """The timestamp representing when the setting was last updated."""
 
-    tenant = relationship('Tenant', back_populates='settings')
+    tenant = relationship('Tenant', back_populates='settings', cascade='expunge, delete')
     """The tenant associated with the setting."""
 
-    user = relationship('User', back_populates='settings')
+    user = relationship('User', back_populates='settings', cascade='expunge, delete')
     """The user associated with the setting."""
