@@ -1,77 +1,79 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api.auth.users import UserOutSchema
-from models.api.auth.clients import ClientOutSchema
+from models.api import ListParamsModel
+from models.api.auth import Principal
 from routers.v1.servers import router
 
 
-@router.get(
+@router.post(
     '',
-    summary='Retrieves all servers',
-    description='Retrieves all servers for the current authentication context.',
-    operation_id='servers:all',
+    summary='List servers',
+    description='List servers.',
+    operation_id='servers:list',
 )
-async def list_servers(
+async def record_list(
+        params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
     """List servers"""
 
 
 @router.post(
-    '',
-    summary='Creates a new server',
-    description='Creates a new server for the current authentication context.',
+    '/create',
+    summary='Create server',
+    description='Create server.',
     operation_id='servers:create',
 )
-async def server_create(
+async def record_create(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Create a server"""
+    """Create server"""
 
 
 @router.get(
     '/{server_id}',
-    summary='Retrieves a server',
-    description='Retrieves a server from the current authentication context.',
+    summary='Read server',
+    description='Read server.',
     operation_id='servers:read',
 )
-async def server_read(
+async def record_read(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Read a server"""
+    """Read server"""
 
 
 @router.patch(
     '/{server_id}',
-    summary='Updates a server',
-    description='Updates a server in the current authentication context.',
+    summary='Update server',
+    description='Update server.',
     operation_id='servers:update',
 )
-async def server_update(
+async def record_update(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Update a server"""
+    """Update server"""
 
 
 @router.delete(
     '/{server_id}',
-    summary='Deletes a server',
-    description='Deletes a server in the current authentication context.',
+    summary='Delete server',
+    description='Delete server.',
     operation_id='servers:delete',
 )
-async def server_delete(
+async def record_delete(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Delete a server"""
+    """Delete server"""

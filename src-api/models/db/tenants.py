@@ -74,22 +74,7 @@ class Tenant(BaseSqlModel):
 
     acl_policies = relationship('Policy', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of ACL policies associated with the tenant."""
-
-    servers = relationship('Server', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of servers associated with the tenant."""
-
-    auto_primaries = relationship('ServerAutoPrimary', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of server auto primary registrations associated with the tenant."""
-
-    views = relationship('View', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of views associated with the tenant."""
-
-    view_zones = relationship('ViewZone', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of view zones associated with the tenant."""
-
-    view_networks = relationship('ViewNetwork', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of view networks associated with the tenant."""
-
+    
     crypto_keys = relationship('CryptoKey', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of cryptographic keys associated with the tenant."""
 

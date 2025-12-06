@@ -11,3 +11,5 @@ router = APIRouter(
 
 from .servers import *
 from .autoprimaries import *
+from .views import *
+from .networks import *

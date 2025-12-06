@@ -11,10 +11,10 @@ from routers.v1.servers import router
 
 
 @router.post(
-    '/{server_id}/auto-primaries',
-    summary='List server auto-primaries',
-    description='List server auto-primaries.',
-    operation_id='servers:auto_primaries:list',
+    '/{server_id}/networks',
+    summary='List server networks',
+    description='List server networks.',
+    operation_id='servers:networks:list',
 )
 async def record_list(
         server_id: UUID,
@@ -22,63 +22,63 @@ async def record_list(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """List server auto-primaries"""
+    """List server networks"""
 
 
 @router.post(
-    '/{server_id}/auto-primaries/create',
-    summary='Create server auto-primary',
-    description='Create server auto-primary.',
-    operation_id='servers:auto_primaries:create',
+    '/{server_id}/networks/create',
+    summary='Create server network',
+    description='Create server network.',
+    operation_id='servers:networks:create',
 )
 async def record_create(
         server_id: UUID,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """Create server auto-primary"""
+    """Create server network"""
 
 
 @router.get(
-    '/{server_id}/auto-primaries/{auto_primary_id}',
-    summary='Read server auto-primary',
-    description='Read server auto-primary.',
-    operation_id='servers:auto_primaries:read',
+    '/{server_id}/networks/{network_id}',
+    summary='Read server network',
+    description='Read server network.',
+    operation_id='servers:networks:read',
 )
 async def record_read(
         server_id: UUID,
-        auto_primary_id: UUID,
+        network_id: UUID,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """Read server auto-primary"""
+    """Read server network"""
 
 
 @router.patch(
-    '/{server_id}/auto-primaries/{auto_primary_id}',
-    summary='Update server auto-primary',
-    description='Update server auto-primary.',
-    operation_id='servers:auto_primaries:update',
+    '/{server_id}/networks/{network_id}',
+    summary='Update server network',
+    description='Update server network.',
+    operation_id='servers:networks:update',
 )
 async def record_update(
         server_id: UUID,
-        auto_primary_id: UUID,
+        network_id: UUID,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """Update server auto-primary"""
+    """Update server network"""
 
 
 @router.delete(
-    '/{server_id}/auto-primaries/{auto_primary_id}',
-    summary='Delete server auto-primary',
-    description='Delete server auto-primary.',
-    operation_id='servers:auto_primaries:delete',
+    '/{server_id}/networks/{network_id}',
+    summary='Delete server network',
+    description='Delete server network.',
+    operation_id='servers:networks:delete',
 )
 async def record_delete(
         server_id: UUID,
-        auto_primary_id: UUID,
+        network_id: UUID,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """Delete server auto-primary"""
+    """Delete server network"""

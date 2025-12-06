@@ -68,10 +68,6 @@ class ApiConfig(BaseConfig):
                         description='Provides functionality for managing DNS zones and records.',
                     ),
                     self.ApiMetadataTagConfig(
-                        name='views',
-                        description='Provides functionality for managing DNS views and related resources.',
-                    ),
-                    self.ApiMetadataTagConfig(
                         name='tasks',
                         description='Provides functionality for managing and monitoring task execution.',
                     ),

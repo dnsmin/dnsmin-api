@@ -23,12 +23,7 @@ class Server(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the server."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
-    )
-    """The unique identifier of the tenant that owns the server if any."""
-
-    type_: Mapped[ServerTypeEnum] = mapped_column(String(20), nullable=False)
+    type: Mapped[ServerTypeEnum] = mapped_column(String(20), nullable=False)
     """The type of DNS server."""
 
     version: Mapped[str] = mapped_column(String(20), nullable=False)
@@ -57,11 +52,14 @@ class Server(BaseSqlModel):
     )
     """The timestamp representing when the server was last updated."""
 
-    tenant = relationship('Tenant', back_populates='servers', cascade='expunge, delete')
-    """The tenant associated with the server."""
-
     auto_primaries = relationship('ServerAutoPrimary', back_populates='server', cascade='all, delete, delete-orphan')
     """A list of auto primary registrations associated with the server."""
+
+    views = relationship('ServerView', back_populates='server', cascade='all, delete, delete-orphan')
+    """A list of views associated with the server."""
+
+    networks = relationship('ServerNetwork', back_populates='server', cascade='all, delete, delete-orphan')
+    """A list of networks associated with the server."""
 
 
 class ServerAutoPrimary(BaseSqlModel):
@@ -72,11 +70,6 @@ class ServerAutoPrimary(BaseSqlModel):
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the auto-primary."""
-
-    tenant_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
-    )
-    """The unique identifier of the tenant that owns the auto-primary if any."""
 
     server_id: Mapped[UUID] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_servers.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
@@ -103,8 +96,80 @@ class ServerAutoPrimary(BaseSqlModel):
     )
     """The timestamp representing when the auto-primary was last updated."""
 
-    tenant = relationship('Tenant', back_populates='auto_primaries', cascade='expunge, delete')
-    """The tenant associated with the auto primary registration."""
-
     server = relationship('Server', back_populates='auto_primaries', cascade='expunge, delete')
     """The server associated with the auto primary registration."""
+
+
+class ServerView(BaseSqlModel):
+    """Represents a server view."""
+
+    __tablename__ = f'{DB_PREFIX}_server_views'
+    """Defines the database table name."""
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    """The unique identifier of the view."""
+
+    server_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_servers.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
+    """The unique identifier of the server this view is associated with."""
+
+    name: Mapped[str] = mapped_column(String(253), nullable=False)
+    """The name of the view."""
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the view was created."""
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
+        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the view was last updated."""
+
+    server = relationship('Server', back_populates='views', cascade='expunge, delete')
+    """The server associated with the view."""
+
+    networks = relationship('ViewNetwork', back_populates='view', cascade='all, delete, delete-orphan')
+    """A list of networks associated with the view."""
+
+
+class ServerNetwork(BaseSqlModel):
+    """Represents a server network."""
+
+    __tablename__ = f'{DB_PREFIX}_server_networks'
+    """Defines the database table name."""
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    """The unique identifier of the network."""
+
+    server_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_servers.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
+    """The unique identifier of the server this network is associated with."""
+
+    view_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_server_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
+    """The unique identifier of the view this network is associated with."""
+
+    network: Mapped[str] = mapped_column(String(45), nullable=False)
+    """The CIDR specification of the network."""
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the network was created."""
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
+        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the network was last updated."""
+
+    server = relationship('Server', back_populates='networks', cascade='expunge, delete')
+    """The server associated with the network."""
+
+    view = relationship('View', back_populates='networks', cascade='expunge, delete')
+    """The view associated with the network."""
