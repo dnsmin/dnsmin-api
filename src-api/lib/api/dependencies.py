@@ -158,11 +158,15 @@ async def get_session_user(
     if not session_token:
         return None
 
-    # TODO: Implement hijack detection failsafe and terminate session if token matches but remote IP doesn't
-    db_session = await Session.get_by_token(session, session_token, request.client.host)
+    db_session = await Session.get_by_token(session, session_token)
 
     if not db_session:
         return None
+
+    # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
+    if isinstance(db_session.client_ip, str) and db_session.client_ip != request.client.host:
+        await Session.destroy_session(session, db_session.id)
+        raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
 
     # Verify that the associated user matches the tenant associated with the request if any
     if isinstance(db_session.user.tenant_id, UUID) and not isinstance(tenant_id, UUID) \
@@ -197,7 +201,7 @@ def require_permission(
         if resource_id_param_name and resource_id is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Missing {resource_id_param_name}')
 
-        # FIXME: Enable caching after testing complete
+        # TODO: Enable caching after testing complete
         allowed = await PermissionsManager.check_access(
             session=session,
             redis=redis,
