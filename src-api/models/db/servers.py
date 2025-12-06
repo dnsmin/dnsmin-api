@@ -131,7 +131,7 @@ class ServerView(BaseSqlModel):
     server = relationship('Server', back_populates='views', cascade='expunge, delete')
     """The server associated with the view."""
 
-    networks = relationship('ViewNetwork', back_populates='view', cascade='all, delete, delete-orphan')
+    networks = relationship('ServerNetwork', back_populates='view', cascade='all, delete, delete-orphan')
     """A list of networks associated with the view."""
 
     azones = relationship('AZone', back_populates='view', cascade='all, delete, delete-orphan')
@@ -180,5 +180,5 @@ class ServerNetwork(BaseSqlModel):
     server = relationship('Server', back_populates='networks', cascade='expunge, delete')
     """The server associated with the network."""
 
-    view = relationship('View', back_populates='networks', cascade='expunge, delete')
+    view = relationship('ServerView', back_populates='networks', cascade='expunge, delete')
     """The view associated with the network."""
