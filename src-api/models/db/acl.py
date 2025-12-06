@@ -59,8 +59,13 @@ class Role(BaseSqlModel):
     )
     """The parent roles associated with the role."""
 
-    principals = relationship('RolePrincipal', back_populates='role', cascade='all, delete, delete-orphan')
-    """A list of principals associated with the role."""
+    children: Mapped[list['RoleInheritance']] = relationship(
+        'RoleInheritance',
+        foreign_keys='[RoleInheritance.parent_role_id]',
+        back_populates='parent',
+        cascade='all, delete, delete-orphan',
+    )
+    """The child roles associated with the role."""
 
 
 class RoleInheritance(BaseSqlModel):
@@ -90,9 +95,9 @@ class RoleInheritance(BaseSqlModel):
     """The child role of the connection."""
 
     parent: Mapped[Role] = relationship(
-        'Role', foreign_keys=[parent_role_id], cascade='expunge, delete'
+        'Role', foreign_keys=[parent_role_id], back_populates='children', cascade='expunge, delete'
     )
-    """The child role of the connection."""
+    """The parent role of the connection."""
 
 
 class Principal(BaseSqlModel):
@@ -116,6 +121,9 @@ class Principal(BaseSqlModel):
         DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the role was created."""
+
+    tenant = relationship('Tenant', back_populates='acl_principals', cascade='expunge, delete')
+    """The tenant associated with the principal."""
 
     roles: Mapped[list['PrincipalRoleAssoc']] = relationship(
         'PrincipalRoleAssoc',
@@ -151,41 +159,6 @@ class PrincipalRoleAssoc(BaseSqlModel):
 
     role: Mapped[Role] = relationship('Role', cascade='expunge, delete')
     """The role of the association."""
-
-
-class RolePrincipal(BaseSqlModel):
-    """Represents an ACL role principal relationship."""
-
-    __tablename__ = f'{DB_PREFIX}_acl_role_principals'
-    """Defines the database table name."""
-
-    role_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(
-        f'{DB_PREFIX}_acl_roles.id', onupdate='CASCADE', ondelete='CASCADE'
-    ), nullable=False)
-    """The unique identifier of the associated role."""
-
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(
-        f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'
-    ), nullable=True)
-    """The unique identifier of the associated tenant if any."""
-
-    principal_type: Mapped[PrincipalTypeEnum] = mapped_column(String(20), nullable=False)
-    """The principal type associated with the principal relationship."""
-
-    principal_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
-    """The unique identifier of the associated principal."""
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
-    )
-    """The timestamp representing when the principal relationship was created."""
-
-    role = relationship('Role', back_populates='principals', cascade='expunge, delete')
-    """The role associated with the principal relationship."""
-
-    __mapper_args__ = {
-        'primary_key': [role_id, principal_id],
-    }
 
 
 class Policy(BaseSqlModel):

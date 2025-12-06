@@ -72,9 +72,12 @@ class Tenant(BaseSqlModel):
     acl_roles = relationship('Role', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of ACL roles associated with the tenant."""
 
+    acl_principals = relationship('Principal', back_populates='tenant', cascade='all, delete, delete-orphan')
+    """A list of ACL principals associated with the tenant."""
+
     acl_policies = relationship('Policy', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of ACL policies associated with the tenant."""
-    
+
     crypto_keys = relationship('CryptoKey', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of cryptographic keys associated with the tenant."""
 

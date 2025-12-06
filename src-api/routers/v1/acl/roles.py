@@ -24,12 +24,11 @@ async def record_list(
 ) -> RolesSchema:
     """List ACL roles"""
     from sqlalchemy import select, func
-    from sqlalchemy.orm import selectinload
     from lib.sql import SqlQueryBuilder
     from models.db.acl import Role
 
     # Build a statement to retrieve the relevant records
-    stmt = select(Role).options(selectinload(Role.principals))
+    stmt = select(Role)
 
     # Enforce tenancy
     if principal.tenant_id:
@@ -65,23 +64,13 @@ async def record_create(
         principal: Principal = Depends(get_principal),
 ) -> RoleOutSchema:
     """Create ACL role"""
-    from models.db.acl import Role, RolePrincipal
+    from models.db.acl import Role
 
     # Create the record
     record = Role(
         slug=role.slug,
         description=role.description,
     )
-
-    # Add the given principals to the role if any
-    if role.principals:
-        for principal in role.principals:
-            # XXX: Consider validating the principal type / id combination to ensure valid data
-            record.principals.append(RolePrincipal(
-                tenant_id=principal.tenant_id if principal.tenant_id else role.tenant_id,
-                principal_type=principal.principal_type,
-                principal_id=principal.principal_id,
-            ))
 
     # Enforce tenancy
     if principal.tenant_id:
@@ -92,7 +81,7 @@ async def record_create(
     # Commit the changes to the database
     session.add(record)
     await session.commit()
-    await session.refresh(record, attribute_names=['principals'])
+    await session.refresh(record)
 
     # Build the response
     return RoleOutSchema.model_validate(record)
@@ -113,11 +102,10 @@ async def record_read(
     """Read ACL role"""
     from fastapi import HTTPException, status
     from sqlalchemy import select
-    from sqlalchemy.orm import selectinload
     from models.db.acl import Role
 
     # Build a statement to retrieve the record
-    stmt = select(Role).options(selectinload(Role.principals)).where(Role.id == role_id)
+    stmt = select(Role).where(Role.id == role_id)
 
     # Enforce tenancy
     if principal.tenant_id:
@@ -150,11 +138,10 @@ async def record_update(
     """Update ACL role"""
     from fastapi import HTTPException, status
     from sqlalchemy import select
-    from sqlalchemy.orm import selectinload
-    from models.db.acl import Role, RolePrincipal
+    from models.db.acl import Role
 
     # Build a statement to retrieve the record
-    stmt = select(Role).options(selectinload(Role.principals)).where(Role.id == role_id)
+    stmt = select(Role).where(Role.id == role_id)
 
     # Enforce tenancy
     if principal.tenant_id:
@@ -171,31 +158,10 @@ async def record_update(
     record.slug = role.slug
     record.description = role.description
 
-    # Update associated principals if defined
-    if isinstance(role.principals, list):
-        existing_principals = set([r.principal_id for r in record.principals])
-        updated_principals = set([r.principal_id for r in role.principals])
-
-        # Remove existing principals that weren't retained
-        for principal in list(record.principals):
-            if principal.principal_id not in updated_principals:
-                record.principals.remove(principal)
-
-        # Add new principals that don't already exist
-        for principal in role.principals:
-            if principal.principal_id in existing_principals:
-                continue
-            # XXX: Consider validating the principal type / id combination to ensure valid data
-            record.principals.append(RolePrincipal(
-                tenant_id=principal.tenant_id if principal.tenant_id else role.tenant_id,
-                principal_type=principal.principal_type,
-                principal_id=principal.principal_id,
-            ))
-
     # Commit the changes to the database
     session.add(record)
     await session.commit()
-    await session.refresh(record, attribute_names=['principals'])
+    await session.refresh(record)
 
     # Build the response
     return RoleOutSchema.model_validate(record)

@@ -97,7 +97,7 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
     from datetime import datetime, timedelta, timezone
     from uuid import uuid4
     from lib.permissions.definitions import Permissions as p
-    from models.db.acl import Role, RolePrincipal
+    from models.db.acl import Role
     from models.db.auth import User, Client
     from models.db.system import StopgapDomain
     from models.db.tenants import Tenant
@@ -165,14 +165,6 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
     )
 
     session.add(sl_role)
-
-    sl_role_principal = RolePrincipal(
-        role_id=sl_role.id,
-        principal_type=PrincipalTypeEnum.client,
-        principal_id=sl_client.id,
-    )
-
-    session.add(sl_role_principal)
 
     # Create tenants
     tenant1 = Tenant(
@@ -265,15 +257,6 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
 
     session.add(tl_role1)
 
-    tl_role_principal = RolePrincipal(
-        role_id=tl_role1.id,
-        tenant_id=tenant1.id,
-        principal_type=PrincipalTypeEnum.client,
-        principal_id=tl_client1.id,
-    )
-
-    session.add(tl_role_principal)
-
     tl_role1 = Role(
         id=uuid4(),
         tenant_id=tenant1.id,
@@ -284,15 +267,6 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
 
     session.add(tl_role1)
 
-    tl_role_principal = RolePrincipal(
-        role_id=tl_role1.id,
-        tenant_id=tenant1.id,
-        principal_type=PrincipalTypeEnum.client,
-        principal_id=tl_client1.id,
-    )
-
-    session.add(tl_role_principal)
-
     tl_role2 = Role(
         id=uuid4(),
         tenant_id=tenant2.id,
@@ -302,14 +276,6 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
     )
 
     session.add(tl_role2)
-
-    tl_role_principal = RolePrincipal(
-        role_id=tl_role2.id,
-        principal_type=PrincipalTypeEnum.client,
-        principal_id=tl_client2.id,
-    )
-
-    session.add(tl_role_principal)
 
     tl_t1_zone1 = AZone(
         id=uuid4(),
