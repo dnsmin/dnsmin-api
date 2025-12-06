@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 
+from app import config
+from lib.config.app import EnvironmentEnum
 from routers.root import router_responses
 from routers.v1 import user, auth, acl, settings, system, tenants, servers, keys, zones, views, tasks, services
 
@@ -19,5 +21,7 @@ router.include_router(servers.router)
 router.include_router(keys.router)
 router.include_router(zones.router)
 router.include_router(views.router)
-router.include_router(tasks.router)
 router.include_router(services.router)
+
+if config.app.environment.name in (EnvironmentEnum.local, EnvironmentEnum.dev):
+    router.include_router(tasks.router)
