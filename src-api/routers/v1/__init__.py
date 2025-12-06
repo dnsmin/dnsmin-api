@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from routers.root import router_responses
-from routers.v1 import auth, acl, settings, system, tenants, servers, keys, zones, views, tasks, services
+from routers.v1 import user, auth, acl, settings, system, tenants, servers, keys, zones, views, tasks, services
 
 router = APIRouter(
     prefix='/v1',
@@ -9,6 +9,7 @@ router = APIRouter(
 )
 
 # Setup descendent routers
+router.include_router(user.router)
 router.include_router(auth.router)
 router.include_router(acl.router)
 router.include_router(settings.router)

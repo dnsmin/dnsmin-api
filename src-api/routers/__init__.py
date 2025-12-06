@@ -6,14 +6,10 @@ from lib.config import Config
 def install_routers(app: FastAPI, config: Config) -> None:
     """Attach local and global routers"""
     from lib.config.app import EnvironmentEnum
-    from routers import api, dev, root
-    from routers import v1
+    from routers import root, api, dev
 
     # Attach API router to root router
-    # root.router.include_router(api.router)
-
-    # Attach API V1 router to root router
-    root.router.include_router(v1.router)
+    root.router.include_router(api.router)
 
     # Dev Router
     if config.app.environment.name in (EnvironmentEnum.local, EnvironmentEnum.dev):

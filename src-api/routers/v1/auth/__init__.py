@@ -8,8 +8,6 @@ router = APIRouter(
     responses=router_responses,
 )
 
-
-from .auth import *
 from .users import *
 from .clients import *
 from .sessions import *

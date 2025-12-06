@@ -26,7 +26,7 @@ class AuthService {
 
     async init() {
         try {
-            const response = await fetch('/api/v1/auth/session', {
+            const response = await fetch('/api/v1/user/session', {
                 method: 'GET',
             });
 
@@ -58,7 +58,7 @@ class AuthService {
                 password,
             });
 
-            const response = await fetch('/api/v1/auth/login', {
+            const response = await fetch('/api/v1/user/login', {
                 method: 'POST',
                 body: payload,
             });
@@ -83,7 +83,7 @@ class AuthService {
 
     async logout() {
         try {
-            const response = await fetch('/api/v1/auth/logout', {
+            const response = await fetch('/api/v1/user/logout', {
                 method: 'GET',
             });
 

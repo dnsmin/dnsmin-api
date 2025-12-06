@@ -32,8 +32,12 @@ class ApiConfig(BaseConfig):
                         description='Provides browser client entrypoint and monitoring functionality.',
                     ),
                     self.ApiMetadataTagConfig(
+                        name='user',
+                        description='Provides functionality for user-related functionality (registration, authentication, security, profile management, etc.)',
+                    ),
+                    self.ApiMetadataTagConfig(
                         name='auth',
-                        description='Provides functionality for managing, monitoring, and authenticating users and OAuth clients.',
+                        description='Provides functionality for managing users and clients.',
                     ),
                     self.ApiMetadataTagConfig(
                         name='acl',
