@@ -33,7 +33,7 @@ class ApiConfig(BaseConfig):
                     ),
                     self.ApiMetadataTagConfig(
                         name='user',
-                        description='Provides functionality for user-related functionality (registration, authentication, security, profile management, etc.)',
+                        description='Provides functionality for user-related features (registration, authentication, security, profile management, etc.)',
                     ),
                     self.ApiMetadataTagConfig(
                         name='auth',

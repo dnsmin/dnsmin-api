@@ -54,7 +54,7 @@ async def token(
 @router.post('/token/refresh')
 async def token_refresh(
         grant_type: str = Form(...),
-        client_id: str = Form(...),
+        client_id: UUID = Form(...),
         client_secret: str = Form(...),
         refresh_token: str = Form(...),
         scope: str = Form(None),
