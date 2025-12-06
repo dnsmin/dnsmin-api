@@ -18,6 +18,16 @@ class Settings(BaseModel):
     )
     """Defines the name of the session cookie."""
 
+    auth_session_ip_lock: Setting = Setting(
+        title='Auth Session Client IP Lock',
+        description='Whether to require user sessions to maintain the same client IP address.',
+        key='auth:session:ip_lock',
+        data_type=SettingTypeEnum.bool,
+        default_value=True,
+        overridable=True,
+    )
+    """Whether to require user sessions to maintain the same client IP address."""
+
     auth_session_expiration_age: Setting = Setting(
         title='Idle Auth Session Expiration Age',
         description='The number of seconds a session can be idle before expiring.',

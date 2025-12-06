@@ -1,7 +1,10 @@
 from typing import Optional
 from uuid import UUID
 
+from fastapi.requests import Request
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from models.db.tenants import Tenant
 
 
 class TenantManager:
@@ -12,7 +15,6 @@ class TenantManager:
         """Retrieves a tenant ID by associated FQDN."""
         from sqlalchemy import select
         from models.db.system import StopgapDomain
-        from models.db.tenants import Tenant
 
         if not isinstance(fqdn, str):
             return None
@@ -41,3 +43,40 @@ class TenantManager:
         )
 
         return (await session.execute(stmt)).scalar_one_or_none()
+
+    @staticmethod
+    async def validate_tenant_request(session: AsyncSession, request: Request, tenant_id: UUID | str) -> bool:
+        """Validates a tenant request to ensure the request host matches the tenant configuration."""
+
+        if tenant_id is None:
+            return False
+
+        if isinstance(tenant_id, str):
+            tenant_id = UUID(tenant_id)
+
+        found_id: UUID | None = await TenantManager.get_tenant_id_by_fqdn(session, request.headers.get('host'))
+
+        return found_id == tenant_id
+
+    @staticmethod
+    async def get_request_tenant_id(session: AsyncSession, request: Request) -> Optional[UUID]:
+        """Retrieves a tenant ID based on information available in a FastAPI request."""
+        from fastapi import HTTPException, status
+        from lib.security import TENANT_HEADER_NAME
+
+        tenant_id: Optional[UUID] = None
+
+        # Attempt to identity the tenant by header
+        if TENANT_HEADER_NAME in request.headers:
+            try:
+                tenant_id = UUID(request.headers[TENANT_HEADER_NAME])
+            except ValueError:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid Tenant ID')
+
+        if isinstance(tenant_id, UUID):
+            if not TenantManager.validate_tenant_request(session, request, tenant_id):
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid Tenant Host')
+            return tenant_id
+
+        # Attempt to identify the tenant by hostname if not provided by request header
+        return  await TenantManager.get_tenant_id_by_fqdn(session, request.headers.get('host'))

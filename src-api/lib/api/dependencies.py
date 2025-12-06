@@ -43,25 +43,14 @@ async def get_principal(
     from typing import Optional
     from jose import JWTError, jwt
     from app import config
-    from lib.security import ALGORITHM, TENANT_HEADER_NAME
+    from lib.security import ALGORITHM
     from lib.settings import SettingsManager
     from lib.settings.definitions import sd
     from lib.tenants import TenantManager
     from models.db.auth import Session, Client
     from models.enums import PrincipalTypeEnum
 
-    tenant_id: Optional[UUID] = None
-
-    # Attempt to identity the tenant by header
-    if TENANT_HEADER_NAME in request.headers:
-        try:
-            tenant_id = UUID(request.headers[TENANT_HEADER_NAME])
-        except ValueError:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid Tenant ID')
-
-    # Attempt to identify the tenant by hostname if not provided by request header
-    if not isinstance(tenant_id, UUID):
-        tenant_id = await TenantManager.get_tenant_id_by_fqdn(session, request.headers.get('host'))
+    tenant_id: Optional[UUID] = await TenantManager.get_request_tenant_id(session, request)
 
     # Attempt OAuth Bearer Token Authentication
     if bearer_token:
@@ -96,15 +85,22 @@ async def get_principal(
 
         return principal
 
-    cookie_name = (await SettingsManager.get(session=session, key=sd.auth_session_cookie_name.key)).value
+    cookie_name = (await SettingsManager.get(
+        session=session, key=sd.auth_session_cookie_name.key, tenant_id=tenant_id
+    )).value
 
     # Attempt Session Token Authentication
     session_token = request.cookies.get(cookie_name)
     if session_token:
         db_session = await Session.get_by_token(session, session_token)
         if db_session:
+            session_ip_lock = (await SettingsManager.get(
+                session=session, key=sd.auth_session_ip_lock.key, tenant_id=tenant_id
+            )).value
+
             # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
-            if isinstance(db_session.client_ip, str) and db_session.client_ip != request.client.host:
+            if (session_ip_lock and isinstance(db_session.client_ip, str)
+                    and db_session.client_ip != request.client.host):
                 await Session.destroy_session(session, db_session.id)
                 raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
 
@@ -131,26 +127,16 @@ async def get_session_user(
         session: AsyncSession = Depends(get_db_session),
 ) -> Optional[UserOutSchema]:
     from typing import Optional
-    from lib.security import TENANT_HEADER_NAME
     from lib.settings import SettingsManager
     from lib.settings.definitions import sd
     from lib.tenants import TenantManager
     from models.db.auth import Session
 
-    tenant_id: Optional[UUID] = None
+    tenant_id: Optional[UUID] = await TenantManager.get_request_tenant_id(session, request)
 
-    # Attempt to identity the tenant by header
-    if TENANT_HEADER_NAME in request.headers:
-        try:
-            tenant_id = UUID(request.headers[TENANT_HEADER_NAME])
-        except ValueError:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid Tenant ID')
-
-    # Attempt to identify the tenant by hostname if not provided by request header
-    if not isinstance(tenant_id, UUID):
-        tenant_id = await TenantManager.get_tenant_id_by_fqdn(session, request.headers.get('host'))
-
-    cookie_name = (await SettingsManager.get(session=session, key=sd.auth_session_cookie_name.key)).value
+    cookie_name = (await SettingsManager.get(
+        session=session, key=sd.auth_session_cookie_name.key, tenant_id=tenant_id
+    )).value
 
     # Check for session token
     session_token = request.cookies.get(cookie_name)
@@ -162,9 +148,13 @@ async def get_session_user(
 
     if not db_session:
         return None
+    
+    session_ip_lock = (await SettingsManager.get(
+        session=session, key=sd.auth_session_ip_lock.key, tenant_id=tenant_id
+    )).value
 
     # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
-    if isinstance(db_session.client_ip, str) and db_session.client_ip != request.client.host:
+    if session_ip_lock and isinstance(db_session.client_ip, str) and db_session.client_ip != request.client.host:
         await Session.destroy_session(session, db_session.id)
         raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
 

@@ -131,7 +131,7 @@ class Setting(BaseModel):
             case SettingTypeEnum.float:
                 return float(self.raw_value)
             case SettingTypeEnum.bool:
-                return bool(self.raw_value.lower())
+                return bool(str(self.raw_value).lower())
             case SettingTypeEnum.datetime:
                 return datetime.fromisoformat(self.raw_value)
             case SettingTypeEnum.date:
@@ -257,38 +257,52 @@ class SettingsManager:
             key: str,
             tenant_id: Optional[str | UUID] = None,
             user_id: Optional[str | UUID] = None,
-            include_none: bool = False,
-    ) -> Setting | None:
-        """Retrieves a setting object by its key and optionally tenant and/or user id."""
+    ) -> Setting:
+        """
+        Retrieves a setting object by its key and optionally tenant and/or user id.
+
+        Always returns a Setting instance defaulting to the hardcoded setting definition if nothing found in database.
+        """
         from sqlalchemy import select
         from lib.settings.definitions import sdk
+
+        if key not in sdk:
+            raise KeyError(f'Setting: {key} not defined')
 
         if isinstance(tenant_id, str):
             tenant_id = UUID(tenant_id)
         if isinstance(user_id, str):
             user_id = UUID(user_id)
 
+        queries = []
+
         stmt = select(DbSetting).where(DbSetting.key == key)
 
-        if include_none or isinstance(tenant_id, UUID):
-            stmt = stmt.where(DbSetting.tenant_id == tenant_id)
+        if isinstance(user_id, UUID) and isinstance(tenant_id, UUID):
+            queries.append(stmt.where(DbSetting.user_id == user_id, DbSetting.tenant_id == tenant_id))
+        elif isinstance(user_id, UUID):
+            queries.append(stmt.where(DbSetting.user_id == user_id))
 
-        if include_none or isinstance(user_id, UUID):
-            stmt = stmt.where(DbSetting.user_id == user_id)
+        if isinstance(tenant_id, UUID):
+            queries.append(stmt.where(DbSetting.tenant_id == tenant_id))
 
-        db_setting: DbSetting = (await session.execute(stmt)).scalar_one_or_none()
+        queries.append(stmt)
 
-        if not db_setting:
-            return None
+        db_setting: DbSetting | None = None
 
-        if db_setting.key not in sdk:
-            return None
+        for query in queries:
+            db_setting = (await session.execute(query)).scalar_one_or_none()
+            if isinstance(db_setting, DbSetting):
+                break
 
-        setting = sdk[db_setting.key].model_copy()
-        setting.raw_value = db_setting.raw_value
-        setting.overridable = db_setting.overridable
-        setting.hidden = db_setting.hidden
-        setting.readonly = db_setting.readonly
+        setting = sdk[key].model_copy()
+        setting.value = setting.default_value
+
+        if isinstance(db_setting, DbSetting):
+            setting.raw_value = db_setting.raw_value
+            setting.overridable = db_setting.overridable
+            setting.hidden = db_setting.hidden
+            setting.readonly = db_setting.readonly
 
         return setting
 
