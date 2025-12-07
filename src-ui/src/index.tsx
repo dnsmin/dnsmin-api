@@ -1,13 +1,14 @@
+import React from 'react'
 import {createRoot} from 'react-dom/client';
+import {ErrorBoundary} from 'react-error-boundary'
 import {Provider} from 'react-redux';
-import App from '@app/App';
-import {authService} from "@app/services/auth";
-import store from '@store/store';
-
-import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from 'react-router-dom';
 import ReactGA from 'react-ga4';
-
+import {authService} from "@app/services/auth";
+import store from '@store/store';
+import App from '@app/App';
+import ErrorPage from '@app/components/ErrorPage.jsx'
+import * as serviceWorker from './serviceWorker';
 import './utils/i18n';
 import './index.scss';
 
@@ -19,13 +20,16 @@ if (VITE_NODE_ENV === 'production' && VITE_GA_ID) {
 
 (async () => {
     await authService.init();
-
     createRoot(document.getElementById('root') as HTMLDivElement).render(
-        <Provider store={store}>
-            <BrowserRouter>
-                <App/>
-            </BrowserRouter>
-        </Provider>
+        <React.StrictMode>
+            <ErrorBoundary FallbackComponent={ErrorPage}>
+                <Provider store={store}>
+                    <BrowserRouter>
+                        <App/>
+                    </BrowserRouter>
+                </Provider>
+            </ErrorBoundary>
+        </React.StrictMode>
     );
 })();
 

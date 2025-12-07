@@ -6,6 +6,7 @@ __pycache__
 .idea
 *.egg-info
 celerybeat-schedule
+dnsmin.db
 config.yml
 notifications.yml
 schedules.yml

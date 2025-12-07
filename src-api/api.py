@@ -1,3 +1,5 @@
+import multiprocessing
+import uvicorn
 from fastapi import FastAPI
 from app import lifespan
 from lib import load_config, init_logging
@@ -32,3 +34,17 @@ app = FastAPI(
 
 # Set up FastAPI middleware
 load_middleware(app, config)
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    uvicorn.run(
+        app,
+        host='0.0.0.0',
+        port=8000,
+        root_path='/',
+        reload=False,
+        workers=1,
+        log_level='debug',
+        access_log=True,
+        proxy_headers=True,
+    )
