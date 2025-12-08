@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {GridDataSource, GridGetRowsParams, GridGetRowsResponse} from "@mui/x-data-grid";
 import {DataGridPro, GridColDef, GridActionsCellItem} from '@mui/x-data-grid-pro';
 import i18n from '@app/utils/i18n';
-import {ContentHeader} from '@components';
+import ContentHeader from '@components/ContentHeader';
 import UserFormDialog from "@app/components/auth/UserFormDialog";
 
 interface ViewProps {

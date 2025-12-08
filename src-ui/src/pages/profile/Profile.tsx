@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ContentHeader } from '@components';
+import ContentHeader from '@components/ContentHeader';
 import { Image, Button as RawButton } from '@profabric/react-components';
 import styled from 'styled-components';
 import ActivityTab from './ActivityTab';

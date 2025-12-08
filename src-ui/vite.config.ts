@@ -23,6 +23,7 @@ export default ({mode}) => {
                 '@app': path.resolve(__dirname, './src'),
                 '@store': path.resolve(__dirname, './src/store'),
                 '@components': path.resolve(__dirname, './src/components'),
+                '@layouts': path.resolve(__dirname, './src/layouts'),
                 '@modules': path.resolve(__dirname, './src/modules'),
                 '@pages': path.resolve(__dirname, './src/pages'),
             },

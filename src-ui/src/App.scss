@@ -1,0 +1,85 @@
+
+html {
+  font-family: "Open Sans", "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+a.MuiTypography-root *{
+  cursor: pointer;
+}
+
+.MuiButton-root.headerNav {
+  font-size: 1.1rem;
+}
+
+.MuiTypography-root.logoText {
+  display: flex;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 700;
+  font-size: 3rem;
+  letter-spacing: .1rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.MuiTypography-root.logoText.footer {
+  font-size: 1rem;
+}
+
+.MuiTypography-root.socialText {
+  display: flex;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.MuiTypography-root.sloganText {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 0.8rem;
+  text-decoration: none;
+  cursor: default;
+}
+
+.MuiTypography-root.copyrightText {
+  display: flex;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  text-decoration: none;
+
+}
+
+.MuiTypography-root.versionText {
+  display: flex;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.MuiTypography-root.pageHeader {
+  font-weight: 700;
+  font-size: 40px;
+}
+
+h2.MuiTypography-root.pageSubHeader {
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+h3.MuiTypography-root.pageSubHeader {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.MuiTypography-root.sectionHeader {
+  font-weight: 700;
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: .1rem;
+}
+
+.MuiTypography-root.featureText {
+  font-weight: 300;
+  font-size: 1.2rem;
+}
+

@@ -5,22 +5,61 @@ export const themeSettings = (mode) => {
     return {
         palette: {
             primary: {
-                main: '#fff',
-                contrastText: '#000'
+                main: '#004b87',
             },
-            neutral: {
+            secondary: {
                 main: '#fff',
-                contrastText: '#000'
-            }
+            },
+            text: {
+                secondary: '#004b87',
+            },
+            divider: '#d14124',
         },
         components: {
+            MuiTypography: {
+                styleOverrides: {
+                    root: {
+                        fontFamily: '"Open Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+                        cursor: 'default',
+                    }
+                }
+            },
+            MuiOutlinedInput: {
+                styleOverrides: {
+                    root: {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#004b87',
+                        },
+
+                    }
+                }
+            },
+            MuiTextField: {
+                styleOverrides: {
+                    root: {}
+                }
+            },
             MuiButton: {
                 styleOverrides: {
                     root: {
                         color: '#004b87',
                         '&:hover': {
                             color: '#d14124'
-                        }
+                        },
+                        textTransform: 'none'
+                    }
+                }
+            },
+            MuiTab: {
+                styleOverrides: {
+                    root: {
+                        color: '#004b87',
+                        '&:hover': {
+                            color: '#d14124'
+                        },
+                        '&.Mui-selected': {
+                            color: '#d14124', // Your desired color for the selected tab
+                        },
                     }
                 }
             },
@@ -31,8 +70,14 @@ export const themeSettings = (mode) => {
                         '&:hover': {
                             color: '#d14124'
                         },
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        textDecoration: 'none',
                     }
+                }
+            },
+            ListItemIcon: {
+                styleOverrides: {
+                    root: {}
                 }
             }
         }

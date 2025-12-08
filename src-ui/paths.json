@@ -11,8 +11,11 @@
       "@store": [
         "src/store/"
       ],
-      "@components": [
-        "src/components/index"
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@layouts/*": [
+        "src/layouts/*"
       ],
       "@modules/*": [
         "src/modules/*"
