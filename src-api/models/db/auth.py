@@ -199,12 +199,12 @@ class Session(BaseSqlModel):
     """The unique identifier of the session."""
 
     tenant_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant associated with the session if any."""
 
     user_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+        Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE'), nullable=False
     )
     """The unique identifier of the user associated with the session."""
 
@@ -231,10 +231,10 @@ class Session(BaseSqlModel):
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     """The timestamp representing when the session expires."""
 
-    tenant = relationship('Tenant', back_populates='auth_sessions', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='auth_sessions', cascade='expunge')
     """The tenant associated with the session."""
 
-    user = relationship('User', back_populates='sessions', cascade='expunge, delete')
+    user = relationship('User', back_populates='sessions', cascade='expunge')
     """The user associated with the session."""
 
     @staticmethod
