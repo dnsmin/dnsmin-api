@@ -55,7 +55,7 @@ const SubNavigation: React.FC<NavigationProps> = ({baseNavKey}) => {
     return (
         <>
             <Container>
-                <Box sx={{display: 'flex', justifyContent: 'left'}}>
+                <Box sx={{display: 'flex', justifyContent: 'center'}}>
                     {navItems?.map((ni, index) => (
                         <Button
                             key={index}
