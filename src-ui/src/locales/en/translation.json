@@ -122,6 +122,7 @@
     }
   },
   "pageTitles": {
+    "dashboard": "Dashboard",
     "auth": {
       "users": "Users",
       "sessions": "User Sessions",

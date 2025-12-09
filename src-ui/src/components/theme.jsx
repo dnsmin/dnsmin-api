@@ -11,9 +11,10 @@ export const themeSettings = (mode) => {
                 main: '#fff',
             },
             text: {
+                primary: '#000',
                 secondary: '#004b87',
             },
-            divider: '#d14124',
+            //divider: '#d14124',
         },
         components: {
             MuiTypography: {
@@ -41,7 +42,7 @@ export const themeSettings = (mode) => {
             },
             MuiButton: {
                 styleOverrides: {
-                    root: {
+                    secondary: {
                         color: '#004b87',
                         '&:hover': {
                             color: '#d14124'

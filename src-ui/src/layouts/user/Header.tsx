@@ -78,7 +78,7 @@ function ResponsiveAppBar() {
                                 data-path={ni.path}
                                 onClick={handleNavClick}
                                 className="headerNav"
-                                sx={{my: 2, mx: 2, display: 'block'}}
+                                sx={{my: 2, mx: {md: 1, lg: 2}, display: 'block'}}
                             >
                                 {ni.label}
                             </Button>

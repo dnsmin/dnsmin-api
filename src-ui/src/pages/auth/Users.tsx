@@ -1,10 +1,12 @@
+import {useState} from 'react';
 import {Grid} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {GridDataSource, GridGetRowsParams, GridGetRowsResponse} from "@mui/x-data-grid";
 import {DataGridPro, GridColDef, GridActionsCellItem} from '@mui/x-data-grid-pro';
 import i18n from '@app/utils/i18n';
-import ContentHeader from '@components/ContentHeader';
+import PageHeader from '@components/PageHeader';
+import StatisticCard from '@components/cards/StatisticCard';
 import UserFormDialog from "@app/components/auth/UserFormDialog";
 
 interface ViewProps {
@@ -12,6 +14,7 @@ interface ViewProps {
 }
 
 const View = ({multiTenant = true}: ViewProps) => {
+    const [totalUsers, setTotalUsers] = useState(0);
 
     const handleEdit = (id: string) => {
         console.log('Edit row with id:', id);
@@ -67,6 +70,8 @@ const View = ({multiTenant = true}: ViewProps) => {
 
             const data = await response.json();
 
+            setTotalUsers(data.records.length);
+
             return {
                 rows: data.records,
                 rowCount: data.total,
@@ -75,14 +80,17 @@ const View = ({multiTenant = true}: ViewProps) => {
     }
 
     return (
-        <Grid container>
-            <Grid size={12}>
-                <ContentHeader title={i18n.t('pageTitles.auth.users')}/>
+        <Grid container justifyContent="space-between">
+            <Grid size={12} paddingX={2}>
+                <PageHeader title={i18n.t('pageTitles.auth.users')}/>
             </Grid>
-            <Grid size={12} marginY={2}>
+            <Grid size={{sm: 12, md: 3, lg: 2}} padding={2}>
+                <StatisticCard label="Total Users" value={totalUsers}/>
+            </Grid>
+            <Grid size={{sm: 12, md: 3, lg: 2}} padding={2} display="flex" justifyContent="flex-end" alignItems="flex-end">
                 <UserFormDialog/>
             </Grid>
-            <Grid size={12}>
+            <Grid size={12} padding={2}>
                 <DataGridPro
                     autoHeight
                     pagination
