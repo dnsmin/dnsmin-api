@@ -14,8 +14,7 @@ import PrivateRoute from './routes/PrivateRoute';
 
 import GuestLayout from '@layouts/guest/Layout';
 import UserLayout from '@layouts/user/Layout';
-import Login from '@modules/login/Login';
-
+import UserLogin from '@pages/user/Login';
 import DashboardPage from '@pages/dashboard/IndexPage';
 import Profile from '@pages/profile/Profile';
 import AuthUsersView from '@pages/auth/Users';
@@ -64,6 +63,7 @@ const App = () => {
         setIsAppLoading(true);
 
         const unsubscribe = authService.onAuthStateChanged((user) => {
+            console.log(user);
             if (user) {
                 dispatch(setCurrentUser(user));
             } else {
@@ -95,7 +95,7 @@ const App = () => {
                 <Routes>
                     <Route element={<GuestLayout/>}>
                         <Route element={<PublicRoute/>}>
-                            <Route path="/user/login" element={<Page title="Sign In"><Login/></Page>}/>
+                            <Route path="/user/login" element={<Page title="Sign In"><UserLogin/></Page>}/>
                             {/*
                             <Route path="/user/register" element={<Page title="Sign Up"><Register/></Page>}/>
                             <Route path="/user/forgot-password" element={<Page title="Forgot Password"><ForgetPassword/></Page>}/>

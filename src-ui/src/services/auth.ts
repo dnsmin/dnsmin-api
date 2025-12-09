@@ -65,17 +65,21 @@ class AuthService {
 
             const result = await response.json();
 
-            const user: IUser = {
-                id: result.id,
-                tenantId: result.tenant_id,
-                username: result.username,
-                status: result.status,
-                createdAt: result.created_at,
-                updatedAt: result.updated_at,
-                authenticatedAt: result.authenticated_at,
-            };
+            if (result.id) {
+                const user: IUser = {
+                    id: result.id,
+                    tenantId: result.tenant_id,
+                    username: result.username,
+                    status: result.status,
+                    createdAt: result.created_at,
+                    updatedAt: result.updated_at,
+                    authenticatedAt: result.authenticated_at,
+                };
 
-            this.emit(user);
+                this.emit(user);
+            }
+
+            return result;
         } catch (error) {
             throw error;
         }
