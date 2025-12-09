@@ -4,8 +4,8 @@ import {
     Box, Container, AppBar, Toolbar, Typography, Button, IconButton, Link, Menu, MenuItem, Tooltip, Avatar
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import {navItems} from '@app/routes/nav';
 import {authService} from "@app/services/auth";
-import {useAppSelector} from '@store/store';
 import Logo from '@app/assets/img/logo-icon.svg';
 
 interface UserNav {
@@ -21,7 +21,6 @@ const settings: UserNav[] = [
 ];
 
 function ResponsiveAppBar() {
-    const navItems = useAppSelector((state) => state.ui.navItems);
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const navigate = useNavigate();

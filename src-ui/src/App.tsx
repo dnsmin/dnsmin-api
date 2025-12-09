@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState, useRef} from 'react';
+import {useEffect, useState} from 'react';
 import {Routes, Route, useLocation} from 'react-router-dom';
 import {ToastContainer} from 'react-toastify';
 import ReactGA from 'react-ga4';
@@ -8,14 +8,9 @@ import {ThemeProvider} from '@mui/material/styles';
 import {useAppDispatch} from '@store/store';
 import {setCurrentUser} from '@store/reducers/auth';
 import {authService} from '@app/services/auth';
-import PublicRoute from './routes/PublicRoute';
-import PrivateRoute from './routes/PrivateRoute';
 import {useTheme} from '@app/components/theme';
-import PageTitle from '@components/PageTitle';
-import GuestLayout from '@layouts/guest/Layout';
-import UserLayout from '@layouts/user/Layout';
-import UserLoginPage from '@pages/user/Login';
-import DashboardPage from '@pages/dashboard/IndexPage';
+import DashboardRouter from '@pages/dashboard/Router';
+import UserRouter from '@pages/user/Router';
 import SystemRouter from '@pages/system/Router';
 
 import {Loading} from '@components/Loading';
@@ -64,22 +59,9 @@ const App = () => {
             <CssBaseline/>
             <ThemeProvider theme={theme}>
                 <Routes>
-                    <Route element={<GuestLayout/>}>
-                        <Route element={<PublicRoute/>}>
-                            <Route path="/user/login" element={<PageTitle title="Sign In"><UserLoginPage/></PageTitle>}/>
-                            {/*
-                            <Route path="/user/register" element={<Page title="Sign Up"><UserRegisterPage/></Page>}/>
-                            <Route path="/user/forgot-password" element={<Page title="Forgot Password"><UserForgetPasswordPage/></Page>}/>
-                            <Route path="/user/recover-password" element={<Page title="Reset Password"><UserRecoverPasswordPage/></Page>}/>
-                            */}
-                        </Route>
-                    </Route>
-                    <Route element={<UserLayout/>}>
-                        <Route path="/" element={<PrivateRoute/>}>
-                            <Route path="/" element={<PageTitle title="Dashboard"><DashboardPage/></PageTitle>}/>
-                            <Route path="/system/*" element={<SystemRouter/>}/>
-                        </Route>
-                    </Route>
+                    <Route path="/" element={<DashboardRouter/>}/>
+                    <Route path="/user/*" element={<UserRouter/>}/>
+                    <Route path="/system/*" element={<SystemRouter/>}/>
                 </Routes>
                 <ToastContainer
                     autoClose={2000}

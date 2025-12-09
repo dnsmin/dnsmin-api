@@ -1,22 +1,19 @@
-import {useState} from 'react';
-import {Container, Grid} from '@mui/material';
+import * as React from 'react';
+import {Grid} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {GridDataSource, GridGetRowsParams, GridGetRowsResponse} from "@mui/x-data-grid";
 import {DataGridPro, GridColDef, GridActionsCellItem} from '@mui/x-data-grid-pro';
-import i18n from '@app/utils/i18n';
-import SubNavigation from '@components/SubNavigation';
 import PageHeader from '@components/PageHeader';
 import StatisticCard from '@components/cards/StatisticCard';
-import UserFormDialog from "@components/auth/UserFormDialog";
-import * as React from "react";
+import UserFormDialog from '@components/auth/UserFormDialog';
 
 interface ViewProps {
     multiTenant?: boolean;
 }
 
 const View = ({multiTenant = true}: ViewProps) => {
-    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalUsers, setTotalUsers] = React.useState(0);
 
     const handleEdit = (id: string) => {
         console.log('Edit row with id:', id);

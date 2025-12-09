@@ -4,9 +4,7 @@ import {Container} from '@mui/material';
 import PrivateRoute from '@app/routes/PrivateRoute';
 import UserLayout from '@layouts/user/Layout';
 import PageTitle from '@components/PageTitle';
-import SubNavigation from '@components/SubNavigation';
-import SystemIndexPage from '@pages/system/IndexPage';
-import SystemUsersPage from '@pages/system/users/IndexPage';
+import DashboardIndexPage from '@pages/dashboard/IndexPage';
 
 const Router = () => {
     return (
@@ -16,14 +14,11 @@ const Router = () => {
                     <Route element={<UserLayout/>}>
                         <Route element={
                             <Container maxWidth={false}>
-                                <SubNavigation baseNavKey={'system'}/>
                                 <Outlet/>
                             </Container>
                         }>
                             <Route path="/"
-                                   element={<PageTitle title="System Management"><SystemIndexPage/></PageTitle>}/>
-                            <Route path="/users"
-                                   element={<PageTitle title="User Management"><SystemUsersPage/></PageTitle>}/>
+                                   element={<PageTitle title="Dashboard"><DashboardIndexPage/></PageTitle>}/>
                         </Route>
                     </Route>
                 </Route>
