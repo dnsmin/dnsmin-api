@@ -6,14 +6,11 @@ class AuthService {
     private currentUser: IUser | null = null;
     private subscribers: Set<AuthCallback> = new Set();
 
-    // Similar to Firebase onAuthStateChanged
     onAuthStateChanged(callback: AuthCallback): () => void {
         this.subscribers.add(callback);
 
-        // Immediately call with current state (Firebase does this)
         callback(this.currentUser);
 
-        // Unsubscribe function
         return () => {
             this.subscribers.delete(callback);
         };

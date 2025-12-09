@@ -21,7 +21,7 @@ const Router = () => {
                         }>
                             <Route path="/"
                                    element={<PageTitle title="System Management"><SystemIndexPage/></PageTitle>}/>
-                            <Route path="/users"
+                            <Route path="/users/*"
                                    element={<PageTitle title="User Management"><SystemUsersPage/></PageTitle>}/>
                         </Route>
                     </Route>
