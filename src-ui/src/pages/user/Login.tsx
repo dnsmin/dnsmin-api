@@ -68,6 +68,8 @@ const Login = () => {
         onSubmit: values => {
             login(values.username, values.password);
         },
+        validateOnChange: false,
+        validateOnBlur: false,
     });
 
     const login = async (username: string, password: string) => {

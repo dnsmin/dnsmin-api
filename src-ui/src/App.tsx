@@ -14,9 +14,8 @@ import PrivateRoute from './routes/PrivateRoute';
 
 import GuestLayout from '@layouts/guest/Layout';
 import UserLayout from '@layouts/user/Layout';
-import UserLogin from '@pages/user/Login';
+import UserLoginPage from '@pages/user/Login';
 import DashboardPage from '@pages/dashboard/IndexPage';
-import Profile from '@pages/profile/Profile';
 import AuthUsersView from '@pages/auth/Users';
 
 import {Loading} from '@components/Loading';
@@ -95,19 +94,18 @@ const App = () => {
                 <Routes>
                     <Route element={<GuestLayout/>}>
                         <Route element={<PublicRoute/>}>
-                            <Route path="/user/login" element={<Page title="Sign In"><UserLogin/></Page>}/>
+                            <Route path="/user/login" element={<Page title="Sign In"><UserLoginPage/></Page>}/>
                             {/*
-                            <Route path="/user/register" element={<Page title="Sign Up"><Register/></Page>}/>
-                            <Route path="/user/forgot-password" element={<Page title="Forgot Password"><ForgetPassword/></Page>}/>
-                            <Route path="/user/recover-password" element={<Page title="Reset Password"><RecoverPassword/></Page>}/>
+                            <Route path="/user/register" element={<Page title="Sign Up"><UserRegisterPage/></Page>}/>
+                            <Route path="/user/forgot-password" element={<Page title="Forgot Password"><UserForgetPasswordPage/></Page>}/>
+                            <Route path="/user/recover-password" element={<Page title="Reset Password"><UserRecoverPasswordPage/></Page>}/>
                             */}
                         </Route>
                     </Route>
                     <Route element={<UserLayout/>}>
                         <Route path="/" element={<PrivateRoute/>}>
-                            <Route path="/auth/users" element={<AuthUsersView/>}/>
-                            <Route path="/user/profile" element={<Profile/>}/>
-                            <Route path="/" element={<DashboardPage/>}/>
+                            <Route path="/auth/users" element={<Page title="User Management"><AuthUsersView/></Page>}/>
+                            <Route path="/" element={<Page title="Dashboard"><DashboardPage/></Page>}/>
                         </Route>
                     </Route>
                 </Routes>
