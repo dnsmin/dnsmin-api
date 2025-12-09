@@ -9,7 +9,7 @@ export const Layout = () => {
             <Container maxWidth={false} disableGutters>
                 <Stack>
                     <Header/>
-                    <Container maxWidth={false} disableGutters sx={{paddingX: 1, mb: '30px'}}>
+                    <Container maxWidth={false} sx={{paddingX: 1, pb: 4, mb: '30px'}}>
                         <Outlet/>
                     </Container>
                     <Footer/>
