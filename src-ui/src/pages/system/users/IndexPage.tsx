@@ -1,13 +1,15 @@
 import {useState} from 'react';
-import {Grid} from '@mui/material';
+import {Container, Grid} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {GridDataSource, GridGetRowsParams, GridGetRowsResponse} from "@mui/x-data-grid";
 import {DataGridPro, GridColDef, GridActionsCellItem} from '@mui/x-data-grid-pro';
 import i18n from '@app/utils/i18n';
+import SubNavigation from '@components/SubNavigation';
 import PageHeader from '@components/PageHeader';
 import StatisticCard from '@components/cards/StatisticCard';
-import UserFormDialog from "@app/components/auth/UserFormDialog";
+import UserFormDialog from "@components/auth/UserFormDialog";
+import * as React from "react";
 
 interface ViewProps {
     multiTenant?: boolean;
@@ -80,35 +82,36 @@ const View = ({multiTenant = true}: ViewProps) => {
     }
 
     return (
-        <Grid container justifyContent="space-between">
-            <Grid size={12} paddingX={2}>
-                <PageHeader title={i18n.t('pageTitles.auth.users')}/>
+        <>
+            <PageHeader title={'User Management'}/>
+            <Grid container justifyContent="space-between">
+                <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2}>
+                    <StatisticCard label="Total Results" value={totalUsers}/>
+                </Grid>
+                <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2} display="flex" justifyContent="flex-end"
+                      alignItems="flex-end">
+                    <UserFormDialog/>
+                </Grid>
+                <Grid size={12}>
+                    <DataGridPro
+                        autoHeight
+                        pagination
+                        sortingMode="server"
+                        filterMode="server"
+                        paginationMode="server"
+                        pageSizeOptions={[5, 10, 25, 50, 100]}
+                        columns={columns}
+                        dataSource={dataSource}
+                        onDataSourceError={handleDataSourceError}
+                        initialState={{
+                            pinnedColumns: {
+                                right: ['actions'],
+                            },
+                        }}
+                    />
+                </Grid>
             </Grid>
-            <Grid size={{sm: 12, md: 3, lg: 2}} padding={2}>
-                <StatisticCard label="Total Users" value={totalUsers}/>
-            </Grid>
-            <Grid size={{sm: 12, md: 3, lg: 2}} padding={2} display="flex" justifyContent="flex-end" alignItems="flex-end">
-                <UserFormDialog/>
-            </Grid>
-            <Grid size={12} padding={2}>
-                <DataGridPro
-                    autoHeight
-                    pagination
-                    sortingMode="server"
-                    filterMode="server"
-                    paginationMode="server"
-                    pageSizeOptions={[5, 10, 25, 50, 100]}
-                    columns={columns}
-                    dataSource={dataSource}
-                    onDataSourceError={handleDataSourceError}
-                    initialState={{
-                        pinnedColumns: {
-                            right: ['actions'],
-                        },
-                    }}
-                />
-            </Grid>
-        </Grid>
+        </>
     );
 };
 

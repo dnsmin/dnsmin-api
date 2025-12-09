@@ -8,49 +8,21 @@ import {ThemeProvider} from '@mui/material/styles';
 import {useAppDispatch} from '@store/store';
 import {setCurrentUser} from '@store/reducers/auth';
 import {authService} from '@app/services/auth';
-import {useTheme} from '@app/components/theme';
 import PublicRoute from './routes/PublicRoute';
 import PrivateRoute from './routes/PrivateRoute';
-
+import {useTheme} from '@app/components/theme';
+import PageTitle from '@components/PageTitle';
 import GuestLayout from '@layouts/guest/Layout';
 import UserLayout from '@layouts/user/Layout';
 import UserLoginPage from '@pages/user/Login';
 import DashboardPage from '@pages/dashboard/IndexPage';
-import AuthUsersView from '@pages/auth/Users';
+import SystemRouter from '@pages/system/Router';
 
 import {Loading} from '@components/Loading';
 
 import './App.scss';
 
 const {VITE_NODE_ENV} = import.meta.env;
-
-interface PageTitleProps {
-    title: string;
-    children?: React.ReactElement;
-}
-
-function useDocumentTitle(title: string, prevailOnUnmount: boolean = false) {
-    const defaultTitle = useRef(document.title);
-
-    useEffect(() => {
-        document.title = title;
-    }, [title]);
-
-    useEffect(
-        () => () => {
-            if (!prevailOnUnmount) {
-                document.title = defaultTitle.current;
-            }
-        },
-        []
-    );
-}
-
-const Page: React.FC<PageTitleProps> = ({title, children}) => {
-    const titlePrefix = "DNSMin | ";
-    useDocumentTitle(`${titlePrefix}${title}`);
-    return children;
-}
 
 const App = () => {
     const theme = useTheme();
@@ -94,7 +66,7 @@ const App = () => {
                 <Routes>
                     <Route element={<GuestLayout/>}>
                         <Route element={<PublicRoute/>}>
-                            <Route path="/user/login" element={<Page title="Sign In"><UserLoginPage/></Page>}/>
+                            <Route path="/user/login" element={<PageTitle title="Sign In"><UserLoginPage/></PageTitle>}/>
                             {/*
                             <Route path="/user/register" element={<Page title="Sign Up"><UserRegisterPage/></Page>}/>
                             <Route path="/user/forgot-password" element={<Page title="Forgot Password"><UserForgetPasswordPage/></Page>}/>
@@ -104,8 +76,8 @@ const App = () => {
                     </Route>
                     <Route element={<UserLayout/>}>
                         <Route path="/" element={<PrivateRoute/>}>
-                            <Route path="/auth/users" element={<Page title="User Management"><AuthUsersView/></Page>}/>
-                            <Route path="/" element={<Page title="Dashboard"><DashboardPage/></Page>}/>
+                            <Route path="/" element={<PageTitle title="Dashboard"><DashboardPage/></PageTitle>}/>
+                            <Route path="/system/*" element={<SystemRouter/>}/>
                         </Route>
                     </Route>
                 </Routes>
