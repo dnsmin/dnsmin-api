@@ -22,23 +22,6 @@ import {
 
 } from '@mui/material';
 import {usersService} from '@app/services/system/users';
-import {IUser} from '@app/types/system/users';
-
-interface formValues {
-    username: string;
-    password: string;
-    email: string;
-    status: string;
-    tenantId: string;
-}
-
-interface formErrors {
-    username?: string;
-    password?: string;
-    email?: string;
-    status?: string;
-    tenantId?: string;
-}
 
 interface formRequirements {
     usernameRequired: boolean;
@@ -50,6 +33,9 @@ interface formRequirements {
     emailRequired: boolean;
     emailMinLength: number;
     emailMaxLength: number;
+    phoneRequired: boolean;
+    phoneMinLength: number;
+    phoneMaxLength: number;
     statusRequired: boolean;
     tenantIdRequired: boolean;
     tenantIdLength: number;
@@ -65,6 +51,9 @@ const formReqs: formRequirements = {
     emailRequired: true,
     emailMinLength: 3,
     emailMaxLength: 100,
+    phoneRequired: false,
+    phoneMinLength: 7,
+    phoneMaxLength: 15,
     statusRequired: true,
     tenantIdRequired: false,
     tenantIdLength: 32,
@@ -74,16 +63,19 @@ const userSchema = object({
     username: string()
         .required('Username is required.')
         .min(formReqs.usernameMinLength, `Username must be at least ${formReqs.usernameMinLength} characters.`)
-        .max(formReqs.usernameMaxLength, `Username must be at least ${formReqs.usernameMaxLength} characters.`),
+        .max(formReqs.usernameMaxLength, `Username must be at most ${formReqs.usernameMaxLength} characters.`),
     password: string()
         .required('Password is required.')
         .min(formReqs.passwordMinLength, `Password must be at least ${formReqs.passwordMinLength} characters.`)
-        .max(formReqs.passwordMaxLength, `Password must be at least ${formReqs.passwordMaxLength} characters.`),
+        .max(formReqs.passwordMaxLength, `Password must be at most ${formReqs.passwordMaxLength} characters.`),
     email: string()
         .required('Email is required.')
         .email('A valid email address is required.')
         .min(formReqs.emailMinLength, `Email must be at least ${formReqs.emailMinLength} characters.`)
-        .max(formReqs.emailMaxLength, `Email must be at least ${formReqs.emailMaxLength} characters.`),
+        .max(formReqs.emailMaxLength, `Email must be at most ${formReqs.emailMaxLength} characters.`),
+    phoneNumber: string()
+        .min(formReqs.phoneMinLength, `Phone Number must be at least ${formReqs.phoneMinLength} digits.`)
+        .max(formReqs.phoneMaxLength, `Phone Number must be at most ${formReqs.phoneMaxLength} digits.`),
     status: string()
         .required('Status is required.'),
     tenantId: string()
@@ -124,18 +116,30 @@ export const FormDialog = () => {
 
     const form = useFormik({
         initialValues: {
-            username: '',
-            password: '',
-            email: '',
-            status: '',
+            username: 'test',
+            password: 'test',
+            email: 'test@test.com',
+            phoneNumber: '13175551234',
+            status: 'active',
             tenantId: '',
         },
         validationSchema: userSchema,
-        onSubmit: async values => {
-            await usersService.saveRecord(values);
-            handleClose();
-            form.resetForm();
-            toast.info('User saved!');
+        onSubmit: async (values, {setErrors, setStatus, setSubmitting}) => {
+            const result = await usersService.saveRecord(values);
+
+            if (typeof result === 'boolean' && result) {
+                handleClose();
+                form.resetForm();
+                setStatus();
+                toast.info('User saved!');
+            } else if (typeof result === 'object') {
+                setErrors(result);
+                setStatus();
+            } else {
+                setStatus('User could not be saved!');
+                toast.error('User could not be saved!');
+            }
+            setSubmitting(false);
         },
         validateOnChange: false,
         validateOnBlur: false,
@@ -154,7 +158,12 @@ export const FormDialog = () => {
                     <DialogTitle>Create User</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Please provide the following details to create a new user and then click Save once finished.
+                            <Typography variant="body1">Please provide the following details to create a new user and then click Save once finished.</Typography>
+                            {form.status && (
+                                <>
+                                    <Typography variant="body1" color="error" className="formStatus">{form.status}</Typography>
+                                </>
+                            )}
                         </DialogContentText>
                         <Grid container marginY={2}>
                             <Grid size={{xs: 12, md: 6}}>
@@ -189,6 +198,16 @@ export const FormDialog = () => {
                                         helperText={form.errors.email}
                                     />
 
+                                    <TextField
+                                        label="Phone Number"
+                                        type="tel" // Ensures correct keyboard type on mobile and basic validation
+                                        variant="outlined"
+                                        fullWidth
+                                        {...form.getFieldProps('phoneNumber')}
+                                        error={form.errors.phoneNumber !== undefined}
+                                        helperText={form.errors.phoneNumber}
+                                    />
+
                                     <FormControl fullWidth variant="outlined">
                                         <InputLabel id="status-label">Status</InputLabel>
                                         <Select
@@ -201,9 +220,11 @@ export const FormDialog = () => {
                                             <MenuItem value="">
                                                 <em>None</em>
                                             </MenuItem>
-                                            <MenuItem value={'active'}>Active</MenuItem>
-                                            <MenuItem value={'inactive'}>Inactive</MenuItem>
                                             <MenuItem value={'pending'}>Pending</MenuItem>
+                                            <MenuItem value={'invited'}>Invited</MenuItem>
+                                            <MenuItem value={'active'}>Active</MenuItem>
+                                            <MenuItem value={'suspended'}>Suspended</MenuItem>
+                                            <MenuItem value={'disabled'}>Disabled</MenuItem>
                                         </Select>
                                         <FormHelperText>{form.errors.status}</FormHelperText>
                                     </FormControl>

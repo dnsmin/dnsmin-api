@@ -1,3 +1,4 @@
+import {ValidationErrors} from '@app/types/service';
 
 export interface User {
     id?: string;
@@ -12,4 +13,15 @@ export interface User {
     authenticatedAt?: string;
 }
 
+export interface UserValidationErrors extends ValidationErrors {
+    id?: string;
+    tenantId?: string;
+    name?: string;
+    username?: string;
+    email?: string;
+    phoneNumber?: string;
+    status?: string;
+}
+
 export type IUser = User;
+export type IUserValidationErrors = UserValidationErrors;

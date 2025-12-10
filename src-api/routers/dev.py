@@ -133,7 +133,8 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
     # Create a system-level user
     sl_user = User(
         id=uuid4(),
-        username='test@test.com',
+        username='test',
+        email='test@test.com',
         status=UserStatusEnum.active,
     )
     sl_user.password = 'test'
@@ -222,7 +223,8 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
     tl_user = User(
         id=uuid4(),
         tenant_id=tenant1.id,
-        username='test@test.com',
+        username='test',
+        email='test@test.com',
         status=UserStatusEnum.active,
     )
     tl_user.password = 'test'

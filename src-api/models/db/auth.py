@@ -37,6 +37,12 @@ class User(BaseSqlModel):
     hashed_password: Mapped[str] = mapped_column(TEXT, nullable=False)
     """The hashed password of the user."""
 
+    email: Mapped[str] = mapped_column(String(100), nullable=True)
+    """The email of the user."""
+
+    phone_number: Mapped[str] = mapped_column(String(15), nullable=True)
+    """The phone of the user in E.164 format."""
+
     status: Mapped[UserStatusEnum] = mapped_column(String(20), nullable=False, default=UserStatusEnum.pending)
     """The status of the user."""
 
@@ -117,6 +123,29 @@ class User(BaseSqlModel):
             current_user_id = UUID(current_user_id)
 
         stmt = select(User.id).where(User.username == username, User.tenant_id == tenant_id)
+
+        if isinstance(current_user_id, UUID):
+            stmt = stmt.where(User.id != current_user_id)
+
+        return (await session.execute(stmt)).scalar_one_or_none() is None
+
+    @staticmethod
+    async def check_email_available(
+            session: AsyncSession,
+            email: str | Mapped[str],
+            tenant_id: Optional[str | UUID | Mapped[UUID]] = None,
+            current_user_id: Optional[str | UUID | Mapped[UUID]] = None,
+    ) -> bool:
+        """Checks that a given email address is available in the context."""
+        from sqlalchemy import select
+
+        if isinstance(tenant_id, str):
+            tenant_id = UUID(tenant_id)
+
+        if isinstance(current_user_id, str):
+            current_user_id = UUID(current_user_id)
+
+        stmt = select(User.id).where(User.email == email, User.tenant_id == tenant_id)
 
         if isinstance(current_user_id, UUID):
             stmt = stmt.where(User.id != current_user_id)

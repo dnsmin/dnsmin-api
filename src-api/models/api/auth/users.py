@@ -33,6 +33,22 @@ class UserInSchema(BaseApiModel):
     )
     """The password of the user."""
 
+    email: Optional[str] = Field(
+        title='Email',
+        description='The email address of the user.',
+        default=None,
+        examples=['your.name@yourdomain.com'],
+    )
+    """The email address of the user."""
+
+    phone_number: Optional[str] = Field(
+        title='Phone Number',
+        description='The phone number of the user in E.164 format.',
+        default=None,
+        examples=['17685551234', '18005554321'],
+    )
+    """The phone number of the user in E.164 format."""
+
     status: UserStatusEnum = Field(
         title='Status',
         description='The status of the user.',
@@ -73,6 +89,20 @@ class UserOutSchema(BaseApiModel):
         examples=['YourName', 'your.name@your-domain.com'],
     )
     """The username of the user."""
+
+    email: Optional[str] = Field(
+        title='Email',
+        description='The email address of the user.',
+        examples=['your.name@yourdomain.com'],
+    )
+    """The email address of the user."""
+
+    phone_number: Optional[str] = Field(
+        title='Phone Number',
+        description='The phone number of the user in E.164 format.',
+        examples=['17685551234', '18005554321'],
+    )
+    """The phone number of the user in E.164 format."""
 
     status: UserStatusEnum = Field(
         title='Status',

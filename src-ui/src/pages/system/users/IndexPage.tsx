@@ -27,8 +27,6 @@ const View = ({multiTenant = true}: ViewProps) => {
     };
 
     useEffect(() => {
-        usersService.gridApiRef = gridApiRef;
-
         return usersService.onUsersStateChanged((totalRecords: number, totalFilteredRecords: number) => {
             setTotalRecords(totalRecords);
             setTotalFilteredRecords(totalFilteredRecords);
@@ -38,7 +36,8 @@ const View = ({multiTenant = true}: ViewProps) => {
     const columns: readonly GridColDef<any>[] = [
         {field: 'id', headerName: 'User ID', width: 300},
         ...(multiTenant ? [{field: 'tenant_id', headerName: 'Tenant ID', width: 300}] : []),
-        {field: 'username', headerName: 'Username', width: 300},
+        {field: 'username', headerName: 'Username', width: 200},
+        {field: 'email', headerName: 'Email', width: 200},
         {field: 'status', headerName: 'Status', width: 100},
         {field: 'created_at', headerName: 'Created', width: 175},
         {field: 'updated_at', headerName: 'Updated', width: 175},
@@ -87,20 +86,13 @@ const View = ({multiTenant = true}: ViewProps) => {
                 </Grid>
                 <Grid size={12}>
                     <DataGridPro
+                        {...usersService.getGridProps(columns, gridApiRef)}
                         autoHeight
-                        pagination
-                        sortingMode="server"
-                        filterMode="server"
-                        paginationMode="server"
-                        pageSizeOptions={[5, 10, 25, 50, 100]}
-                        columns={columns}
-                        apiRef={gridApiRef}
                         initialState={{
                             pinnedColumns: {
                                 right: ['actions'],
                             },
                         }}
-                        {...usersService.gridProps}
                     />
                 </Grid>
             </Grid>

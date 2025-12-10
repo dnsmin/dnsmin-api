@@ -70,6 +70,8 @@ async def record_create(
     # Create the record
     record = User(
         username=user.username,
+        email=user.email,
+        phone_number=user.phone_number,
         status=user.status,
     )
     record.password = user.password
@@ -80,9 +82,28 @@ async def record_create(
     else:
         record.tenant_id = user.tenant_id
 
+    # Provide additional data validation
+    validation_errors = []
+
     # Check that the username is available
     if not await User.check_username_available(session, record.username, record.tenant_id):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Username is already taken.')
+        validation_errors.append({
+            'loc': ['body', 'username'],
+            'msg': f'Username "{record.username}" is already taken.',
+            'type': 'value_error.forbidden_value',
+        })
+
+    # Check that the email is available
+    if not await User.check_email_available(session, record.email, record.tenant_id):
+        validation_errors.append({
+            'loc': ['body', 'email'],
+            'msg': f'Email address "{record.email}" is already in use.',
+            'type': 'value_error.forbidden_value',
+        })
+
+    # Raise HTTP exception if any validation errors were created
+    if validation_errors:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=validation_errors)
 
     # Commit the changes to the database
     session.add(record)
@@ -162,14 +183,35 @@ async def record_update(
 
     # Update the record
     record.username = user.username
+    record.email = user.email
+    record.phone_number = user.phone_number
     record.status = user.status
 
     if isinstance(user.password, str):
         record.password = user.password
 
+    # Provide additional data validation
+    validation_errors = []
+
     # Check that the username is available
     if not await User.check_username_available(session, record.username, record.tenant_id, record.id):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Username is already taken.')
+        validation_errors.append({
+            'loc': ['body', 'username'],
+            'msg': f'Username "{record.username}" is already taken.',
+            'type': 'value_error.forbidden_value',
+        })
+
+    # Check that the email is available
+    if not await User.check_email_available(session, record.email, record.tenant_id, record.id):
+        validation_errors.append({
+            'loc': ['body', 'email'],
+            'msg': f'Email address "{record.email}" is already in use.',
+            'type': 'value_error.forbidden_value',
+        })
+
+    # Raise HTTP exception if any validation errors were created
+    if validation_errors:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=validation_errors)
 
     # Commit the changes to the database
     session.add(record)
