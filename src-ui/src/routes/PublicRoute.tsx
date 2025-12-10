@@ -9,7 +9,6 @@ const PublicRoute = () => {
 
     useEffect(() => {
         if (isLoggedIn) {
-            console.warn('Redirect Path:', redirectPath);
             navigate(redirectPath || '/');
 
         }
