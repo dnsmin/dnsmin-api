@@ -9,7 +9,7 @@ interface StatisticCardProps {
 const StatisticCard: React.FC<StatisticCardProps> = ({label, value}) => {
     return (
         <>
-            <Paper elevation={2} variant="outlined" sx={{width: '100%', padding: 2}}>
+            <Paper variant="outlined" sx={{width: '100%', padding: 2}}>
                 <Typography variant="h4">{value}</Typography>
                 <Typography variant="body1">{label}</Typography>
             </Paper>

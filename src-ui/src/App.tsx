@@ -29,7 +29,6 @@ const App = () => {
         setIsAppLoading(true);
 
         const unsubscribe = authService.onAuthStateChanged((user) => {
-            console.log(user);
             if (user) {
                 dispatch(setCurrentUser(user));
             } else {
@@ -59,7 +58,7 @@ const App = () => {
             <CssBaseline/>
             <ThemeProvider theme={theme}>
                 <Routes>
-                    <Route path="/" element={<DashboardRouter/>}/>
+                    <Route path="/*" element={<DashboardRouter/>}/>
                     <Route path="/user/*" element={<UserRouter/>}/>
                     <Route path="/system/*" element={<SystemRouter/>}/>
                 </Routes>
