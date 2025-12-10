@@ -1,10 +1,11 @@
-import {ValidationErrors} from '@app/types/service';
+import {IRecord, IValidationErrors} from '@app/types/service';
 
-export interface User {
+export interface User extends IRecord {
     id?: string;
     tenantId?: string | null;
     name?: string | null;
     username: string | null;
+    password?: string;
     email?: string | null;
     phoneNumber?: string | null;
     status: string | null;
@@ -13,11 +14,12 @@ export interface User {
     authenticatedAt?: string;
 }
 
-export interface UserValidationErrors extends ValidationErrors {
+export interface UserValidationErrors extends IValidationErrors {
     id?: string;
     tenantId?: string;
     name?: string;
     username?: string;
+    password?: string;
     email?: string;
     phoneNumber?: string;
     status?: string;

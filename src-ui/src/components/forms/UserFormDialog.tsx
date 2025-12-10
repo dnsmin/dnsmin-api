@@ -1,7 +1,5 @@
 import * as React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
-import {toast} from 'react-toastify';
-import {useFormik} from 'formik';
+import {useFormik, FormikHelpers} from 'formik';
 import {object, string} from 'yup';
 import {
     Dialog,
@@ -21,7 +19,15 @@ import {
     MenuItem,
 
 } from '@mui/material';
-import {usersService} from '@app/services/system/users';
+import {IUser} from '@app/types/system/users';
+
+type FormDialogProps = {
+    open: boolean;
+    mode: 'create' | 'update';
+    initialValues?: IUser;
+    onSubmit: (form: FormikHelpers<IUser>, values: IUser) => Promise<void>;
+    onCancel: () => void;
+};
 
 interface formRequirements {
     usernameRequired: boolean;
@@ -82,64 +88,12 @@ const userSchema = object({
         .length(formReqs.tenantIdLength, 'Tenant ID is not valid.'),
 });
 
-export const FormDialog = () => {
-    const [open, setOpen] = React.useState(false);
-    const location = useLocation();
-    const navigate = useNavigate();
-    const newPath = '/create';
-
-    const handleOpen = React.useCallback(() => {
-        setOpen(true);
-        const currentPath = location.pathname;
-
-        if (!currentPath.endsWith(newPath)) {
-            navigate(`${currentPath}${newPath}`);
-        }
-    }, [navigate, location.pathname]);
-
-    const handleClose = React.useCallback(() => {
-        setOpen(false);
-        const currentPath = location.pathname;
-
-        if (currentPath.endsWith(newPath)) {
-            navigate(currentPath.slice(0, currentPath.length - newPath.length));
-        }
-    }, [navigate, location.pathname]);
-
-    React.useEffect(() => {
-        if (!location.pathname.endsWith(newPath)) {
-            handleClose();
-        } else {
-            handleOpen();
-        }
-    }, [location, handleClose, handleOpen]);
-
-    const form = useFormik({
-        initialValues: {
-            username: '',
-            password: '',
-            email: '',
-            phoneNumber: '',
-            status: '',
-            tenantId: '',
-        },
+export const FormDialog: React.FC<FormDialogProps> = ({open, mode, initialValues, onSubmit, onCancel}) => {
+    const form = useFormik<IUser>({
+        initialValues: initialValues!,
         validationSchema: userSchema,
-        onSubmit: async (values, {setErrors, setStatus, setSubmitting}) => {
-            const result = await usersService.saveRecord(values);
-
-            if (typeof result === 'boolean' && result) {
-                handleClose();
-                form.resetForm();
-                setStatus();
-                toast.info('User saved!');
-            } else if (typeof result === 'object') {
-                setErrors(result);
-                setStatus();
-            } else {
-                setStatus('User could not be saved!');
-                toast.error('User could not be saved!');
-            }
-            setSubmitting(false);
+        onSubmit: async (values) => {
+            await onSubmit(form, values);
         },
         validateOnChange: false,
         validateOnBlur: false,
@@ -147,21 +101,22 @@ export const FormDialog = () => {
 
     return (
         <React.Fragment>
-            <Button variant="contained" onClick={handleOpen}>Create User</Button>
             <Dialog
                 fullWidth={true}
                 maxWidth={'md'}
                 open={open}
-                onClose={handleClose}
+                onClose={() => onCancel()}
             >
                 <form onSubmit={form.handleSubmit} onReset={form.handleReset}>
-                    <DialogTitle>Create User</DialogTitle>
+                    <DialogTitle>{mode === 'create' ? 'Create' : 'Update'} User</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            <Typography variant="body1">Please provide the following details to create a new user and then click Save once finished.</Typography>
+                            <Typography variant="body1">Please provide the following details to create a new user and
+                                then click Save once finished.</Typography>
                             {form.status && (
                                 <>
-                                    <Typography variant="body1" color="error" className="formStatus">{form.status}</Typography>
+                                    <Typography variant="body1" color="error"
+                                                className="formStatus">{form.status}</Typography>
                                 </>
                             )}
                         </DialogContentText>
@@ -255,8 +210,8 @@ export const FormDialog = () => {
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="contained" color="error" type="reset" onClick={handleClose}>Cancel</Button>
-                        <Button variant="contained" type="submit">Save User</Button>
+                        <Button variant="contained" color="error" type="reset" onClick={() => onCancel()}>Cancel</Button>
+                        <Button variant="contained" type="submit">{mode === 'create' ? 'Create' : 'Update'} User</Button>
                     </DialogActions>
                 </form>
             </Dialog>

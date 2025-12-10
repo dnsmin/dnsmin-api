@@ -35,6 +35,7 @@ export interface ValidationErrors {
     [key: string]: string | undefined;
 }
 
+export type IRecordFormMode = 'create' | 'update';
 export type IServiceCallback = ServiceCallback;
 export type IRecord = Record;
 export type IFieldError = FieldError;

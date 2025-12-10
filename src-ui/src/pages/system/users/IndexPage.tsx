@@ -1,37 +1,110 @@
 import * as React from 'react';
-import {Grid} from '@mui/material';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {FormikHelpers} from 'formik';
+import {Button, Grid} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {DataGridPro, GridColDef, GridActionsCellItem, useGridApiRef} from '@mui/x-data-grid-pro';
+import {IRecordFormMode} from '@app/types/service';
+import {IUser} from '@app/types/system/users';
 import {usersService} from '@app/services/system/users';
 import PageHeader from '@components/PageHeader';
 import StatisticCard from '@components/cards/StatisticCard';
 import UserFormDialog from '@components/forms/UserFormDialog';
-import {useEffect} from "react";
+import {toast} from "react-toastify";
+
 
 interface ViewProps {
     multiTenant?: boolean;
 }
 
+const defaultRecord: IUser = {
+    id: '',
+    tenantId: '',
+    username: '',
+    password: '',
+    email: '',
+    phoneNumber: '',
+    status: '',
+    createdAt: '',
+    updatedAt: '',
+    authenticatedAt: '',
+};
+
 const View = ({multiTenant = true}: ViewProps) => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const gridApiRef = useGridApiRef();
     const [totalRecords, setTotalRecords] = React.useState(0);
     const [totalFilteredRecords, setTotalFilteredRecords] = React.useState(0);
+    const [formOpen, setFormOpen] = React.useState(false);
+    const [updateId, setUpdateId] = React.useState<string | undefined>(undefined);
+    const [updateRecord, setUpdateRecord] = React.useState<IUser>(defaultRecord);
 
-    const handleEdit = (id: string) => {
-        console.log('Edit row with id:', id);
+    const basePath: string = '/system/users';
+    const mode: IRecordFormMode = updateId ? 'update' : 'create';
+
+    const openCreate = () => {
+        navigate(`${basePath}/create`);
     };
 
-    const handleDelete = (id: string) => {
-        console.log('Delete row with id:', id);
+    const openUpdate = (id: string) => {
+        navigate(`${basePath}/${id}/update`);
     };
 
-    useEffect(() => {
+    const openDelete = (id: string) => {
+        navigate(`${basePath}/${id}/delete`);
+    };
+
+    const closeForm = () => {
+        navigate(basePath);
+    };
+
+    const handleSubmit = async (form: FormikHelpers<IUser>, values: Omit<IUser, 'id'>) => {
+        const result = await usersService.saveRecord(values);
+
+        if (typeof result === 'boolean' && result) {
+            form.resetForm();
+            form.setStatus();
+            toast.info('User saved!');
+            navigate(basePath);
+        } else if (typeof result === 'object') {
+            form.setErrors(result);
+            form.setStatus();
+        } else {
+            form.setStatus('User could not be saved!');
+            toast.error('User could not be saved!');
+        }
+
+        form.setSubmitting(false);
+    };
+
+    React.useEffect(() => {
         return usersService.onUsersStateChanged((totalRecords: number, totalFilteredRecords: number) => {
             setTotalRecords(totalRecords);
             setTotalFilteredRecords(totalFilteredRecords);
         });
     }, [gridApiRef]);
+
+    React.useEffect(() => {
+        if (location.pathname === basePath) {
+            setFormOpen(false);
+            setUpdateId(undefined);
+            setUpdateRecord(defaultRecord);
+        } else {
+            const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/;
+            const match = location.pathname.match(uuidRegex);
+            if (match) {
+                setUpdateId(match[0]);
+                // TODO: Load update record with current values
+                setUpdateRecord(defaultRecord);
+            } else {
+                setUpdateId(undefined);
+                setUpdateRecord(defaultRecord);
+            }
+            setFormOpen(true);
+        }
+    }, [location.pathname]);
 
     const columns: readonly GridColDef<any>[] = [
         {field: 'id', headerName: 'User ID', width: 300},
@@ -52,14 +125,14 @@ const View = ({multiTenant = true}: ViewProps) => {
                     key="edit"
                     icon={<EditIcon/>}
                     label="Edit"
-                    onClick={() => handleEdit(params.row.id)}
+                    onClick={() => openUpdate(params.row.id)}
                     showInMenu
                 />,
                 <GridActionsCellItem
                     key="delete"
                     icon={<DeleteIcon/>}
                     label="Delete"
-                    onClick={() => handleDelete(params.row.id)}
+                    onClick={() => openDelete(params.row.id)}
                     showInMenu
                 />,
             ],
@@ -82,7 +155,7 @@ const View = ({multiTenant = true}: ViewProps) => {
                 </Grid>
                 <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2} display="flex" justifyContent="flex-end"
                       alignItems="flex-end">
-                    <UserFormDialog/>
+                    <Button variant="contained" onClick={() => openCreate()}>Create User</Button>
                 </Grid>
                 <Grid size={12}>
                     <DataGridPro
@@ -96,6 +169,13 @@ const View = ({multiTenant = true}: ViewProps) => {
                     />
                 </Grid>
             </Grid>
+            <UserFormDialog
+                open={formOpen}
+                mode={mode}
+                initialValues={updateRecord}
+                onSubmit={handleSubmit}
+                onCancel={() => closeForm()}
+            />
         </>
     );
 };
