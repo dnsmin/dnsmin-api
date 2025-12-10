@@ -5,7 +5,11 @@ import UserLayout from '@layouts/user/Layout';
 import PageTitle from '@components/PageTitle';
 import DashboardIndexPage from '@pages/dashboard/IndexPage';
 
-const Router = () => {
+interface RouterProps {
+    baseUrl: string;
+}
+
+const Router: React.FC<RouterProps> = ({baseUrl}) => {
     return (
         <>
             <Routes>
@@ -15,7 +19,7 @@ const Router = () => {
                             <Outlet/>
                         }>
                             <Route path="/"
-                                   element={<PageTitle title="Dashboard"><DashboardIndexPage/></PageTitle>}/>
+                                   element={<PageTitle title="Dashboard"><DashboardIndexPage baseUrl={baseUrl}/></PageTitle>}/>
                         </Route>
                     </Route>
                 </Route>

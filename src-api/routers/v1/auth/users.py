@@ -187,7 +187,7 @@ async def record_update(
     record.phone_number = user.phone_number
     record.status = user.status
 
-    if isinstance(user.password, str):
+    if isinstance(user.password, str) and len(user.password.strip()):
         record.password = user.password
 
     # Provide additional data validation

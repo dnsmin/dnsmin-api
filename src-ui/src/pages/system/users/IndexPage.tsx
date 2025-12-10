@@ -1,10 +1,16 @@
 import * as React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import {FormikHelpers} from 'formik';
 import {Button, Grid} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {DataGridPro, GridColDef, GridActionsCellItem, useGridApiRef} from '@mui/x-data-grid-pro';
+import {
+    DataGridPro,
+    GridColDef,
+    GridActionsCellItem,
+    GridFilterModel,
+    useGridApiRef,
+} from '@mui/x-data-grid-pro';
 import {IRecordFormMode} from '@app/types/service';
 import {IUser} from '@app/types/system/users';
 import {usersService} from '@app/services/system/users';
@@ -15,6 +21,7 @@ import {toast} from "react-toastify";
 
 
 interface ViewProps {
+    baseUrl: string;
     multiTenant?: boolean;
 }
 
@@ -31,33 +38,44 @@ const defaultRecord: IUser = {
     authenticatedAt: '',
 };
 
-const View = ({multiTenant = true}: ViewProps) => {
+const Page = ({baseUrl, multiTenant = true}: ViewProps) => {
     const location = useLocation();
     const navigate = useNavigate();
+    const {action, userId} = useParams();
     const gridApiRef = useGridApiRef();
+    const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
+        items: [],
+        quickFilterValues: [],
+    });
     const [totalRecords, setTotalRecords] = React.useState(0);
     const [totalFilteredRecords, setTotalFilteredRecords] = React.useState(0);
     const [formOpen, setFormOpen] = React.useState(false);
-    const [updateId, setUpdateId] = React.useState<string | undefined>(undefined);
     const [updateRecord, setUpdateRecord] = React.useState<IUser>(defaultRecord);
 
-    const basePath: string = '/system/users';
-    const mode: IRecordFormMode = updateId ? 'update' : 'create';
+    const mode: IRecordFormMode = userId ? 'update' : 'create';
+
+    const isFilteringActive = React.useMemo(() => {
+        return filterModel.items.length > 0 || (filterModel.quickFilterValues?.length ?? 0) > 0;
+    }, [filterModel]);
+
+    const handleFilterModelChange = (newFilterModel: GridFilterModel) => {
+        setFilterModel(newFilterModel);
+    };
 
     const openCreate = () => {
-        navigate(`${basePath}/create`);
+        navigate(`${baseUrl}/create`);
     };
 
     const openUpdate = (id: string) => {
-        navigate(`${basePath}/${id}/update`);
+        navigate(`${baseUrl}/${id}/update`);
     };
 
     const openDelete = (id: string) => {
-        navigate(`${basePath}/${id}/delete`);
+        navigate(`${baseUrl}/${id}/delete`);
     };
 
     const closeForm = () => {
-        navigate(basePath);
+        navigate(baseUrl);
     };
 
     const handleSubmit = async (form: FormikHelpers<IUser>, values: Omit<IUser, 'id'>) => {
@@ -67,7 +85,7 @@ const View = ({multiTenant = true}: ViewProps) => {
             form.resetForm();
             form.setStatus();
             toast.info('User saved!');
-            navigate(basePath);
+            navigate(baseUrl);
         } else if (typeof result === 'object') {
             form.setErrors(result);
             form.setStatus();
@@ -87,24 +105,24 @@ const View = ({multiTenant = true}: ViewProps) => {
     }, [gridApiRef]);
 
     React.useEffect(() => {
-        if (location.pathname === basePath) {
+        if (!action) {
             setFormOpen(false);
-            setUpdateId(undefined);
             setUpdateRecord(defaultRecord);
-        } else {
-            const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/;
-            const match = location.pathname.match(uuidRegex);
-            if (match) {
-                setUpdateId(match[0]);
-                // TODO: Load update record with current values
-                setUpdateRecord(defaultRecord);
-            } else {
-                setUpdateId(undefined);
-                setUpdateRecord(defaultRecord);
-            }
+        } else if (action === 'create') {
+            setUpdateRecord(defaultRecord);
             setFormOpen(true);
+        } else if (action === 'update') {
+            const loadRecord = async () => {
+                setUpdateRecord(await usersService.getRecord(userId!));
+                setFormOpen(true);
+            };
+            loadRecord();
+        } else if (action === 'delete') {
+            // TODO: Handle delete view
+        } else {
+            // TODO: Handle invalid action response
         }
-    }, [location.pathname]);
+    }, [location.pathname, action, userId]);
 
     const columns: readonly GridColDef<any>[] = [
         {field: 'id', headerName: 'User ID', width: 300},
@@ -148,9 +166,11 @@ const View = ({multiTenant = true}: ViewProps) => {
                         <Grid size={{sm: 12, md: 6}}>
                             <StatisticCard label="Total Users" value={totalRecords}/>
                         </Grid>
-                        <Grid size={{sm: 12, md: 6}}>
-                            <StatisticCard label="Total Results" value={totalFilteredRecords}/>
-                        </Grid>
+                        {isFilteringActive && (
+                            <Grid size={{sm: 12, md: 6}}>
+                                <StatisticCard label="Total Results" value={totalFilteredRecords}/>
+                            </Grid>
+                        )}
                     </Grid>
                 </Grid>
                 <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2} display="flex" justifyContent="flex-end"
@@ -161,6 +181,7 @@ const View = ({multiTenant = true}: ViewProps) => {
                     <DataGridPro
                         {...usersService.getGridProps(columns, gridApiRef)}
                         autoHeight
+                        onFilterModelChange={handleFilterModelChange}
                         initialState={{
                             pinnedColumns: {
                                 right: ['actions'],
@@ -180,4 +201,4 @@ const View = ({multiTenant = true}: ViewProps) => {
     );
 };
 
-export default View;
+export default Page;

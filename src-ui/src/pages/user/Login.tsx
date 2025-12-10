@@ -10,6 +10,10 @@ import {authService} from '@app/services/auth';
 import Logo from '@app/assets/img/logo-icon.svg';
 import * as React from "react";
 
+interface ViewProps {
+    baseUrl: string;
+}
+
 interface formValues {
     username: string;
     password: string;
@@ -55,7 +59,7 @@ const validate = (values: formValues) => {
     return errors;
 };
 
-const Login = () => {
+const Login: React.FC<ViewProps> = () => {
     const [t] = useTranslation();
     const [isAuthLoading, setAuthLoading] = useState(false);
 

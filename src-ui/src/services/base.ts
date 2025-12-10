@@ -36,8 +36,14 @@ export class ApiResourceService {
         };
     }
 
+    async getRecord(id: string): Promise<IRecord> {
+        const response = await this.makeRequest(`${this.apiResourceUrl}/${id}`, undefined, 'GET');
+        return await response.json();
+    }
+
     async saveRecord(record: IRecord): Promise<boolean | IValidationErrors> {
-        const response = await this.makeRequest(`${this.apiResourceUrl}/create`, record);
+        const requestUrl = record.id ? `${this.apiResourceUrl}/${record.id}` : `${this.apiResourceUrl}/create`;
+        const response = await this.makeRequest(requestUrl, record, record.id ? 'PATCH' : 'POST');
 
         const data = await response.json();
 

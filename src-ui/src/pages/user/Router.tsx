@@ -5,13 +5,17 @@ import GuestLayout from '@layouts/guest/Layout';
 import PageTitle from '@components/PageTitle';
 import UserSignInPage from '@pages/user/Login';
 
-const Router = () => {
+interface RouterProps {
+    baseUrl: string;
+}
+
+const Router: React.FC<RouterProps> = ({baseUrl}) => {
     return (
         <>
             <Routes>
                 <Route element={<PublicRoute/>}>
                     <Route element={<GuestLayout/>}>
-                        <Route path="/login" element={<PageTitle title="User Sign In"><UserSignInPage/></PageTitle>}/>
+                        <Route path="/login" element={<PageTitle title="User Sign In"><UserSignInPage baseUrl={`${baseUrl}/login`}/></PageTitle>}/>
                     </Route>
                 </Route>
             </Routes>

@@ -19,7 +19,9 @@ export interface GridServiceProps {
 
 export type IGridServiceProps = GridServiceProps;
 
-export interface Record {}
+export interface Record {
+    id?: string;
+}
 
 export interface FieldError {
     loc: string[],

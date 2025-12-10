@@ -58,9 +58,9 @@ const App = () => {
             <CssBaseline/>
             <ThemeProvider theme={theme}>
                 <Routes>
-                    <Route path="/*" element={<DashboardRouter/>}/>
-                    <Route path="/user/*" element={<UserRouter/>}/>
-                    <Route path="/system/*" element={<SystemRouter/>}/>
+                    <Route path="/*" element={<DashboardRouter baseUrl=""/>}/>
+                    <Route path="/user/*" element={<UserRouter baseUrl="/user"/>}/>
+                    <Route path="/system/*" element={<SystemRouter baseUrl="/system"/>}/>
                 </Routes>
                 <ToastContainer
                     autoClose={2000}

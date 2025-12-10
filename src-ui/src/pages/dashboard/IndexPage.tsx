@@ -3,7 +3,11 @@ import {Container, Grid} from '@mui/material';
 import PageHeader from '@components/PageHeader';
 import StatisticCard from '@components/cards/StatisticCard';
 
-const Page = () => {
+interface ViewProps {
+    baseUrl: string;
+}
+
+const Page: React.FC<ViewProps> = () => {
     return (
         <>
             <Container maxWidth={false} sx={{marginY: 2}}>
