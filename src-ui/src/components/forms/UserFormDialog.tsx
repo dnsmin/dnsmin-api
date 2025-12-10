@@ -116,11 +116,11 @@ export const FormDialog = () => {
 
     const form = useFormik({
         initialValues: {
-            username: 'test',
-            password: 'test',
-            email: 'test@test.com',
-            phoneNumber: '13175551234',
-            status: 'active',
+            username: '',
+            password: '',
+            email: '',
+            phoneNumber: '',
+            status: '',
             tenantId: '',
         },
         validationSchema: userSchema,

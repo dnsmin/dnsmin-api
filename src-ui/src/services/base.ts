@@ -112,18 +112,6 @@ export class ApiResourceService {
         };
     }
 
-    protected gridStateChangeHandler() {
-        const totalRows = this._gridApiRef?.current?.getRowsCount();
-        this.emit(this._totalRecords, totalRows || this._totalFilteredRecords);
-    }
-
-    protected gridDataSourceErrorHandler(): (error: any) => void {
-        return (error: any) => {
-            console.error('Grid Datasource Error:', error);
-            // TODO
-        }
-    }
-
     protected emit(totalRecords: number, filteredRecords: number) {
         this._totalRecords = totalRecords;
         this._totalFilteredRecords = filteredRecords;
@@ -155,5 +143,16 @@ export class ApiResourceService {
         }
 
         return errors;
+    }
+
+    protected gridStateChangeHandler() {
+        const totalRows = this._gridApiRef?.current?.getRowsCount();
+        this.emit(this._totalRecords, totalRows || this._totalFilteredRecords);
+    }
+
+    protected gridDataSourceErrorHandler(): (error: any) => void {
+        return (error: any) => {
+            console.error('Grid Datasource Error:', error);
+        }
     }
 }
