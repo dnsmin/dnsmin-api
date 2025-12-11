@@ -4,6 +4,7 @@ DNS Zone Database Models
 This file defines the database models associated with DNS zone functionality.
 """
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, DateTime, Integer, String, TEXT, Uuid, text, ForeignKey
@@ -42,49 +43,49 @@ class AZone(BaseSqlModel):
     serial: Mapped[int] = mapped_column(Integer, nullable=False)
     """The SOA serial number."""
 
-    notified_serial: Mapped[int] = mapped_column(Integer, nullable=False)
-    """The SOA serial notifications have been sent out for"""
+    notified_serial: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    """The SOA serial notifications have been sent out for."""
 
-    edited_serial: Mapped[int] = mapped_column(Integer, nullable=False)
+    edited_serial: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     """The SOA serial as seen in query responses."""
 
-    masters: Mapped[list[str]] = mapped_column(JSONType, nullable=True)
+    masters: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """List of IP addresses configured as a master for this zone (“Slave” type zones only)."""
 
     dnssec: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     """Whether or not this zone is DNSSEC signed (inferred from presigned being true XOR presence of at least one cryptokey with active being true)."""
 
-    nsec3param: Mapped[str] = mapped_column(TEXT, nullable=True)
+    nsec3param: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The NSEC3PARAM record."""
 
-    nsec3narrow: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    nsec3narrow: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     """Whether or not the zone uses NSEC3 narrow."""
 
-    presigned: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    presigned: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     """Whether or not the zone is pre-signed."""
 
-    soa_edit: Mapped[str] = mapped_column(TEXT, nullable=True)
+    soa_edit: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The SOA-EDIT metadata item."""
 
-    soa_edit_api: Mapped[str] = mapped_column(TEXT, nullable=True)
+    soa_edit_api: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The SOA-EDIT-API metadata item."""
 
-    api_rectify: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    api_rectify: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     """Whether or not the zone will be rectified on data changes via the API."""
 
-    zone: Mapped[str] = mapped_column(TEXT, nullable=True)
+    zone: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """MAY contain a BIND-style zone file when creating a zone."""
 
-    catalog: Mapped[str] = mapped_column(String(255), nullable=True)
+    catalog: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     """The catalog this zone is a member of."""
 
-    account: Mapped[str] = mapped_column(String(255), nullable=True)
-    """MAY be set. Its value is defined by local policy."""
+    account: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    """The account this zone is a member of."""
 
-    master_tsig_key_ids: Mapped[list[str]] = mapped_column(JSONType, nullable=True)
+    master_tsig_key_ids: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """The id of the TSIG keys used for master operation in this zone."""
 
-    slave_tsig_key_ids: Mapped[list[str]] = mapped_column(JSONType, nullable=True)
+    slave_tsig_key_ids: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """The id of the TSIG keys used for slave operation in this zone."""
 
     shared: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -141,7 +142,7 @@ class AZoneRecord(BaseSqlModel):
     name: Mapped[str] = mapped_column(String(255), nullable=True)
     """The name of the record."""
 
-    type_: Mapped[ZoneRecordTypeEnum] = mapped_column(String(20), nullable=False)
+    type: Mapped[ZoneRecordTypeEnum] = mapped_column(String(20), nullable=False)
     """The type of the record."""
 
     ttl: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -156,7 +157,7 @@ class AZoneRecord(BaseSqlModel):
     disabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     """Whether or not this record is disabled."""
 
-    modified_at: Mapped[int] = mapped_column(Integer, nullable=True)
+    modified_at: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     """Timestamp of the last change to the record on the DNS server."""
 
     created_at: Mapped[datetime] = mapped_column(
@@ -186,7 +187,7 @@ class AZoneMetadata(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the metadata."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns this metadata if any."""
@@ -196,7 +197,7 @@ class AZoneMetadata(BaseSqlModel):
     )
     """The unique identifier of the zone this metadata belongs to."""
 
-    view_id: Mapped[UUID] = mapped_column(
+    view_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_server_views.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the view associated with this record if any."""
@@ -204,7 +205,7 @@ class AZoneMetadata(BaseSqlModel):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     """The kind of the metadata."""
 
-    values: Mapped[list[str]] = mapped_column(TEXT, nullable=True)
+    values: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """The list of metadata values associated with this kind."""
 
     created_at: Mapped[datetime] = mapped_column(
@@ -234,7 +235,7 @@ class RZone(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the zone."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns the zone if any."""
@@ -248,10 +249,10 @@ class RZone(BaseSqlModel):
     servers: Mapped[list[str]] = mapped_column(Integer, nullable=False)
     """The list of upstream servers to forward queries to."""
 
-    recursion_desired: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    recursion_desired: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     """Whether or not the RD bit should be set in the upstream query for forwarded zone kinds."""
 
-    notify_allowed: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    notify_allowed: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     """Whether or not to permit incoming NOTIFY to wipe cache for the forwarded zone kind."""
 
     created_at: Mapped[datetime] = mapped_column(
@@ -281,7 +282,7 @@ class RZoneRecord(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the resource record."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns the resource record if any."""
@@ -294,22 +295,22 @@ class RZoneRecord(BaseSqlModel):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     """The name of the record."""
 
-    type_: Mapped[ZoneRecordTypeEnum] = mapped_column(String(20), nullable=False)
+    type: Mapped[ZoneRecordTypeEnum] = mapped_column(String(20), nullable=False)
     """The type of the record."""
 
     ttl: Mapped[int] = mapped_column(Integer, nullable=False)
     """DNS TTL of the records, in seconds."""
 
-    content: Mapped[str] = mapped_column(TEXT, nullable=True)
+    content: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The content of the record."""
 
-    comment: Mapped[str] = mapped_column(TEXT, nullable=True)
+    comment: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The comment associated with the record."""
 
     disabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     """Whether or not this record is disabled."""
 
-    modified_at: Mapped[int] = mapped_column(Integer, nullable=True)
+    modified_at: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     """Timestamp of the last change to the resource record on the DNS server."""
 
     created_at: Mapped[datetime] = mapped_column(

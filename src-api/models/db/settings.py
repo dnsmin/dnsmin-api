@@ -4,6 +4,7 @@ App Settings Database Models
 This file defines the database models associated with app settings functionality.
 """
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, DateTime, String, TEXT, Uuid, text, ForeignKey
@@ -22,12 +23,12 @@ class Setting(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the setting."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant associated with the setting."""
 
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the user associated with the setting."""
@@ -35,7 +36,7 @@ class Setting(BaseSqlModel):
     key: Mapped[str] = mapped_column(String(255), nullable=False)
     """The key of the setting."""
 
-    raw_value: Mapped[str] = mapped_column(TEXT, nullable=True)
+    raw_value: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The raw value of the setting."""
 
     overridable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

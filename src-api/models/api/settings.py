@@ -7,7 +7,7 @@ from pydantic import Field
 from models.api import BaseApiModel
 
 
-class SettingIn(BaseApiModel):
+class SettingInSchema(BaseApiModel):
     """Provides an API input model for a system setting."""
 
     key: str = Field(
@@ -45,10 +45,10 @@ class SettingIn(BaseApiModel):
     """Whether the setting can be modified in non-system contexts."""
 
 
-class SettingOut(BaseApiModel):
+class SettingOutSchema(BaseApiModel):
     """Provides an API response model for a system setting."""
 
-    id: Optional[UUID] = Field(
+    id: UUID = Field(
         title='ID',
         description='The unique identifier of this setting.',
         examples=[uuid4()],
@@ -120,14 +120,28 @@ class SettingOut(BaseApiModel):
     """The date and time the setting was updated."""
 
 
-class SettingsOut(BaseApiModel):
-    """Provides an API response model for a list of system settings."""
+class SettingsOutSchema(BaseApiModel):
+    """Provides an API response model for retrieving settings."""
 
-    settings: list[SettingOut] = Field(
-        title='Current Context Settings',
-        description='The settings of the current authentication context.',
-        default=[],
-        examples=[[SettingOut(
-            id=uuid4(), tenant_id=uuid4(), user_id=uuid4(), key='auth:session:max_age', value=3600,
-        )]],
+    records: list[SettingOutSchema] = Field(
+        title='Settings',
+        description='A list of settings found based on the current request criteria.',
+        default_factory=list,
     )
+    """A list of settings found based on the current request criteria."""
+
+    total: int = Field(
+        title='Total Settings',
+        description='The total number of settings.',
+        default=0,
+        examples=[1234],
+    )
+    """The total number of settings."""
+
+    total_filtered: int = Field(
+        title='Total Settings Found',
+        description='The total number of settings found based on the current request criteria.',
+        default=0,
+        examples=[1234],
+    )
+    """The total number of settings found based on the current request criteria."""

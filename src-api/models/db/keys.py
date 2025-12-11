@@ -5,6 +5,7 @@ This file defines the database models associated with DNSSEC keys functionality.
 """
 import uuid
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, Integer, String, TEXT, Uuid, text, ForeignKey
@@ -29,10 +30,10 @@ class CryptoKey(BaseSqlModel):
     )
     """The unique identifier of the tenant that owns the crypto key."""
 
-    internal_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    internal_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     """The internal identifier, read only."""
 
-    type_: Mapped[CryptoKeyTypeEnum] = mapped_column(String(20), nullable=False)
+    type: Mapped[CryptoKeyTypeEnum] = mapped_column(String(20), nullable=False)
     """The type of the key."""
 
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -41,19 +42,19 @@ class CryptoKey(BaseSqlModel):
     published: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     """Whether the DNSKEY crypto key is published in the zone."""
 
-    dns_key: Mapped[str] = mapped_column(TEXT, nullable=True)
+    dns_key: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The DNSKEY crypto key for this key."""
 
-    ds: Mapped[list[str]] = mapped_column(JSONType, nullable=True)
+    ds: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """A list of DS crypto keys for this key."""
 
-    cds: Mapped[list[str]] = mapped_column(JSONType, nullable=True)
+    cds: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """A list of DS crypto keys for this key, filtered by CDS publication settings."""
 
-    private_key: Mapped[str] = mapped_column(TEXT, nullable=True)
+    private_key: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The private key in ISC format."""
 
-    algorithm: Mapped[str] = mapped_column(String(20), nullable=True)
+    algorithm: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     """The name of the algorithm of the key, should be a mnemonic."""
 
     bits: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -88,13 +89,13 @@ class TsigKey(BaseSqlModel):
     )
     """The unique identifier of the tenant that owns the TSIG key."""
 
-    internal_id: Mapped[str] = mapped_column(String(100), nullable=True)
+    internal_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     """The internal identifier, read only."""
 
-    algorithm: Mapped[str] = mapped_column(String(20), nullable=True)
+    algorithm: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     """The algorithm of the TSIG key."""
 
-    key: Mapped[str] = mapped_column(TEXT, nullable=True)
+    key: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The base64 encoded secret key."""
 
     created_at: Mapped[datetime] = mapped_column(

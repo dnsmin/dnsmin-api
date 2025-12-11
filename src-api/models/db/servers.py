@@ -4,6 +4,7 @@ DNS Server Database Models
 This file defines the database models associated with DNS server functionality.
 """
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, DateTime, String, TEXT, Uuid, text, ForeignKey
@@ -82,7 +83,7 @@ class ServerAutoPrimary(BaseSqlModel):
     nameserver: Mapped[str] = mapped_column(String(253), nullable=False)
     """The DNS name of the autoprimary server."""
 
-    account: Mapped[str] = mapped_column(String(255), nullable=False)
+    account: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     """The account name for the autoprimary server."""
 
     created_at: Mapped[datetime] = mapped_column(

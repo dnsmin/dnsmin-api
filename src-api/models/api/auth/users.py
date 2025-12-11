@@ -67,10 +67,9 @@ class UserInSchema(BaseApiModel):
 class UserOutSchema(BaseApiModel):
     """Provides an API response model for representing authentication users."""
 
-    id: Optional[UUID] = Field(
+    id: UUID = Field(
         title='User ID',
         description='The unique identifier of the user.',
-        default=None,
         examples=[uuid4()],
     )
     """The unique identifier of the user."""
@@ -154,16 +153,16 @@ class UsersSchema(BaseApiModel):
     """A list of users found based on the current request criteria."""
 
     total: int = Field(
-        title='Total Users Found',
-        description='The total number of users available.',
+        title='Total Users',
+        description='The total number of users.',
         default=0,
         examples=[1234],
     )
-    """The total number of users available."""
+    """The total number of users."""
 
     total_filtered: int = Field(
-        title='Total Filtered Users Found',
-        description='The total number of filtered users found based on the current request criteria.',
+        title='Total Users Found',
+        description='The total number of users found based on the current request criteria.',
         default=0,
         examples=[1234],
     )

@@ -26,7 +26,7 @@ class User(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the user."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns the user if any."""
@@ -37,10 +37,10 @@ class User(BaseSqlModel):
     hashed_password: Mapped[str] = mapped_column(TEXT, nullable=False)
     """The hashed password of the user."""
 
-    email: Mapped[str] = mapped_column(String(100), nullable=True)
+    email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     """The email of the user."""
 
-    phone_number: Mapped[str] = mapped_column(String(15), nullable=True)
+    phone_number: Mapped[Optional[str]] = mapped_column(String(15), nullable=True)
     """The phone of the user in E.164 format."""
 
     status: Mapped[UserStatusEnum] = mapped_column(String(20), nullable=False, default=UserStatusEnum.pending)
@@ -57,7 +57,7 @@ class User(BaseSqlModel):
     )
     """The timestamp representing when the user was last updated."""
 
-    authenticated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    authenticated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     """The timestamp representing when the user was last authenticated."""
 
     tenant = relationship('Tenant', back_populates='auth_users', cascade='expunge')
@@ -175,7 +175,7 @@ class UserAuthenticator(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the authenticator."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns the authenticator if any."""
@@ -367,12 +367,12 @@ class Client(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the client."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns the client if any."""
 
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the user that owns the client if any."""
@@ -383,7 +383,7 @@ class Client(BaseSqlModel):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     """The name of the client."""
 
-    redirect_uri: Mapped[str] = mapped_column(TEXT, nullable=True)
+    redirect_uri: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The URL to redirect after authorization (if using auth code flow)."""
 
     scopes: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
@@ -403,7 +403,7 @@ class Client(BaseSqlModel):
     )
     """The timestamp representing when the client was last updated."""
 
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     """The timestamp representing when the client expires if ever."""
 
     tenant = relationship('Tenant', back_populates='auth_clients', cascade='expunge')
@@ -450,12 +450,12 @@ class RefreshToken(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the refresh token."""
 
-    tenant_id: Mapped[UUID] = mapped_column(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant that owns the refresh token if any."""
 
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[Optional[UUID]] = mapped_column(
         Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the user that owns the refresh token if any."""

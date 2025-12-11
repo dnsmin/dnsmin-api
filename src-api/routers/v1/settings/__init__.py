@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lib.api.dependencies import get_db_session, get_principal
 from models.api.auth.users import UserOutSchema
 from models.api.auth.clients import ClientOutSchema
-from models.api.settings import SettingIn, SettingOut, SettingsOut
+from models.api.settings import SettingInSchema, SettingOutSchema, SettingsOutSchema
 from routers.root import router_responses
 
 router = APIRouter(
@@ -16,7 +16,7 @@ router = APIRouter(
 
 @router.get(
     '',
-    response_model=SettingsOut,
+    response_model=SettingsOutSchema,
     summary='Retrieves all settings',
     description='Retrieves all settings for the current authentication context.',
     operation_id='settings:all',
@@ -30,13 +30,13 @@ async def list_settings(
 
 @router.post(
     '',
-    response_model=SettingOut,
+    response_model=SettingOutSchema,
     summary='Creates a new setting override',
     description='Creates a new setting override for the tenant or user principals based on current authentication context.',
     operation_id='settings:create',
 )
 async def setting_create(
-        setting: SettingIn,
+        setting: SettingInSchema,
         session: AsyncSession = Depends(get_db_session),
         principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
 ):
@@ -45,7 +45,7 @@ async def setting_create(
 
 @router.get(
     '/{key}',
-    response_model=SettingOut,
+    response_model=SettingOutSchema,
     summary='Retrieves a setting',
     description='Retrieves a setting by key for the current authentication context.',
 )
@@ -59,7 +59,7 @@ async def setting_read(
 
 @router.patch(
     '/{key}',
-    response_model=SettingOut,
+    response_model=SettingOutSchema,
     summary='Updates a setting',
     description='Updates a setting for the current authentication context.',
 )

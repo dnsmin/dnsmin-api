@@ -72,6 +72,13 @@ class PolicyInSchema(BaseApiModel):
     )
     """The permission associated with the policy."""
 
+    deny: bool = Field(
+        title='Deny Policy',
+        description='Determines if the policy is an allow or deny policy.',
+        default=False,
+    )
+    """Determines if the policy is an allow or deny policy."""
+
     @field_validator('permission')
     @classmethod
     def permission_validator(cls, v: str) -> str:
@@ -155,6 +162,13 @@ class PolicyOutSchema(BaseApiModel):
     )
     """The permission associated with the policy."""
 
+    deny: bool = Field(
+        title='Deny Policy',
+        description='Determines if the policy is an allow or deny policy.',
+        default=False,
+    )
+    """Determines if the policy is an allow or deny policy."""
+
     created_at: datetime = Field(
         title='Created At',
         description='The timestamp representing when the policy was created.',
@@ -213,9 +227,17 @@ class PoliciesSchema(BaseApiModel):
     """A list of policies found based on the current request criteria."""
 
     total: int = Field(
+        title='Total Policies',
+        description='The total number of policies.',
+        default=0,
+        examples=[4],
+    )
+    """The total number of policies."""
+
+    total_filtered: int = Field(
         title='Total Policies Found',
         description='The total number of policies found based on the current request criteria.',
         default=0,
-        examples=[4],
+        examples=[1234],
     )
     """The total number of policies found based on the current request criteria."""

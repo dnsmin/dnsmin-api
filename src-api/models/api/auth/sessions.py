@@ -10,10 +10,9 @@ from models.api import BaseApiModel
 class SessionOutSchema(BaseApiModel):
     """Provides an API response model for representing authentication sessions."""
 
-    id: Optional[UUID] = Field(
+    id: UUID = Field(
         title='Session ID',
         description='The unique identifier of the session.',
-        default=None,
         examples=[uuid4()],
     )
     """The unique identifier of the session."""
@@ -89,6 +88,14 @@ class SessionsSchema(BaseApiModel):
     """A list of sessions found based on the current request criteria."""
 
     total: int = Field(
+        title='Total Sessions',
+        description='The total number of sessions.',
+        default=0,
+        examples=[1234],
+    )
+    """The total number of sessions."""
+
+    total_filtered: int = Field(
         title='Total Sessions Found',
         description='The total number of sessions found based on the current request criteria.',
         default=0,

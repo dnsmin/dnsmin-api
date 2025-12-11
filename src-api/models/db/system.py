@@ -4,9 +4,10 @@ System Database Models
 This file defines the database models associated with core system functionality.
 """
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, Integer, String, TEXT, Uuid, text
+from sqlalchemy import DateTime, Integer, String, Uuid, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import DB_PREFIX
@@ -28,7 +29,7 @@ class StopgapDomain(BaseSqlModel):
     fqdn: Mapped[str] = mapped_column(String(253), nullable=False)
     """The FQDN for the base stopgap domain."""
 
-    restricted_hosts: Mapped[list[str]] = mapped_column(JSONType, nullable=True)
+    restricted_hosts: Mapped[Optional[list[str]]] = mapped_column(JSONType, nullable=True)
     """The list of hostnames that are restricted from use by tenants."""
 
     created_at: Mapped[datetime] = mapped_column(

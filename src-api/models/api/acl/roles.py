@@ -8,7 +8,7 @@ from models.api import BaseApiModel
 from models.enums import PrincipalTypeEnum
 
 
-class RolePrincipalInSchema(BaseApiModel):
+class PrincipalInSchema(BaseApiModel):
     """Provides an API input model for creating ACL role principals."""
 
     tenant_id: Optional[UUID] = Field(
@@ -19,7 +19,7 @@ class RolePrincipalInSchema(BaseApiModel):
     )
     """The unique identifier of the tenant associated with the principal if any."""
 
-    principal_type: PrincipalTypeEnum = Field(
+    type: PrincipalTypeEnum = Field(
         title='Principal Type',
         description='The type of the associated principal.',
         examples=[
@@ -28,14 +28,6 @@ class RolePrincipalInSchema(BaseApiModel):
         ],
     )
     """The type of the associated principal."""
-
-    principal_id: UUID = Field(
-        title='Principal ID',
-        description='The unique identifier of the principal associated with the role.',
-        default=None,
-        examples=[uuid4()],
-    )
-    """The unique identifier of the principal associated with the role."""
 
 
 class RoleInSchema(BaseApiModel):
@@ -56,6 +48,13 @@ class RoleInSchema(BaseApiModel):
     )
     """The slug of the role."""
 
+    name: str = Field(
+        title='Role Name',
+        description='The name of the role.',
+        examples=['System Admin', 'Tenant Admin', 'Tenant Owner', 'Zone Admin'],
+    )
+    """The name of the role."""
+
     description: str = Field(
         title='Role Description',
         description='The description of the role.',
@@ -68,23 +67,17 @@ class RoleInSchema(BaseApiModel):
     )
     """The description of the role."""
 
-    principals: Optional[list[RolePrincipalInSchema]] = Field(
-        title='Role Principals',
-        description='The principals associated with the role.',
-        default=None,
-        examples=[[
-            RolePrincipalInSchema(principal_type=PrincipalTypeEnum.user, principal_id=uuid4()),
-            RolePrincipalInSchema(principal_type=PrincipalTypeEnum.client, principal_id=uuid4()),
-            RolePrincipalInSchema(tenant_id=uuid4(), principal_type=PrincipalTypeEnum.client, principal_id=uuid4()),
-            RolePrincipalInSchema(tenant_id=uuid4(), principal_type=PrincipalTypeEnum.user, principal_id=uuid4()),
-            RolePrincipalInSchema(tenant_id=uuid4(), principal_type=PrincipalTypeEnum.client, principal_id=uuid4()),
-        ]],
-    )
-    """The principals associated with the role."""
 
-
-class RolePrincipalOutSchema(BaseApiModel):
+class PrincipalOutSchema(BaseApiModel):
     """Provides an API response model for representing ACL role principals."""
+
+    id: UUID = Field(
+        title='Principal ID',
+        description='The unique identifier of the principal.',
+        default_factory=uuid4,
+        examples=[uuid4()],
+    )
+    """The unique identifier of the principal."""
 
     tenant_id: Optional[UUID] = Field(
         title='Tenant ID',
@@ -94,7 +87,7 @@ class RolePrincipalOutSchema(BaseApiModel):
     )
     """The unique identifier of the tenant associated with the principal if any."""
 
-    principal_type: PrincipalTypeEnum = Field(
+    type: PrincipalTypeEnum = Field(
         title='Principal Type',
         description='The type of the associated principal.',
         examples=[
@@ -103,14 +96,6 @@ class RolePrincipalOutSchema(BaseApiModel):
         ],
     )
     """The type of the associated principal."""
-
-    principal_id: UUID = Field(
-        title='Principal ID',
-        description='The unique identifier of the principal associated with the role.',
-        default=None,
-        examples=[uuid4()],
-    )
-    """The unique identifier of the principal associated with the role."""
 
     created_at: datetime = Field(
         title='Created At',
@@ -147,6 +132,13 @@ class RoleOutSchema(BaseApiModel):
     )
     """The slug of the role."""
 
+    name: str = Field(
+        title='Role Name',
+        description='The name of the role.',
+        examples=['System Admin', 'Tenant Admin', 'Tenant Owner', 'Zone Admin'],
+    )
+    """The name of the role."""
+
     description: str = Field(
         title='Role Description',
         description='The description of the role.',
@@ -175,20 +167,6 @@ class RoleOutSchema(BaseApiModel):
     )
     """The timestamp representing when the role was last updated."""
 
-    principals: Optional[list[RolePrincipalOutSchema]] = Field(
-        title='Role Principals',
-        description='The principals associated with the role.',
-        default_factory=list[RolePrincipalOutSchema],
-        examples=[[
-            RolePrincipalOutSchema(principal_type=PrincipalTypeEnum.user, principal_id=uuid4()),
-            RolePrincipalOutSchema(principal_type=PrincipalTypeEnum.client, principal_id=uuid4()),
-            RolePrincipalOutSchema(tenant_id=uuid4(), principal_type=PrincipalTypeEnum.client, principal_id=uuid4()),
-            RolePrincipalOutSchema(tenant_id=uuid4(), principal_type=PrincipalTypeEnum.user, principal_id=uuid4()),
-            RolePrincipalOutSchema(tenant_id=uuid4(), principal_type=PrincipalTypeEnum.client, principal_id=uuid4()),
-        ]],
-    )
-    """The principals associated with the role."""
-
 
 class RolesSchema(BaseApiModel):
     """Provides an API response model for retrieving ACL roles."""
@@ -207,9 +185,44 @@ class RolesSchema(BaseApiModel):
     """A list of roles found based on the current request criteria."""
 
     total: int = Field(
-        title='Total Roles Found',
-        description='The total number of roles found based on the current request criteria.',
+        title='Total Roles',
+        description='The total number of roles.',
         default=0,
         examples=[4],
     )
+    """The total number of roles."""
+
+    total_filtered: int = Field(
+        title='Total Roles Found',
+        description='The total number of roles found based on the current request criteria.',
+        default=0,
+        examples=[1234],
+    )
     """The total number of roles found based on the current request criteria."""
+
+
+class PrincipalsSchema(BaseApiModel):
+    """Provides an API response model for retrieving ACL principals."""
+
+    records: list[PrincipalOutSchema] = Field(
+        title='Principals',
+        description='A list of principals found based on the current request criteria.',
+        default_factory=list[RoleOutSchema],
+    )
+    """A list of principals found based on the current request criteria."""
+
+    total: int = Field(
+        title='Total Principals',
+        description='The total number of principals.',
+        default=0,
+        examples=[4],
+    )
+    """The total number of principals."""
+
+    total_filtered: int = Field(
+        title='Total Principals Found',
+        description='The total number of principals found based on the current request criteria.',
+        default=0,
+        examples=[1234],
+    )
+    """The total number of principals found based on the current request criteria."""

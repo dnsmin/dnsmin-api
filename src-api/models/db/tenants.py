@@ -4,6 +4,7 @@ Tenant Database Models
 This file defines the database models associated with tenant functionality.
 """
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, String, Uuid, text, ForeignKey
@@ -25,7 +26,7 @@ class Tenant(BaseSqlModel):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     """The name of the tenant."""
 
-    fqdn: Mapped[str] = mapped_column(String(253), nullable=True)
+    fqdn: Mapped[Optional[str]] = mapped_column(String(253), nullable=True)
     """The FQDN for the tenant UI."""
 
     stopgap_domain_id: Mapped[UUID] = mapped_column(

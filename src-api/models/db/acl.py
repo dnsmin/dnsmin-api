@@ -4,6 +4,7 @@ ACL Database Models
 This file defines the database models associated with ACL functionality.
 """
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, String, Boolean, Enum, TEXT, Uuid, text, ForeignKey, UniqueConstraint
@@ -23,7 +24,7 @@ class Role(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the role."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(Uuid, ForeignKey(
         f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'
     ), nullable=True)
     """The unique identifier of the associated tenant if any."""
@@ -34,7 +35,7 @@ class Role(BaseSqlModel):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     """The role name."""
 
-    description: Mapped[str] = mapped_column(TEXT, nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     """The description of the role."""
 
     created_at: Mapped[datetime] = mapped_column(
@@ -109,7 +110,7 @@ class Principal(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the principal."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(Uuid, ForeignKey(
         f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'
     ), nullable=True)
     """The unique identifier of the associated tenant if any."""
@@ -170,7 +171,7 @@ class Policy(BaseSqlModel):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     """The unique identifier of the policy."""
 
-    tenant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey(
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(Uuid, ForeignKey(
         f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'
     ), nullable=True)
     """The unique identifier of the associated tenant if any."""
@@ -178,13 +179,13 @@ class Policy(BaseSqlModel):
     resource_type: Mapped[ResourceTypeEnum] = mapped_column(Enum(ResourceTypeEnum, native_enum=False), nullable=False)
     """The resource type associated with the policy."""
 
-    resource_id: Mapped[UUID] = mapped_column(Uuid, nullable=True)
+    resource_id: Mapped[Optional[UUID]] = mapped_column(Uuid, nullable=True)
     """The unique identifier of the associated resource if any."""
 
     principal_type: Mapped[PrincipalTypeEnum] = mapped_column(String(20), nullable=False)
     """The principal type associated with the policy."""
 
-    principal_id: Mapped[UUID] = mapped_column(Uuid, nullable=True)
+    principal_id: Mapped[Optional[UUID]] = mapped_column(Uuid, nullable=True)
     """The unique identifier of the associated principal if any."""
 
     permission: Mapped[str] = mapped_column(String(255), nullable=False)
