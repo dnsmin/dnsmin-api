@@ -5,3 +5,5 @@ export interface ListResourceParams {
     sortModel: GridSortModel;
     paginationModel: GridPaginationModel;
 }
+
+export type IListResourceParams = ListResourceParams;

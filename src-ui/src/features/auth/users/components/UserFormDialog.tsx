@@ -22,9 +22,9 @@ import {
     MenuItem,
 
 } from "@mui/material";
-import {IUser} from "@app/types/models/auth";
-import {useUser, useCreateUser, useUpdateUser} from "@app/api/hooks/auth/users";
+import {useUser, useCreateUser, useUpdateUser} from "@app/features/auth/users/hooks";
 import {mapFastApiErrorsToFormik} from "@app/utils/fastapi-formik";
+import {IUser} from "@app/features/auth/users/models";
 
 type FormDialogProps = {
     basePath: string;

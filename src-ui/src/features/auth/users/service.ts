@@ -1,10 +1,10 @@
-import {http} from "@app/api/http";
-import {UserInDTO, UsersPagedResponseDTO} from "@app/types/dto/auth";
-import {User, UsersPaged} from "@app/types/models/auth";
-import {userFromDTO, userToDTO, usersPagedFromDTO} from "@app/api/converters/auth";
-import {ListResourceParams} from "@app/services/base";
+import {http} from "@app/utils/http";
+import {ListResourceParams} from "@app/types/api";
+import {userFromDTO, usersPagedFromDTO, userToDTO} from "@app/features/auth/users/converters";
+import {UserInDTO, UsersPagedResponseDTO} from "@app/features/auth/users/dto";
+import {User, UsersPaged} from "@app/features/auth/users/models";
 
-export const UserService = {
+export const UsersService = {
     async list(req?: ListResourceParams): Promise<UsersPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,

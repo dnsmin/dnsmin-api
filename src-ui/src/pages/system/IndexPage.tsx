@@ -4,10 +4,10 @@ import PageHeader from '@components/PageHeader';
 import StatisticCard from '@components/cards/StatisticCard';
 
 interface ViewProps {
-    baseUrl: string;
+    basePath: string;
 }
 
-const Page: React.FC<ViewProps> = ({baseUrl}) => {
+const Page: React.FC<ViewProps> = ({basePath}) => {
     return (
         <>
             <PageHeader title={'System Management'}/>

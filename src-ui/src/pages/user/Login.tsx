@@ -11,7 +11,7 @@ import Logo from '@app/assets/img/logo-icon.svg';
 import * as React from "react";
 
 interface ViewProps {
-    baseUrl: string;
+    basePath: string;
 }
 
 interface formValues {

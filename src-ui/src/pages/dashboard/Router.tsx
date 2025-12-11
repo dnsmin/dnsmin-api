@@ -1,15 +1,15 @@
-import * as React from 'react';
-import {Routes, Route, Outlet} from 'react-router-dom';
-import PrivateRoute from '@app/routes/PrivateRoute';
-import UserLayout from '@layouts/user/Layout';
-import PageTitle from '@components/PageTitle';
-import DashboardIndexPage from '@pages/dashboard/IndexPage';
+import * as React from "react";
+import {Routes, Route, Outlet} from "react-router-dom";
+import PrivateRoute from "@app/routes/PrivateRoute";
+import UserLayout from "@layouts/user/Layout";
+import PageTitle from "@components/PageTitle";
+import DashboardIndexPage from "@pages/dashboard/IndexPage";
 
 interface RouterProps {
-    baseUrl: string;
+    basePath: string;
 }
 
-const Router: React.FC<RouterProps> = ({baseUrl}) => {
+const Router: React.FC<RouterProps> = ({basePath}) => {
     return (
         <>
             <Routes>
@@ -19,7 +19,7 @@ const Router: React.FC<RouterProps> = ({baseUrl}) => {
                             <Outlet/>
                         }>
                             <Route path="/"
-                                   element={<PageTitle title="Dashboard"><DashboardIndexPage baseUrl={baseUrl}/></PageTitle>}/>
+                                   element={<PageTitle title="Dashboard"><DashboardIndexPage basePath={basePath}/></PageTitle>}/>
                         </Route>
                     </Route>
                 </Route>

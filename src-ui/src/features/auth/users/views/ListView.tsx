@@ -13,18 +13,18 @@ import {
     GridColDef,
     GridActionsCellItem,
 } from "@mui/x-data-grid-pro";
-import {useUsers} from "@app/api/hooks/auth/users";
+import {useUsers} from "@app/features/auth/users/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
-import UserFormDialog from "@components/forms/UserFormDialog";
+import FormDialog from "@app/features/auth/users/components/UserFormDialog";
 
 
 interface ViewProps {
-    baseUrl: string;
+    basePath: string;
     multiTenant?: boolean;
 }
 
-const Page = ({baseUrl, multiTenant = true}: ViewProps) => {
+const ListView = ({basePath, multiTenant = true}: ViewProps) => {
     const navigate = useNavigate();
 
     const [filterModel, setFilterModel] = useState<GridFilterModel>({
@@ -44,15 +44,15 @@ const Page = ({baseUrl, multiTenant = true}: ViewProps) => {
     }, [filterModel]);
 
     const openCreate = () => {
-        navigate(`${baseUrl}/create`);
+        navigate(`${basePath}/create`);
     };
 
     const openUpdate = (id: string) => {
-        navigate(`${baseUrl}/${id}/update`);
+        navigate(`${basePath}/${id}/update`);
     };
 
     const openDelete = (id: string) => {
-        navigate(`${baseUrl}/${id}/delete`);
+        navigate(`${basePath}/${id}/delete`);
     };
 
     const columns: readonly GridColDef<any>[] = [
@@ -136,9 +136,9 @@ const Page = ({baseUrl, multiTenant = true}: ViewProps) => {
                     />
                 </Grid>
             </Grid>
-            <UserFormDialog basePath={baseUrl}/>
+            <FormDialog basePath={basePath}/>
         </>
     );
 };
 
-export default Page;
+export default ListView;
