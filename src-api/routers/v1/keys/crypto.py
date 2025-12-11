@@ -8,7 +8,7 @@ from lib.api.dependencies import get_db_session, get_principal
 from models.api import ListParamsModel
 from models.api.auth import Principal
 from models.api.keys.crypto import CryptoKeysSchema, CryptoKeyOutSchema, CryptoKeyInSchema
-from routers.v1.auth import router
+from routers.v1.keys import router
 
 
 @router.post(
