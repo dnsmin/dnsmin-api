@@ -176,10 +176,10 @@ class RolesSchema(BaseApiModel):
         description='A list of roles found based on the current request criteria.',
         default_factory=list[RoleOutSchema],
         examples=[[
-            RoleOutSchema(slug='system_admin', description='A role for system administrators.'),
-            RoleOutSchema(slug='tenant_admin', description='A role for tenant administrators.'),
-            RoleOutSchema(slug='tenant_owner', description='A role for tenant owners.'),
-            RoleOutSchema(slug='zone_admin', description='A role for zone administrators.'),
+            RoleOutSchema(slug='system_admin', name='System Admin', description='A role for system administrators.'),
+            RoleOutSchema(slug='tenant_admin', name='Tenant Admin', description='A role for tenant administrators.'),
+            RoleOutSchema(slug='tenant_owner', name='Tenant Owner', description='A role for tenant owners.'),
+            RoleOutSchema(slug='zone_admin', name='Zone Admin', description='A role for zone administrators.'),
         ]],
     )
     """A list of roles found based on the current request criteria."""
