@@ -60,7 +60,7 @@ class User(BaseSqlModel):
     authenticated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     """The timestamp representing when the user was last authenticated."""
 
-    tenant = relationship('Tenant', back_populates='auth_users')
+    tenant = relationship('Tenant', back_populates='auth_users', cascade='expunge')
     """The tenant associated with the user."""
 
     authenticators = relationship('UserAuthenticator', back_populates='user', cascade='all, delete, delete-orphan')
@@ -211,10 +211,10 @@ class UserAuthenticator(BaseSqlModel):
     used_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     """The timestamp representing when the authenticator was last used."""
 
-    tenant = relationship('Tenant', back_populates='auth_user_authenticators', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='auth_user_authenticators', cascade='expunge')
     """The tenant associated with the user."""
 
-    user = relationship('User', back_populates='authenticators', cascade='expunge, delete')
+    user = relationship('User', back_populates='authenticators', cascade='expunge')
     """A list of auth sessions associated with the user."""
 
 
@@ -228,12 +228,12 @@ class Session(BaseSqlModel):
     """The unique identifier of the session."""
 
     tenant_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE'), nullable=True
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
     )
     """The unique identifier of the tenant associated with the session if any."""
 
     user_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE'), nullable=False
+        Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
     )
     """The unique identifier of the user associated with the session."""
 
@@ -406,13 +406,13 @@ class Client(BaseSqlModel):
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     """The timestamp representing when the client expires if ever."""
 
-    tenant = relationship('Tenant', back_populates='auth_clients', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='auth_clients', cascade='expunge')
     """The tenant associated with the client."""
 
-    user = relationship('User', back_populates='clients', cascade='expunge, delete')
+    user = relationship('User', back_populates='clients', cascade='expunge')
     """The user associated with the client."""
 
-    refresh_tokens = relationship('RefreshToken', back_populates='client', cascade='all, delete, delete-orphan')
+    refresh_tokens = relationship('RefreshToken', back_populates='client', cascade='all, delete-orphan')
     """A list of refresh tokens associated with the client."""
 
     @property
@@ -479,13 +479,13 @@ class RefreshToken(BaseSqlModel):
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     """The timestamp representing when the refresh token expires."""
 
-    tenant = relationship('Tenant', back_populates='auth_refresh_tokens', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='auth_refresh_tokens', cascade='expunge')
     """The tenant associated with the refresh token."""
 
-    user = relationship('User', back_populates='refresh_tokens', cascade='expunge, delete')
+    user = relationship('User', back_populates='refresh_tokens', cascade='expunge')
     """The user associated with the refresh token."""
 
-    client = relationship('Client', back_populates='refresh_tokens', cascade='expunge, delete')
+    client = relationship('Client', back_populates='refresh_tokens', cascade='expunge')
     """The authclient associated with the refresh token."""
 
     def validate(self, client_id: str | UUID) -> bool:

@@ -70,7 +70,7 @@ class CryptoKey(BaseSqlModel):
     )
     """The timestamp representing when the crypto key was last updated."""
 
-    tenant = relationship('Tenant', back_populates='crypto_keys', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='crypto_keys', cascade='expunge')
     """The tenant associated with the cryptographic key."""
 
 
@@ -108,5 +108,5 @@ class TsigKey(BaseSqlModel):
     )
     """The timestamp representing when the TSIG key was last updated."""
 
-    tenant = relationship('Tenant', back_populates='tsig_keys', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='tsig_keys', cascade='expunge')
     """The tenant associated with the TSIG key."""

@@ -47,7 +47,7 @@ class Tenant(BaseSqlModel):
     )
     """The timestamp representing when the tenant was last updated."""
 
-    stopgap_domain = relationship('StopgapDomain', back_populates='tenants', cascade='expunge, delete')
+    stopgap_domain = relationship('StopgapDomain', back_populates='tenants', cascade='expunge')
     """The stopgap domain associated with the tenant."""
 
     settings = relationship('Setting', back_populates='tenant', cascade='all, delete, delete-orphan')

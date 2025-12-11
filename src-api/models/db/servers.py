@@ -96,7 +96,7 @@ class ServerAutoPrimary(BaseSqlModel):
     )
     """The timestamp representing when the auto-primary was last updated."""
 
-    server = relationship('Server', back_populates='auto_primaries', cascade='expunge, delete')
+    server = relationship('Server', back_populates='auto_primaries', cascade='expunge')
     """The server associated with the auto primary registration."""
 
 
@@ -128,19 +128,19 @@ class ServerView(BaseSqlModel):
     )
     """The timestamp representing when the view was last updated."""
 
-    server = relationship('Server', back_populates='views', cascade='expunge, delete')
+    server = relationship('Server', back_populates='views', cascade='expunge')
     """The server associated with the view."""
 
     networks = relationship('ServerNetwork', back_populates='view', cascade='all, delete, delete-orphan')
     """A list of networks associated with the view."""
 
-    azones = relationship('AZone', back_populates='view', cascade='all, delete, delete-orphan')
+    azones = relationship('AZone', back_populates='view', cascade='all, delete-orphan')
     """A list of authoritative zones associated with the view."""
 
-    azone_records = relationship('AZoneRecord', back_populates='view', cascade='all, delete, delete-orphan')
+    azone_records = relationship('AZoneRecord', back_populates='view', cascade='all, delete-orphan')
     """A list of authoritative zone records associated with the view."""
 
-    azone_metadata = relationship('AZoneMetadata', back_populates='view', cascade='all, delete, delete-orphan')
+    azone_metadata = relationship('AZoneMetadata', back_populates='view', cascade='all, delete-orphan')
     """A list of authoritative zone metadata associated with the view."""
 
 
@@ -177,8 +177,8 @@ class ServerNetwork(BaseSqlModel):
     )
     """The timestamp representing when the network was last updated."""
 
-    server = relationship('Server', back_populates='networks', cascade='expunge, delete')
+    server = relationship('Server', back_populates='networks', cascade='expunge')
     """The server associated with the network."""
 
-    view = relationship('ServerView', back_populates='networks', cascade='expunge, delete')
+    view = relationship('ServerView', back_populates='networks', cascade='expunge')
     """The view associated with the network."""

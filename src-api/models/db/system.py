@@ -42,7 +42,7 @@ class StopgapDomain(BaseSqlModel):
     )
     """The timestamp representing when the stopgap domain was last updated."""
 
-    tenants = relationship('Tenant', back_populates='stopgap_domain', cascade='all, delete, delete-orphan')
+    tenants = relationship('Tenant', back_populates='stopgap_domain', cascade='all, delete-orphan')
     """A list of tenants associated with the stopgap domain."""
 
 

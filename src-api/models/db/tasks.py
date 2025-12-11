@@ -106,5 +106,5 @@ class TaskJobActivity(BaseSqlModel):
     )
     """The timestamp representing when the activity was created."""
 
-    task_job = relationship('TaskJob', back_populates='activities', cascade='expunge, delete')
+    task_job = relationship('TaskJob', back_populates='activities', cascade='expunge')
     """The task job associated with the activity update."""

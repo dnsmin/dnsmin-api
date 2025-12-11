@@ -58,8 +58,8 @@ class Setting(BaseSqlModel):
     )
     """The timestamp representing when the setting was last updated."""
 
-    tenant = relationship('Tenant', back_populates='settings', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='settings', cascade='expunge')
     """The tenant associated with the setting."""
 
-    user = relationship('User', back_populates='settings', cascade='expunge, delete')
+    user = relationship('User', back_populates='settings', cascade='expunge')
     """The user associated with the setting."""

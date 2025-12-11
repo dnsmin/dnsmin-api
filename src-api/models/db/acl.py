@@ -48,14 +48,14 @@ class Role(BaseSqlModel):
     )
     """The timestamp representing when the role was last updated."""
 
-    tenant = relationship('Tenant', back_populates='acl_roles', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='acl_roles', cascade='expunge')
     """The tenant associated with the role."""
 
     parents: Mapped[list['RoleInheritance']] = relationship(
         'RoleInheritance',
         foreign_keys='[RoleInheritance.child_role_id]',
         back_populates='child',
-        cascade='all, delete, delete-orphan',
+        cascade='all, delete-orphan',
     )
     """The parent roles associated with the role."""
 
@@ -63,7 +63,7 @@ class Role(BaseSqlModel):
         'RoleInheritance',
         foreign_keys='[RoleInheritance.parent_role_id]',
         back_populates='parent',
-        cascade='all, delete, delete-orphan',
+        cascade='all, delete-orphan',
     )
     """The child roles associated with the role."""
 
@@ -95,7 +95,7 @@ class RoleInheritance(BaseSqlModel):
     """The child role of the connection."""
 
     parent: Mapped[Role] = relationship(
-        'Role', foreign_keys=[parent_role_id], back_populates='children', cascade='expunge, delete'
+        'Role', foreign_keys=[parent_role_id], back_populates='children', cascade='expunge'
     )
     """The parent role of the connection."""
 
@@ -122,7 +122,7 @@ class Principal(BaseSqlModel):
     )
     """The timestamp representing when the role was created."""
 
-    tenant = relationship('Tenant', back_populates='acl_principals', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='acl_principals', cascade='expunge')
     """The tenant associated with the principal."""
 
     roles: Mapped[list['PrincipalRoleAssoc']] = relationship(
@@ -154,10 +154,10 @@ class PrincipalRoleAssoc(BaseSqlModel):
     )
     """The timestamp representing when the association was created."""
 
-    principal: Mapped[Principal] = relationship('Principal', back_populates='roles', cascade='expunge, delete')
+    principal: Mapped[Principal] = relationship('Principal', back_populates='roles', cascade='expunge')
     """The principal of the association."""
 
-    role: Mapped[Role] = relationship('Role', cascade='expunge, delete')
+    role: Mapped[Role] = relationship('Role', cascade='expunge')
     """The role of the association."""
 
 
@@ -204,7 +204,7 @@ class Policy(BaseSqlModel):
     )
     """The timestamp representing when the policy was last updated."""
 
-    tenant = relationship('Tenant', back_populates='acl_policies', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='acl_policies', cascade='expunge')
     """The tenant associated with the policy."""
 
     __table_args__ = (

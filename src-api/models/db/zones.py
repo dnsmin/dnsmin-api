@@ -101,10 +101,10 @@ class AZone(BaseSqlModel):
     )
     """The timestamp representing when the zone was last updated."""
 
-    tenant = relationship('Tenant', back_populates='azones', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='azones', cascade='expunge')
     """The tenant associated with the zone."""
 
-    view = relationship('ServerView', back_populates='azones', cascade='expunge, delete')
+    view = relationship('ServerView', back_populates='azones', cascade='expunge')
     """The view associated with the zone."""
 
     records = relationship('AZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan')
@@ -170,10 +170,10 @@ class AZoneRecord(BaseSqlModel):
     )
     """The timestamp representing when the record was last updated."""
 
-    zone = relationship('AZone', back_populates='records', cascade='expunge, delete')
+    zone = relationship('AZone', back_populates='records', cascade='expunge')
     """The zone associated with the resource record."""
 
-    view = relationship('ServerView', back_populates='azone_records', cascade='expunge, delete')
+    view = relationship('ServerView', back_populates='azone_records', cascade='expunge')
     """The view associated with the record."""
 
 
@@ -218,10 +218,10 @@ class AZoneMetadata(BaseSqlModel):
     )
     """The timestamp representing when the metadata was last updated."""
 
-    zone = relationship('AZone', back_populates='metadata_', cascade='expunge, delete')
+    zone = relationship('AZone', back_populates='metadata_', cascade='expunge')
     """The zone associated with the metadata."""
 
-    view = relationship('ServerView', back_populates='azone_metadata', cascade='expunge, delete')
+    view = relationship('ServerView', back_populates='azone_metadata', cascade='expunge')
     """The view associated with the metadata."""
 
 
@@ -265,7 +265,7 @@ class RZone(BaseSqlModel):
     )
     """The timestamp representing when the zone was last updated."""
 
-    tenant = relationship('Tenant', back_populates='rzones', cascade='expunge, delete')
+    tenant = relationship('Tenant', back_populates='rzones', cascade='expunge')
     """The tenant associated with the zone."""
 
     records = relationship('RZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan')
@@ -323,5 +323,5 @@ class RZoneRecord(BaseSqlModel):
     )
     """The timestamp representing when the resource record was last updated."""
 
-    zone = relationship('RZone', back_populates='records', cascade='expunge, delete')
+    zone = relationship('RZone', back_populates='records', cascade='expunge')
     """The zone associated with the resource record."""
