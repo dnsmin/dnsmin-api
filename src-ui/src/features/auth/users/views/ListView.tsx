@@ -17,6 +17,7 @@ import {useUsers} from "@app/features/auth/users/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
 import FormDialog from "@app/features/auth/users/components/UserFormDialog";
+import DeleteDialog from "@app/features/auth/users/components/UserDeleteDialog";
 
 
 interface ViewProps {
@@ -137,6 +138,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                 </Grid>
             </Grid>
             <FormDialog basePath={basePath}/>
+            <DeleteDialog basePath={basePath}/>
         </>
     );
 };

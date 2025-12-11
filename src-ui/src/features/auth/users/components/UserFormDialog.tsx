@@ -104,6 +104,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
     const {data} = useUser(recordId!);
     const createUser = useCreateUser();
     const updateUser = useUpdateUser(recordId!);
+    const isValid = !recordId || (recordId && data?.id);
 
     const initialValues: IUser = isEdit
         ? {
@@ -123,7 +124,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
             status: '',
         };
 
-    const closeForm = () => {
+    const closeDialog = () => {
         navigate(basePath);
     };
 
@@ -134,7 +135,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
             } else {
                 await createUser.mutateAsync(values);
             }
-            closeForm();
+            closeDialog();
             actions.resetForm();
             actions.setStatus();
             toast.success('User saved!');
@@ -165,9 +166,9 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
         <React.Fragment>
             <Dialog
                 fullWidth={true}
-                maxWidth={'md'}
+                maxWidth={isValid ? 'md' : 'sm'}
                 open={open}
-                onClose={closeForm}
+                onClose={closeDialog}
             >
                 <Formik
                     initialValues={initialValues}
@@ -179,120 +180,144 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
                 >
                     {form => (
                         <form onSubmit={form.handleSubmit} onReset={form.handleReset}>
-                            <DialogTitle>{isEdit ? 'Update' : 'Create'} User</DialogTitle>
+                            <DialogTitle>
+                                {recordId && !data?.id ? 'User Not Found!' : (
+                                    <>{isEdit ? 'Update' : 'Create'} User</>
+                                )}
+                            </DialogTitle>
                             <DialogContent>
                                 <DialogContentText>
-                                    {isEdit ? (
-                                        <Typography variant="body1">
-                                            Please make the desired changes and then click Update User when finished.
-                                        </Typography>
-                                    ) : (
-                                        <Typography variant="body1">
-                                            Please provide the following details and then click Create User when finished.
-                                        </Typography>
-                                    )}
-                                    {form.status && (
+                                    {!isValid ? (
                                         <>
-                                            <Typography variant="body1" color="error"
-                                                        className="formStatus">{form.status}</Typography>
+                                            <Typography variant="body1" color="error">
+                                                No user could be found with the ID provided!
+                                            </Typography>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {isEdit ? (
+                                                <Typography variant="body1">
+                                                    Please make the desired changes and then click Update User when
+                                                    finished.
+                                                </Typography>
+                                            ) : (
+                                                <Typography variant="body1">
+                                                    Please provide the following details and then click Create User when
+                                                    finished.
+                                                </Typography>
+                                            )}
+                                            {form.status && (
+                                                <>
+                                                    <Typography variant="body1" color="error"
+                                                                className="formStatus">{form.status}</Typography>
+                                                </>
+                                            )}
                                         </>
                                     )}
                                 </DialogContentText>
-                                <Grid container marginY={2}>
-                                    <Grid size={{xs: 12, md: 6}}>
-                                        <Typography variant="h6" align="center" gutterBottom>User
-                                            Information</Typography>
-                                        <Stack component="form" spacing={3} noValidate>
-                                            <TextField
-                                                label="Username"
-                                                variant="outlined" // Common variant for forms
-                                                fullWidth
-                                                {...form.getFieldProps('username')}
-                                                error={form.errors.username !== undefined}
-                                                helperText={form.errors.username?.toString()}
-                                            />
+                                {isValid && (
+                                    <>
+                                        <Grid container marginY={2}>
+                                            <Grid size={{xs: 12, md: 6}}>
+                                                <Typography variant="h6" align="center" gutterBottom>User
+                                                    Information</Typography>
+                                                <Stack component="form" spacing={3} noValidate>
+                                                    <TextField
+                                                        label="Username"
+                                                        variant="outlined" // Common variant for forms
+                                                        fullWidth
+                                                        {...form.getFieldProps('username')}
+                                                        error={form.errors.username !== undefined}
+                                                        helperText={form.errors.username?.toString()}
+                                                    />
 
-                                            <TextField
-                                                label="Password"
-                                                type="password" // Masks the input for security
-                                                variant="outlined"
-                                                fullWidth
-                                                {...form.getFieldProps('password')}
-                                                error={form.errors.password !== undefined}
-                                                helperText={form.errors.password?.toString()}
-                                            />
+                                                    <TextField
+                                                        label="Password"
+                                                        type="password" // Masks the input for security
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        {...form.getFieldProps('password')}
+                                                        error={form.errors.password !== undefined}
+                                                        helperText={form.errors.password?.toString()}
+                                                    />
 
-                                            <TextField
-                                                label="Email"
-                                                type="email" // Ensures correct keyboard type on mobile and basic validation
-                                                variant="outlined"
-                                                fullWidth
-                                                {...form.getFieldProps('email')}
-                                                error={form.errors.email !== undefined}
-                                                helperText={form.errors.email?.toString()}
-                                            />
+                                                    <TextField
+                                                        label="Email"
+                                                        type="email" // Ensures correct keyboard type on mobile and basic validation
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        {...form.getFieldProps('email')}
+                                                        error={form.errors.email !== undefined}
+                                                        helperText={form.errors.email?.toString()}
+                                                    />
 
-                                            <TextField
-                                                label="Phone Number"
-                                                type="tel" // Ensures correct keyboard type on mobile and basic validation
-                                                variant="outlined"
-                                                fullWidth
-                                                {...form.getFieldProps('phoneNumber')}
-                                                error={form.errors.phoneNumber !== undefined}
-                                                helperText={form.errors.phoneNumber?.toString()}
-                                            />
+                                                    <TextField
+                                                        label="Phone Number"
+                                                        type="tel" // Ensures correct keyboard type on mobile and basic validation
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        {...form.getFieldProps('phoneNumber')}
+                                                        error={form.errors.phoneNumber !== undefined}
+                                                        helperText={form.errors.phoneNumber?.toString()}
+                                                    />
 
-                                            <FormControl fullWidth variant="outlined">
-                                                <InputLabel id="status-label">Status</InputLabel>
-                                                <Select
-                                                    labelId="status-label"
-                                                    id="status"
-                                                    label="Status"
-                                                    {...form.getFieldProps('status')}
-                                                    error={form.errors.status !== undefined}
-                                                >
-                                                    <MenuItem value="">
-                                                        <em>None</em>
-                                                    </MenuItem>
-                                                    <MenuItem value={'pending'}>Pending</MenuItem>
-                                                    <MenuItem value={'invited'}>Invited</MenuItem>
-                                                    <MenuItem value={'active'}>Active</MenuItem>
-                                                    <MenuItem value={'suspended'}>Suspended</MenuItem>
-                                                    <MenuItem value={'disabled'}>Disabled</MenuItem>
-                                                </Select>
-                                                <FormHelperText>{form.errors.status?.toString()}</FormHelperText>
-                                            </FormControl>
+                                                    <FormControl fullWidth variant="outlined">
+                                                        <InputLabel id="status-label">Status</InputLabel>
+                                                        <Select
+                                                            labelId="status-label"
+                                                            id="status"
+                                                            label="Status"
+                                                            {...form.getFieldProps('status')}
+                                                            error={form.errors.status !== undefined}
+                                                        >
+                                                            <MenuItem value="">
+                                                                <em>None</em>
+                                                            </MenuItem>
+                                                            <MenuItem value={'pending'}>Pending</MenuItem>
+                                                            <MenuItem value={'invited'}>Invited</MenuItem>
+                                                            <MenuItem value={'active'}>Active</MenuItem>
+                                                            <MenuItem value={'suspended'}>Suspended</MenuItem>
+                                                            <MenuItem value={'disabled'}>Disabled</MenuItem>
+                                                        </Select>
+                                                        <FormHelperText>{form.errors.status?.toString()}</FormHelperText>
+                                                    </FormControl>
 
-                                            <FormControl fullWidth variant="outlined">
-                                                <InputLabel id="tenant-label">Tenant</InputLabel>
-                                                <Select
-                                                    labelId="tenant-label"
-                                                    id="tenant"
-                                                    label="Tenant"
-                                                    {...form.getFieldProps('tenantId')}
-                                                    error={form.errors.tenantId !== undefined}
-                                                >
-                                                    <MenuItem value="">
-                                                        <em>None</em>
-                                                    </MenuItem>
-                                                    <MenuItem value={'t1'}>Tenant 1</MenuItem>
-                                                    <MenuItem value={'t2'}>Tenant 2</MenuItem>
-                                                    <MenuItem value={'t3'}>Tenant 3</MenuItem>
-                                                </Select>
-                                                <FormHelperText>{form.errors.tenantId?.toString()}</FormHelperText>
-                                            </FormControl>
-                                        </Stack>
-                                    </Grid>
-                                    <Grid size={{xs: 12, md: 6}}>
-                                        <Typography variant="h6" align="center" gutterBottom>User Roles</Typography>
-                                    </Grid>
-                                </Grid>
+                                                    <FormControl fullWidth variant="outlined">
+                                                        <InputLabel id="tenant-label">Tenant</InputLabel>
+                                                        <Select
+                                                            labelId="tenant-label"
+                                                            id="tenant"
+                                                            label="Tenant"
+                                                            {...form.getFieldProps('tenantId')}
+                                                            error={form.errors.tenantId !== undefined}
+                                                        >
+                                                            <MenuItem value="">
+                                                                <em>None</em>
+                                                            </MenuItem>
+                                                            <MenuItem value={'t1'}>Tenant 1</MenuItem>
+                                                            <MenuItem value={'t2'}>Tenant 2</MenuItem>
+                                                            <MenuItem value={'t3'}>Tenant 3</MenuItem>
+                                                        </Select>
+                                                        <FormHelperText>{form.errors.tenantId?.toString()}</FormHelperText>
+                                                    </FormControl>
+                                                </Stack>
+                                            </Grid>
+                                            <Grid size={{xs: 12, md: 6}}>
+                                                <Typography variant="h6" align="center" gutterBottom>User
+                                                    Roles</Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </>
+                                )}
                             </DialogContent>
                             <DialogActions>
                                 <Button variant="contained" color="error" type="reset"
-                                        onClick={closeForm}>Cancel</Button>
-                                <Button variant="contained"
-                                        type="submit">{isEdit ? 'Update' : 'Create'} User</Button>
+                                        onClick={closeDialog}>{isValid ? 'Cancel' : 'Close'}</Button>
+                                {isValid && (
+                                    <Button variant="contained"
+                                            type="submit">{isEdit ? 'Update' : 'Create'} User</Button>
+                                )}
+
                             </DialogActions>
                         </form>
                     )}
