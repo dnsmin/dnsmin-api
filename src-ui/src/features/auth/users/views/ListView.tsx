@@ -36,7 +36,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     const [sortModel, setSortModel] = useState<GridSortModel>([]);
 
-    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({page: 0, pageSize: 25});
+    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({page: 0, pageSize: 5});
 
     const {data, isLoading} = useUsers({filterModel, sortModel, paginationModel});
 
