@@ -118,7 +118,7 @@ class UserOutSchema(BaseApiModel):
     )
     """The status of the user."""
 
-    created_at: Optional[datetime] = Field(
+    created_at: datetime = Field(
         title='Created At',
         description='The timestamp representing when the user was created.',
         default=datetime.now,

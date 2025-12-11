@@ -85,9 +85,10 @@ class FilterModel(BaseApiModel):
     )
     """The logic operator to apply filtering with."""
 
-    quick_filter_logic_operator: FilterLogicOperatorEnum = Field(
+    quick_filter_logic_operator: Optional[FilterLogicOperatorEnum] = Field(
         title='Quick Filter Logic Operator',
         description='The logic operator to apply quick filtering with.',
+        default=FilterLogicOperatorEnum.AND,
         alias='quickFilterLogicOperator',
         examples=[FilterLogicOperatorEnum.AND, FilterLogicOperatorEnum.OR],
     )
@@ -122,7 +123,7 @@ class PaginationModel(BaseApiModel):
     @property
     def offset(self) -> int:
         """The offset index for the associated query."""
-        return ((self.page if self.page > 0 else 1) - 1) * self.page_size
+        return self.page * self.page_size
 
 
 class ListParamsModel(BaseApiModel):

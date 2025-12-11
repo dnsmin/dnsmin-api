@@ -53,7 +53,7 @@ class SessionOutSchema(BaseApiModel):
     )
     """The JSON-encoded data of the session."""
 
-    created_at: Optional[datetime] = Field(
+    created_at: datetime = Field(
         title='Created At',
         description='The timestamp representing when the session was created.',
         default=datetime.now,

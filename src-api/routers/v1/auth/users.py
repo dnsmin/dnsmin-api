@@ -149,7 +149,7 @@ async def record_read(
     return UserOutSchema.model_validate(record)
 
 
-@router.patch(
+@router.put(
     '/users/{user_id}',
     response_model=UserOutSchema,
     summary='Update authentication user',

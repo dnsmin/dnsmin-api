@@ -69,7 +69,7 @@ class ClientOutSchema(BaseApiModel):
     )
     """Whether the client is enabled."""
 
-    created_at: Optional[datetime] = Field(
+    created_at: datetime = Field(
         title='Created At',
         description='The timestamp representing when the client was created.',
         default=datetime.now,
