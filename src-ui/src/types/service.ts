@@ -1,6 +1,6 @@
-import {GridColDef, GridEventListener, GridGetRowsError, GridUpdateRowError} from "@mui/x-data-grid";
-import {RefObject} from "react";
-import {GridApiPro, GridDataSource, GridFeatureMode} from "@mui/x-data-grid-pro";
+import {RefObject} from 'react';
+import {GridColDef, GridEventListener, GridGetRowsError, GridUpdateRowError} from '@mui/x-data-grid';
+import {GridApiPro, GridDataSource, GridFeatureMode} from '@mui/x-data-grid-pro';
 
 export type ServiceCallback = (totalRecords: number, filteredRecords: number) => void;
 

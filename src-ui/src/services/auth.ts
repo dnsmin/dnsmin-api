@@ -1,4 +1,4 @@
-import {IUser} from '@app/types/user';
+import {IUser} from "@app/types/user";
 
 type AuthCallback = (user: IUser | null) => void;
 

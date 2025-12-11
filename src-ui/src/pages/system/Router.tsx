@@ -35,11 +35,11 @@ const Router: React.FC<RouterProps> = ({baseUrl}) => {
                                    element={
                                 <PageTitle title="Create User - User Management"><SystemUsersPage baseUrl={`${baseUrl}/users`}/></PageTitle>
                             }/>
-                            <Route path="/users/:userId/:action"
+                            <Route path="/users/:recordId/:action"
                                    element={
                                 <PageTitle title="Update User - User Management"><SystemUsersPage baseUrl={`${baseUrl}/users`}/></PageTitle>
                             }/>
-                            <Route path="/users/:userId/:action"
+                            <Route path="/users/:recordId/:action"
                                    element={
                                 <PageTitle title="Delete User - User Management"><SystemUsersPage baseUrl={`${baseUrl}/users`}/></PageTitle>
                             }/>

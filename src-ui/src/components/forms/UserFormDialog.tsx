@@ -1,6 +1,9 @@
-import * as React from 'react';
-import {useFormik, Formik, FormikHelpers, FormikValues} from 'formik';
-import {object, string, ObjectSchema} from 'yup';
+import * as React from "react";
+import {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {toast} from "react-toastify";
+import {Formik, FormikHelpers} from "formik";
+import {object, string} from "yup";
 import {
     Dialog,
     DialogActions,
@@ -18,16 +21,13 @@ import {
     Select,
     MenuItem,
 
-} from '@mui/material';
-import {IRecordFormMode} from '@app/types/service';
-import {IUser} from '@app/types/system/users';
+} from "@mui/material";
+import {IUser} from "@app/types/models/auth";
+import {useUser, useCreateUser, useUpdateUser} from "@app/api/hooks/auth/users";
+import {mapFastApiErrorsToFormik} from "@app/utils/fastapi-formik";
 
 type FormDialogProps = {
-    open: boolean;
-    mode: 'create' | 'update';
-    initialValues?: IUser;
-    onSubmit: (form: FormikHelpers<IUser>, values: IUser) => Promise<void>;
-    onCancel: () => void;
+    basePath: string;
 };
 
 interface formRequirements {
@@ -66,13 +66,13 @@ const formReqs: formRequirements = {
     tenantIdLength: 32,
 };
 
-const getValidationSchema = (mode: IRecordFormMode) => {
+const getValidationSchema = (isEdit: boolean) => {
     const schema = {
         username: string()
             .required('Username is required.')
             .min(formReqs.usernameMinLength, `Username must be at least ${formReqs.usernameMinLength} characters.`)
             .max(formReqs.usernameMaxLength, `Username must be at most ${formReqs.usernameMaxLength} characters.`),
-        password: string()
+        password: string().nullable()
             .min(formReqs.passwordMinLength, `Password must be at least ${formReqs.passwordMinLength} characters.`)
             .max(formReqs.passwordMaxLength, `Password must be at most ${formReqs.passwordMaxLength} characters.`),
         email: string()
@@ -89,39 +89,108 @@ const getValidationSchema = (mode: IRecordFormMode) => {
             .length(formReqs.tenantIdLength, 'Tenant ID is not valid.'),
     };
 
-    if (mode === 'create') {
+    if (!isEdit) {
         schema.password = schema.password.required('Password is required.');
     }
 
     return object(schema);
 };
 
-export const FormDialog: React.FC<FormDialogProps> = ({open, mode, initialValues, onSubmit, onCancel}) => {
+export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
+    const navigate = useNavigate();
+    const {action, recordId} = useParams();
+    const isEdit = !!recordId;
+    const [open, setOpen] = useState(false);
+    const {data} = useUser(recordId!);
+    const createUser = useCreateUser();
+    const updateUser = useUpdateUser(recordId!);
+
+    const initialValues: IUser = isEdit
+        ? {
+            tenantId: data?.tenantId ?? '',
+            username: data?.username ?? '',
+            password: '',
+            email: data?.email ?? '',
+            phoneNumber: data?.phoneNumber ?? '',
+            status: data?.status ?? '',
+        }
+        : {
+            tenantId: '',
+            username: '',
+            password: '',
+            email: '',
+            phoneNumber: '',
+            status: '',
+        };
+
+    const closeForm = () => {
+        navigate(basePath);
+    };
+
+    const handleSubmit = async (values: IUser, actions: FormikHelpers<IUser>) => {
+        try {
+            if (isEdit) {
+                await updateUser.mutateAsync(values);
+            } else {
+                await createUser.mutateAsync(values);
+            }
+            closeForm();
+            actions.resetForm();
+            actions.setStatus();
+            toast.success('User saved!');
+        } catch (err: any) {
+            if (err.response?.status === 422 && err.response.data?.detail) {
+                actions.setErrors(mapFastApiErrorsToFormik(err.response.data.detail));
+                toast.error('User could not be saved!');
+            } else {
+                console.error(err);
+                toast.error(err);
+            }
+            actions.setStatus('User could not be saved!');
+        }
+        actions.setSubmitting(false);
+    };
+
+    useEffect(() => {
+        if (!action) {
+            setOpen(false);
+        } else if (action === 'create') {
+            setOpen(true);
+        } else if (action === 'update') {
+            setOpen(true);
+        }
+    }, [action]);
+
     return (
         <React.Fragment>
             <Dialog
                 fullWidth={true}
                 maxWidth={'md'}
                 open={open}
-                onClose={() => onCancel()}
+                onClose={closeForm}
             >
                 <Formik
-                    initialValues={initialValues! as FormikValues}
-                    validationSchema={getValidationSchema(mode)}
+                    initialValues={initialValues}
+                    validationSchema={getValidationSchema(isEdit)}
                     enableReinitialize={true}
                     validateOnChange={false}
                     validateOnBlur={false}
-                    onSubmit={async (values, actions) => onSubmit(actions as FormikHelpers<IUser>, values as IUser)}
+                    onSubmit={handleSubmit}
                 >
                     {form => (
                         <form onSubmit={form.handleSubmit} onReset={form.handleReset}>
-                            <DialogTitle>{mode === 'create' ? 'Create' : 'Update'} User</DialogTitle>
+                            <DialogTitle>{isEdit ? 'Update' : 'Create'} User</DialogTitle>
                             <DialogContent>
                                 <DialogContentText>
-                                    <Typography variant="body1">Please provide the following details to create a new
-                                        user
-                                        and
-                                        then click Save once finished.</Typography>
+                                    {isEdit ? (
+                                        <Typography variant="body1">
+                                            Please make the desired changes and then click Update User when finished.
+                                        </Typography>
+                                    ) : (
+                                        <Typography variant="body1">
+                                            Please provide the following details and then click Create User when finished.
+                                        </Typography>
+                                    )}
                                     {form.status && (
                                         <>
                                             <Typography variant="body1" color="error"
@@ -221,9 +290,9 @@ export const FormDialog: React.FC<FormDialogProps> = ({open, mode, initialValues
                             </DialogContent>
                             <DialogActions>
                                 <Button variant="contained" color="error" type="reset"
-                                        onClick={() => onCancel()}>Cancel</Button>
+                                        onClick={closeForm}>Cancel</Button>
                                 <Button variant="contained"
-                                        type="submit">{mode === 'create' ? 'Create' : 'Update'} User</Button>
+                                        type="submit">{isEdit ? 'Update' : 'Create'} User</Button>
                             </DialogActions>
                         </form>
                     )}
