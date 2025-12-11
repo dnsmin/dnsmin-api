@@ -116,7 +116,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                         columns={columns}
                         rows={data?.records ?? []}
                         getRowId={(row) => row.id}
-                        rowCount={data?.total ?? 0}
+                        rowCount={data?.records.length ?? 0}
                         filterMode="server"
                         sortingMode="server"
                         paginationMode="server"
