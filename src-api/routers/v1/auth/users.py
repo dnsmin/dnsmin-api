@@ -41,6 +41,9 @@ async def record_list(
     if params:
         stmt = SqlQueryBuilder.apply_params(params, stmt, User)
 
+    # Build a statement to retrieve the total count of filtered records
+    stmt_filtered_count = select(func.count()).select_from(stmt.limit(None).offset(None).subquery())
+
     # Retrieve the records
     records = (await session.execute(stmt)).scalars().all()
 
@@ -48,6 +51,7 @@ async def record_list(
     return UsersSchema(
         records=[UserOutSchema.model_validate(r) for r in records],
         total=(await session.execute(stmt_count)).scalar_one(),
+        total_filtered=(await session.execute(stmt_filtered_count)).scalar_one(),
     )
 
 

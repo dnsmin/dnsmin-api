@@ -155,7 +155,15 @@ class UsersSchema(BaseApiModel):
 
     total: int = Field(
         title='Total Users Found',
-        description='The total number of users found based on the current request criteria.',
+        description='The total number of users available.',
+        default=0,
+        examples=[1234],
+    )
+    """The total number of users available."""
+
+    total_filtered: int = Field(
+        title='Total Filtered Users Found',
+        description='The total number of filtered users found based on the current request criteria.',
         default=0,
         examples=[1234],
     )

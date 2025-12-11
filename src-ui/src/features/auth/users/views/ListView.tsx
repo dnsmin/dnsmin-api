@@ -101,7 +101,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                         </Grid>
                         {isFilteringActive && (
                             <Grid size={{sm: 12, md: 6}}>
-                                <StatisticCard label="Total Results" value={data?.records.length}/>
+                                <StatisticCard label="Total Results" value={data?.totalFiltered}/>
                             </Grid>
                         )}
                     </Grid>
@@ -117,7 +117,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                         columns={columns}
                         rows={data?.records ?? []}
                         getRowId={(row) => row.id}
-                        rowCount={data?.total ?? 0}
+                        rowCount={data?.totalFiltered ?? 0}
                         filterMode="server"
                         sortingMode="server"
                         paginationMode="server"

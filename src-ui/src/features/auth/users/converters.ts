@@ -31,5 +31,6 @@ export function usersPagedFromDTO(dto: UsersPagedResponseDTO): UsersPaged {
     return {
         records: dto.records.map(userFromDTO),
         total: dto.total,
+        totalFiltered: dto.total_filtered,
     }
 }

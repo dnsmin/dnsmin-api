@@ -16,6 +16,7 @@ export interface User extends ModelBase {
 export interface UsersPaged extends ModelBase {
     records: User[];
     total: number;
+    totalFiltered: number;
 }
 
 export type IUser = User;

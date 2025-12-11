@@ -25,6 +25,7 @@ export interface UserOutDTO extends BaseDTO {
 export interface UsersPagedResponseDTO extends BaseDTO {
     records: UserInDTO[];
     total: number;
+    total_filtered: number;
 }
 
 export type IUserInDTO = UserInDTO;
