@@ -55,7 +55,7 @@ async def tenant_read(
     """Read a tenant"""
 
 
-@router.patch(
+@router.put(
     '/tenants/{tenant_id}',
     summary='Updates a tenant',
     description='Updates a tenant.',

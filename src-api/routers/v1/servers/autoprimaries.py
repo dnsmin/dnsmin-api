@@ -7,11 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lib.api.dependencies import get_db_session, get_principal
 from models.api import ListParamsModel
 from models.api.auth import Principal
+from models.api.servers.autoprimaries import (ServerAutoPrimariesSchema, ServerAutoPrimaryOutSchema,
+                                              ServerAutoPrimaryInSchema)
 from routers.v1.servers import router
 
 
 @router.post(
     '/{server_id}/auto-primaries',
+    response_model=ServerAutoPrimariesSchema,
     summary='List server auto-primaries',
     description='List server auto-primaries.',
     operation_id='servers:auto_primaries:list',
@@ -54,7 +57,7 @@ async def record_read(
     """Read server auto-primary"""
 
 
-@router.patch(
+@router.put(
     '/{server_id}/auto-primaries/{auto_primary_id}',
     summary='Update server auto-primary',
     description='Update server auto-primary.',

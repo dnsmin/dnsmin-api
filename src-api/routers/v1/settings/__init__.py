@@ -57,7 +57,7 @@ async def setting_read(
     """Read a setting"""
 
 
-@router.patch(
+@router.put(
     '/{key}',
     response_model=SettingOutSchema,
     summary='Updates a setting',

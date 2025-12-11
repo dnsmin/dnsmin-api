@@ -54,7 +54,7 @@ async def record_read(
     """Read server view"""
 
 
-@router.patch(
+@router.put(
     '/{server_id}/views/{view_id}',
     summary='Update server view',
     description='Update server view.',

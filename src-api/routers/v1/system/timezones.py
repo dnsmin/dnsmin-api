@@ -47,7 +47,7 @@ async def timezone_read(
     """Read a timezone"""
 
 
-@router.patch(
+@router.put(
     '/timezones/{id}',
     summary='Updates a timezone',
     description='Updates a timezone.',

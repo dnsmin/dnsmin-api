@@ -49,7 +49,7 @@ async def stopgap_domain_read(
     """Read a stopgap domain"""
 
 
-@router.patch(
+@router.put(
     '/stopgap-domains/{id}',
     summary='Updates a stopgap domain',
     description='Updates a stopgap domain.',

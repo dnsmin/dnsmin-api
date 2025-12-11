@@ -50,7 +50,7 @@ async def rzone_read(
     """Read an recursive zone record"""
 
 
-@router.patch(
+@router.put(
     '/recursive/{zone_id}/records/{record_id}',
     summary='Updates an recursive zone record',
     description='Updates an recursive zone record in the given zone.',

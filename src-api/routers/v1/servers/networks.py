@@ -54,7 +54,7 @@ async def record_read(
     """Read server network"""
 
 
-@router.patch(
+@router.put(
     '/{server_id}/networks/{network_id}',
     summary='Update server network',
     description='Update server network.',

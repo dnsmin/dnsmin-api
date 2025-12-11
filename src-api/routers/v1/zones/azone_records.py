@@ -50,7 +50,7 @@ async def azone_read(
     """Read an authoritative zone record"""
 
 
-@router.patch(
+@router.put(
     '/authoritative/{zone_id}/records/{record_id}',
     summary='Updates an authoritative zone record',
     description='Updates an authoritative zone record in the given zone.',

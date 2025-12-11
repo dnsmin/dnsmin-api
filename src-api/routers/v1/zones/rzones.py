@@ -49,7 +49,7 @@ async def rzone_read(
     """Read a recursive zone"""
 
 
-@router.patch(
+@router.put(
     '/recursive/{zone_id}',
     summary='Updates a recursive zone',
     description='Updates a recursive zone in the current authentication context.',

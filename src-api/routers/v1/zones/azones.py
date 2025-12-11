@@ -49,7 +49,7 @@ async def azone_read(
     """Read an authoritative zone"""
 
 
-@router.patch(
+@router.put(
     '/authoritative/{zone_id}',
     summary='Updates an authoritative zone',
     description='Updates an authoritative zone in the current authentication context.',

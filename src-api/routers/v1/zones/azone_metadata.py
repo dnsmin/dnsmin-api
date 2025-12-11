@@ -50,7 +50,7 @@ async def azone_read(
     """Read an authoritative zone metadata"""
 
 
-@router.patch(
+@router.put(
     '/authoritative/{zone_id}/metadata/{metadata_id}',
     summary='Updates an authoritative zone metadata',
     description='Updates an authoritative zone metadata in the given zone.',
