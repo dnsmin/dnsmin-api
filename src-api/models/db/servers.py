@@ -3,6 +3,7 @@ DNS Server Database Models
 
 This file defines the database models associated with DNS server functionality.
 """
+import uuid
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
@@ -48,8 +49,7 @@ class Server(BaseSqlModel):
     """The timestamp representing when the server was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the server was last updated."""
 
@@ -61,6 +61,9 @@ class Server(BaseSqlModel):
 
     networks = relationship('ServerNetwork', back_populates='server', cascade='all, delete, delete-orphan')
     """A list of networks associated with the server."""
+
+    tsig_keys = relationship('ServerTsigKey', back_populates='server', cascade='all, delete, delete-orphan')
+    """A list of TSIG keys associated with the server."""
 
 
 class ServerAutoPrimary(BaseSqlModel):
@@ -92,8 +95,7 @@ class ServerAutoPrimary(BaseSqlModel):
     """The timestamp representing when the auto-primary was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the auto-primary was last updated."""
 
@@ -124,8 +126,7 @@ class ServerView(BaseSqlModel):
     """The timestamp representing when the view was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the view was last updated."""
 
@@ -173,8 +174,7 @@ class ServerNetwork(BaseSqlModel):
     """The timestamp representing when the network was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the network was last updated."""
 
@@ -183,3 +183,40 @@ class ServerNetwork(BaseSqlModel):
 
     view = relationship('ServerView', back_populates='networks', cascade='expunge')
     """The view associated with the network."""
+
+
+class ServerTsigKey(BaseSqlModel):
+    """Represents a server TSIG key."""
+
+    __tablename__ = f'{DB_PREFIX}_server_tsig_keys'
+    """Defines the database table name."""
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    """The unique identifier of the TSIG key."""
+
+    server_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_servers.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False
+    )
+    """The unique identifier of the server this TSIG key is associated with."""
+
+    internal_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    """The internal identifier, read only."""
+
+    algorithm: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    """The algorithm of the TSIG key."""
+
+    key: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
+    """The base64 encoded secret key."""
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the TSIG key was created."""
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the TSIG key was last updated."""
+
+    server = relationship('Server', back_populates='tsig_keys', cascade='expunge')
+    """The server associated with the TSIG key."""

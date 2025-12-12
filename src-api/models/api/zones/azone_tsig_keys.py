@@ -4,12 +4,11 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
-from models.api import BaseApiModel
-from models.enums import CryptoKeyTypeEnum
+from models import BaseApiModel, CryptoKeyTypeEnum
 
 
-class CryptoKeyInSchema(BaseApiModel):
-    """Provides an API input model for creating and updating crypto keys."""
+class AZoneCryptoKeyInSchema(BaseApiModel):
+    """Provides an API input model for creating and updating authoritative zone crypto keys."""
 
     tenant_id: Optional[UUID] = Field(
         title='Tenant ID',
@@ -18,6 +17,13 @@ class CryptoKeyInSchema(BaseApiModel):
         examples=[uuid4()],
     )
     """The unique identifier of the tenant associated with the crypto key if any."""
+
+    zone_id: UUID = Field(
+        title='Zone ID',
+        description='The unique identifier of the zone associated with the crypto key.',
+        examples=[uuid4()],
+    )
+    """The unique identifier of the zone associated with the crypto key."""
 
     type: CryptoKeyTypeEnum = Field(
         title='Crypto Key Type',
@@ -39,38 +45,33 @@ class CryptoKeyInSchema(BaseApiModel):
     )
     """Whether the DNSKEY crypto key is published in the zone."""
 
-    dns_key: Optional[str] = Field(
+    dns_key: str = Field(
         title='Crypto Key DNSKEY',
         description='The DNSKEY crypto key for this key.',
-        default=None,
     )
     """The DNSKEY crypto key for this key."""
 
-    ds: Optional[list[str]] = Field(
+    ds: list[str] = Field(
         title='DS Crypto Keys',
         description='A list of DS crypto keys for this key.',
-        default=None,
     )
     """A list of DS crypto keys for this key."""
 
-    cds: Optional[list[str]] = Field(
+    cds: list[str] = Field(
         title='Filtered DS Crypto Keys',
         description='A list of DS crypto keys for this key, filtered by CDS publication settings.',
-        default=None,
     )
     """A list of DS crypto keys for this key, filtered by CDS publication settings."""
 
-    private_key: Optional[str] = Field(
+    private_key: str = Field(
         title='Private Key',
         description='The private key in ISC format.',
-        default=None,
     )
     """The private key in ISC format."""
 
-    algorithm: Optional[str] = Field(
+    algorithm: str = Field(
         title='Crypto Key Algorithm',
         description='The name of the algorithm of the key, should be a mnemonic.',
-        default=None,
     )
     """The name of the algorithm of the key, should be a mnemonic."""
 
@@ -82,8 +83,8 @@ class CryptoKeyInSchema(BaseApiModel):
     """The size of the key."""
 
 
-class CryptoKeyOutSchema(BaseApiModel):
-    """Provides an API response model for representing crypto keys."""
+class AZoneCryptoKeyOutSchema(BaseApiModel):
+    """Provides an API response model for representing authoritative zone crypto keys."""
 
     id: UUID = Field(
         title='Crypto Key ID',
@@ -100,10 +101,17 @@ class CryptoKeyOutSchema(BaseApiModel):
     )
     """The unique identifier of the tenant associated with the crypto key if any."""
 
+    zone_id: UUID = Field(
+        title='Zone ID',
+        description='The unique identifier of the zone associated with the crypto key.',
+        examples=[uuid4()],
+    )
+    """The unique identifier of the zone associated with the crypto key."""
+
     internal_id: Optional[int] = Field(
         title='Crypto Key Internal ID',
         description='The internal identifier, read only.',
-        default=False,
+        default=None,
     )
     """The internal identifier, read only."""
 
@@ -127,38 +135,33 @@ class CryptoKeyOutSchema(BaseApiModel):
     )
     """Whether the DNSKEY crypto key is published in the zone."""
 
-    dns_key: Optional[str] = Field(
+    dns_key: str = Field(
         title='Crypto Key DNSKEY',
         description='The DNSKEY crypto key for this key.',
-        default=None,
     )
     """The DNSKEY crypto key for this key."""
 
-    ds: Optional[list[str]] = Field(
+    ds: list[str] = Field(
         title='DS Crypto Keys',
         description='A list of DS crypto keys for this key.',
-        default=None,
     )
     """A list of DS crypto keys for this key."""
 
-    cds: Optional[list[str]] = Field(
+    cds: list[str] = Field(
         title='Filtered DS Crypto Keys',
         description='A list of DS crypto keys for this key, filtered by CDS publication settings.',
-        default=None,
     )
     """A list of DS crypto keys for this key, filtered by CDS publication settings."""
 
-    private_key: Optional[str] = Field(
+    private_key: str = Field(
         title='Private Key',
         description='The private key in ISC format.',
-        default=None,
     )
     """The private key in ISC format."""
 
-    algorithm: Optional[str] = Field(
+    algorithm: str = Field(
         title='Crypto Key Algorithm',
         description='The name of the algorithm of the key, should be a mnemonic.',
-        default=None,
     )
     """The name of the algorithm of the key, should be a mnemonic."""
 
@@ -180,34 +183,34 @@ class CryptoKeyOutSchema(BaseApiModel):
     updated_at: Optional[datetime] = Field(
         title='Updated At',
         description='The timestamp representing when the crypto key was last updated.',
-        default=datetime.now,
+        default=None,
         examples=[datetime.now()],
     )
     """The timestamp representing when the crypto key was last updated."""
 
 
-class CryptoKeysSchema(BaseApiModel):
-    """Provides an API response model for retrieving crypto keys."""
+class AZoneCryptoKeysSchema(BaseApiModel):
+    """Provides an API response model for retrieving authoritative zone crypto keys."""
 
-    records: list[CryptoKeyOutSchema] = Field(
-        title='Crypto Keys',
-        description='A list of crypto keys found based on the current request criteria.',
+    records: list[AZoneCryptoKeyOutSchema] = Field(
+        title='Authoritative Zone Crypto Keys',
+        description='A list of authoritative zone crypto keys found based on the current request criteria.',
         default_factory=list,
     )
-    """A list of crypto keys found based on the current request criteria."""
+    """A list of authoritative zone crypto keys found based on the current request criteria."""
 
     total: int = Field(
-        title='Total Crypto Keys',
-        description='The total number of crypto keys.',
+        title='Total Authoritative Zone Crypto Keys',
+        description='The total number of authoritative zone crypto keys.',
         default=0,
         examples=[1234],
     )
-    """The total number of crypto keys."""
+    """The total number of authoritative zone crypto keys."""
 
     total_filtered: int = Field(
-        title='Total Crypto Keys Found',
-        description='The total number of crypto keys found based on the current request criteria.',
+        title='Total Authoritative Zone Crypto Keys Found',
+        description='The total number of authoritative zone crypto keys found based on the current request criteria.',
         default=0,
         examples=[1234],
     )
-    """The total number of crypto keys found based on the current request criteria."""
+    """The total number of authoritative zone crypto keys found based on the current request criteria."""

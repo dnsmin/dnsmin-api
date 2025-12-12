@@ -178,7 +178,6 @@ class ListParamsModel(BaseApiModel):
 
 from .acl import *
 from .auth import *
-from .keys import *
 from .servers import *
 from .tasks import *
 from .tenants import *

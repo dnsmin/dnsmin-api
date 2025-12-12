@@ -38,8 +38,7 @@ class StopgapDomain(BaseSqlModel):
     """The timestamp representing when the stopgap domain was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the stopgap domain was last updated."""
 
@@ -71,7 +70,6 @@ class RefTimezone(BaseSqlModel):
     """The timestamp representing when the timezone was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the timezone was last updated."""

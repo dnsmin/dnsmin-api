@@ -159,10 +159,10 @@ class RoleOutSchema(BaseApiModel):
     )
     """The timestamp representing when the role was created."""
 
-    updated_at: datetime = Field(
+    updated_at: Optional[datetime] = Field(
         title='Updated At',
         description='The timestamp representing when the role was last updated.',
-        default_factory=datetime.now,
+        default=None,
         examples=[datetime.now()],
     )
     """The timestamp representing when the role was last updated."""

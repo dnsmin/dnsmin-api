@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lib.api.dependencies import get_db_session, get_principal
 from models.api import ListParamsModel
 from models.api.auth import Principal
-from models.api.zones.rzones import RZoneRecordsSchema, RZoneRecordOutSchema, RZoneRecordInSchema
+from models.api.zones.rzone_records import RZoneRecordInSchema, RZoneRecordOutSchema, RZoneRecordsSchema
 from routers.v1.zones import router
 
 

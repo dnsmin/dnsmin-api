@@ -133,7 +133,7 @@ class ClientOutSchema(BaseApiModel):
     updated_at: Optional[datetime] = Field(
         title='Updated At',
         description='The timestamp representing when the client was last updated.',
-        default=datetime.now,
+        default=None,
         examples=[datetime.now()],
     )
     """The timestamp representing when the client was last updated."""

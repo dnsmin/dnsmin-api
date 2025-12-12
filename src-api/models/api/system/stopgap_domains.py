@@ -70,7 +70,7 @@ class StopgapDomainOutSchema(BaseApiModel):
     updated_at: Optional[datetime] = Field(
         title='Updated At',
         description='The timestamp representing when the stopgap domain was last updated.',
-        default=datetime.now,
+        default=None,
         examples=[datetime.now()],
     )
     """The timestamp representing when the stopgap domain was last updated."""

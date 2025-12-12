@@ -7,34 +7,31 @@ from pydantic import Field
 from models.api import BaseApiModel
 
 
-class TSIGKeyInSchema(BaseApiModel):
-    """Provides an API input model for creating and updating TSIG keys."""
+class ServerTSIGKeyInSchema(BaseApiModel):
+    """Provides an API input model for creating and updating server TSIG keys."""
 
-    tenant_id: Optional[UUID] = Field(
-        title='Tenant ID',
-        description='The unique identifier of the tenant associated with the TSIG key if any.',
-        default=None,
+    server_id: UUID = Field(
+        title='Server ID',
+        description='The unique identifier of the server associated with the TSIG key.',
         examples=[uuid4()],
     )
-    """The unique identifier of the tenant associated with the TSIG key if any."""
+    """The unique identifier of the server associated with the TSIG key."""
 
-    algorithm: Optional[str] = Field(
+    algorithm: str = Field(
         title='TSIG Key Algorithm',
         description='The algorithm of the TSIG key.',
-        default=None,
     )
     """The algorithm of the TSIG key."""
 
-    key: Optional[str] = Field(
+    key: str = Field(
         title='TSIG Key Secret Key',
         description='The base64 encoded secret key.',
-        default=None,
     )
     """The base64 encoded secret key."""
 
 
-class TSIGKeyOutSchema(BaseApiModel):
-    """Provides an API response model for representing TSIG keys."""
+class ServerTSIGKeyOutSchema(BaseApiModel):
+    """Provides an API response model for representing server TSIG keys."""
 
     id: UUID = Field(
         title='TSIG Key ID',
@@ -43,32 +40,29 @@ class TSIGKeyOutSchema(BaseApiModel):
     )
     """The unique identifier of the TSIG key."""
 
-    tenant_id: Optional[UUID] = Field(
-        title='Tenant ID',
-        description='The unique identifier of the tenant associated with the TSIG key if any.',
-        default=None,
+    server_id: UUID = Field(
+        title='Server ID',
+        description='The unique identifier of the server associated with the TSIG key.',
         examples=[uuid4()],
     )
-    """The unique identifier of the tenant associated with the TSIG key if any."""
+    """The unique identifier of the server associated with the TSIG key."""
 
     internal_id: Optional[str] = Field(
         title='TSIG Key Internal ID',
         description='The internal identifier, read only.',
-        default=False,
+        default=None,
     )
     """The internal identifier, read only."""
 
-    algorithm: Optional[str] = Field(
+    algorithm: str = Field(
         title='TSIG Key Algorithm',
         description='The algorithm of the TSIG key.',
-        default=None,
     )
     """The algorithm of the TSIG key."""
 
-    key: Optional[str] = Field(
+    key: str = Field(
         title='TSIG Key Secret Key',
         description='The base64 encoded secret key.',
-        default=None,
     )
     """The base64 encoded secret key."""
 
@@ -83,34 +77,34 @@ class TSIGKeyOutSchema(BaseApiModel):
     updated_at: Optional[datetime] = Field(
         title='Updated At',
         description='The timestamp representing when the TSIG key was last updated.',
-        default=datetime.now,
+        default=None,
         examples=[datetime.now()],
     )
     """The timestamp representing when the TSIG key was last updated."""
 
 
-class TSIGKeysSchema(BaseApiModel):
-    """Provides an API response model for retrieving TSIG keys."""
+class ServerTSIGKeysSchema(BaseApiModel):
+    """Provides an API response model for retrieving server TSIG keys."""
 
-    records: list[TSIGKeyOutSchema] = Field(
-        title='TSIG Keys',
-        description='A list of TSIG keys found based on the current request criteria.',
+    records: list[ServerTSIGKeyOutSchema] = Field(
+        title='Server TSIG Keys',
+        description='A list of server TSIG keys found based on the current request criteria.',
         default_factory=list,
     )
-    """A list of TSIG keys found based on the current request criteria."""
+    """A list of server TSIG keys found based on the current request criteria."""
 
     total: int = Field(
-        title='Total TSIG Keys',
-        description='The total number of TSIG keys.',
+        title='Total Server TSIG Keys',
+        description='The total number of server TSIG keys.',
         default=0,
         examples=[1234],
     )
-    """The total number of TSIG keys."""
+    """The total number of server TSIG keys."""
 
     total_filtered: int = Field(
-        title='Total TSIG Keys Found',
-        description='The total number of TSIG keys found based on the current request criteria.',
+        title='Total Server TSIG Keys Found',
+        description='The total number of server TSIG keys found based on the current request criteria.',
         default=0,
         examples=[1234],
     )
-    """The total number of TSIG keys found based on the current request criteria."""
+    """The total number of server TSIG keys found based on the current request criteria."""

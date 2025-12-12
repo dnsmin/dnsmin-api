@@ -60,10 +60,6 @@ class ApiConfig(BaseConfig):
                         description='Provides functionality for managing DNS servers and settings.',
                     ),
                     self.ApiMetadataTagConfig(
-                        name='keys',
-                        description='Provides features for managing DNS keys.',
-                    ),
-                    self.ApiMetadataTagConfig(
                         name='zones',
                         description='Provides functionality for managing DNS zones and records.',
                     ),

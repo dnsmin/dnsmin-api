@@ -43,8 +43,7 @@ class Tenant(BaseSqlModel):
     """The timestamp representing when the tenant was created."""
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now,
-        server_default=text('CURRENT_TIMESTAMP'), server_onupdate=text('CURRENT_TIMESTAMP')
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the tenant was last updated."""
 
@@ -78,12 +77,6 @@ class Tenant(BaseSqlModel):
 
     acl_policies = relationship('Policy', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of ACL policies associated with the tenant."""
-
-    crypto_keys = relationship('CryptoKey', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of cryptographic keys associated with the tenant."""
-
-    tsig_keys = relationship('TsigKey', back_populates='tenant', cascade='all, delete, delete-orphan')
-    """A list of TSIG keys associated with the tenant."""
 
     azones = relationship('AZone', back_populates='tenant', cascade='all, delete, delete-orphan')
     """A list of authoritative zones associated with the tenant."""
