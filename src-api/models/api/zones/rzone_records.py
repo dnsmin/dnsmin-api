@@ -20,10 +20,10 @@ class RZoneRecordInSchema(BaseApiModel):
 
     zone_id: UUID = Field(
         title='Zone ID',
-        description='The unique identifier of the zone associated with the recursive zone record if any.',
+        description='The unique identifier of the zone associated with the recursive zone record.',
         examples=[uuid4()],
     )
-    """The unique identifier of the zone associated with the recursive zone record if any."""
+    """The unique identifier of the zone associated with the recursive zone record."""
 
     name: Optional[str] = Field(
         title='Record Name',
@@ -94,10 +94,10 @@ class RZoneRecordOutSchema(BaseApiModel):
 
     zone_id: UUID = Field(
         title='Zone ID',
-        description='The unique identifier of the zone associated with the recursive zone record if any.',
+        description='The unique identifier of the zone associated with the recursive zone record.',
         examples=[uuid4()],
     )
-    """The unique identifier of the zone associated with the recursive zone record if any."""
+    """The unique identifier of the zone associated with the recursive zone record."""
 
     name: Optional[str] = Field(
         title='Record Name',

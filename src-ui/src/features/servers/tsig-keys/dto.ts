@@ -1,6 +1,6 @@
 import {BaseDTO} from "@app/types/dto";
 
-export interface TsigKeyInDTO extends BaseDTO {
+export interface ServerTsigKeyInDTO extends BaseDTO {
     id: string;
     server_id: string;
     internal_id: string | null;
@@ -10,19 +10,19 @@ export interface TsigKeyInDTO extends BaseDTO {
     updated_at: string | null;
 }
 
-export interface TsigKeyOutDTO extends BaseDTO {
+export interface ServerTsigKeyOutDTO extends BaseDTO {
     id?: string;
     server_id: string;
     algorithm: string;
     key: string;
 }
 
-export interface TsigKeysPagedResponseDTO extends BaseDTO {
-    records: TsigKeyInDTO[];
+export interface ServerTsigKeysPagedResponseDTO extends BaseDTO {
+    records: ServerTsigKeyInDTO[];
     total: number;
     total_filtered: number;
 }
 
-export type ITsigKeyInDTO = TsigKeyInDTO;
-export type ITsigKeyOutDTO = TsigKeyOutDTO;
-export type ITsigKeysPagedResponseDTO = TsigKeysPagedResponseDTO;
+export type IServerTsigKeyInDTO = ServerTsigKeyInDTO;
+export type IServerTsigKeyOutDTO = ServerTsigKeyOutDTO;
+export type IServerTsigKeysPagedResponseDTO = ServerTsigKeysPagedResponseDTO;

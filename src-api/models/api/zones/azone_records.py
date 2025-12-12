@@ -20,10 +20,10 @@ class AZoneRecordInSchema(BaseApiModel):
 
     zone_id: UUID = Field(
         title='Zone ID',
-        description='The unique identifier of the zone associated with the authoritative zone record if any.',
+        description='The unique identifier of the zone associated with the authoritative zone record.',
         examples=[uuid4()],
     )
-    """The unique identifier of the zone associated with the authoritative zone record if any."""
+    """The unique identifier of the zone associated with the authoritative zone record."""
 
     view_id: Optional[UUID] = Field(
         title='View ID',
@@ -109,10 +109,10 @@ class AZoneRecordOutSchema(BaseApiModel):
 
     zone_id: UUID = Field(
         title='Zone ID',
-        description='The unique identifier of the zone associated with the authoritative zone record if any.',
+        description='The unique identifier of the zone associated with the authoritative zone record.',
         examples=[uuid4()],
     )
-    """The unique identifier of the zone associated with the authoritative zone record if any."""
+    """The unique identifier of the zone associated with the authoritative zone record."""
 
     view_id: Optional[UUID] = Field(
         title='View ID',

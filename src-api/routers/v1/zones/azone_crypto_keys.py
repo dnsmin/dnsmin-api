@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lib.api.dependencies import get_db_session, get_principal
 from models.api import ListParamsModel
 from models.api.auth import Principal
-from models.api.zones.azone_tsig_keys import AZoneCryptoKeyInSchema, AZoneCryptoKeyOutSchema, AZoneCryptoKeysSchema
+from models.api.zones.azone_crypto_keys import AZoneCryptoKeyInSchema, AZoneCryptoKeyOutSchema, AZoneCryptoKeysSchema
 from routers.v1.zones import router
 
 

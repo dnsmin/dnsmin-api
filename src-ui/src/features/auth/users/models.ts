@@ -5,8 +5,8 @@ export interface User extends ModelBase {
     tenantId?: string | null;
     username: string;
     password?: string | null;
-    email: string | null;
-    phoneNumber: string | null;
+    email?: string | null;
+    phoneNumber?: string | null;
     status: string;
     createdAt?: string | null;
     updatedAt?: string | null;
