@@ -30,3 +30,4 @@ export interface UsersPagedResponseDTO extends BaseDTO {
 
 export type IUserInDTO = UserInDTO;
 export type IUserOutDTO = UserOutDTO;
+export type IUsersPagedResponseDTO = UsersPagedResponseDTO;

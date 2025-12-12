@@ -12,4 +12,11 @@ export interface Session extends ModelBase {
     expiresAt?: string | null;
 }
 
+export interface SessionsPaged extends ModelBase {
+    records: Session[];
+    total: number;
+    totalFiltered: number;
+}
+
 export type ISession = Session;
+export type ISessionsPaged = SessionsPaged;

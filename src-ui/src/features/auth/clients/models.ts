@@ -13,4 +13,11 @@ export interface Client extends ModelBase {
     expiresAt?: string | null;
 }
 
+export interface ClientsPaged extends ModelBase {
+    records: Client[];
+    total: number;
+    totalFiltered: number;
+}
+
 export type IClient = Client;
+export type IClientsPaged = ClientsPaged;

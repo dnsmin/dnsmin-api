@@ -23,5 +23,12 @@ export interface ClientOutDTO extends BaseDTO {
     enabled: boolean;
 }
 
+export interface ClientsPagedResponseDTO extends BaseDTO {
+    records: ClientInDTO[];
+    total: number;
+    total_filtered: number;
+}
+
 export type IClientInDTO = ClientInDTO;
 export type IClientOutDTO = ClientOutDTO;
+export type IClientsPagedResponseDTO = ClientsPagedResponseDTO;

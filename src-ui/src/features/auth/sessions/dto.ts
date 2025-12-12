@@ -12,4 +12,11 @@ export interface SessionInDTO extends BaseDTO {
     expires_at: string | null;
 }
 
+export interface SessionsPagedResponseDTO extends BaseDTO {
+    records: SessionInDTO[];
+    total: number;
+    total_filtered: number;
+}
+
 export type ISessionInDTO = SessionInDTO;
+export type ISessionsPagedResponseDTO = SessionsPagedResponseDTO;
