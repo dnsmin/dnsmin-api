@@ -31,6 +31,8 @@ services:
     ports:
       - "${DNSMIN_SERVICE_IP}:80:80"
       - "${DNSMIN_SERVICE_IP}:443:443"
+      - "${DNSMIN_SERVICE_IP}:5353:5353"
+      - "${DNSMIN_SERVICE_IP}:5354:5354/udp"
     networks:
       - dnsmin
     healthcheck:
@@ -83,6 +85,31 @@ services:
       - dnsmin
     healthcheck:
       test: [ 'CMD-SHELL', 'celery', '-A', 'worker.app', 'inspect', 'ping', '--destination', 'celery@$$HOSTNAME' ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+      start_interval: 5s
+    stop_signal: SIGTERM
+    stop_grace_period: 900s
+
+  receiver:
+    image: dnsmin/dnsmin-receiver:latest
+    container_name: dnsmin_receiver
+    hostname: dnsmin_receiver
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./deploy/docker/receiver/Dockerfile
+    depends_on:
+      - redis
+    env_file: .env
+    volumes:
+      - ./config:/srv/app/config
+    networks:
+      - dnsmin
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://dnsmin_receiver:8000/health' ]
       interval: 30s
       timeout: 10s
       retries: 3
