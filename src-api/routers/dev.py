@@ -296,7 +296,7 @@ async def test_data(session: AsyncSession = Depends(get_db_session)) -> JSONResp
         tenant_id=tenant1.id,
         zone_id=tl_t1_zone1.id,
         name='',
-        type_=ZoneRecordTypeEnum.A,
+        type=ZoneRecordTypeEnum.A,
         ttl=3600,
         content='1.1.1.1',
     )
