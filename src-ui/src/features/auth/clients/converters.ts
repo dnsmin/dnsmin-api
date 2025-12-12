@@ -1,7 +1,7 @@
-import {Client} from "@app/features/auth/clients/models";
-import {ClientInDTO, ClientOutDTO} from "@app/features/auth/clients/dto";
+import {IClientInDTO, IClientOutDTO, IClientsPagedResponseDTO} from "@app/features/auth/clients/dto";
+import {IClient, IClientsPaged} from "@app/features/auth/clients/models";
 
-export function clientFromDTO(dto: ClientInDTO): Client {
+export function clientFromDTO(dto: IClientInDTO): IClient {
     return {
         id: dto.id,
         tenantId: dto.tenant_id,
@@ -16,7 +16,7 @@ export function clientFromDTO(dto: ClientInDTO): Client {
     }
 }
 
-export function clientToDTO(client: Client): ClientOutDTO {
+export function clientToDTO(client: IClient): IClientOutDTO {
     return {
         id: client.id,
         tenant_id: client.tenantId,
@@ -25,5 +25,13 @@ export function clientToDTO(client: Client): ClientOutDTO {
         redirect_uri: client.redirectUri,
         scopes: client.scopes,
         enabled: client.enabled,
+    }
+}
+
+export function clientsPagedFromDTO(dto: IClientsPagedResponseDTO): IClientsPaged {
+    return {
+        records: dto.records.map(clientFromDTO),
+        total: dto.total,
+        totalFiltered: dto.total_filtered,
     }
 }

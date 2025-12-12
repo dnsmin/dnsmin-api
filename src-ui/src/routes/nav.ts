@@ -5,10 +5,11 @@ export const navItems: NavItem[] = [
     {key: 'settings', label: 'Settings', path: '/settings'},
     {
         key: 'system', label: 'System', path: '/system', children: [
-            {key: 'tenants', label: 'Tenants', path: '/tenants'},
-            {key: 'users', label: 'Users', path: '/users'},
-            {key: 'clients', label: 'API Clients', path: '/clients'},
             {key: 'stopgap_domains', label: 'Stopgap Domains', path: '/stopgap-domains'},
+            {key: 'tenants', label: 'Tenants', path: '/tenants'},
+            {key: 'clients', label: 'API Clients', path: '/clients'},
+            {key: 'users', label: 'Users', path: '/users'},
+            {key: 'users-sessions', label: 'User Sessions', path: '/users/sessions'},
         ]
     },
     {key: 'servers', label: 'Servers', path: '/servers'},

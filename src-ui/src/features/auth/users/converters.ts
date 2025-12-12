@@ -1,7 +1,7 @@
-import {UserInDTO, UserOutDTO, UsersPagedResponseDTO} from "@app/features/auth/users/dto";
-import {User, UsersPaged} from "@app/features/auth/users/models";
+import {IUserInDTO, IUserOutDTO, IUsersPagedResponseDTO} from "@app/features/auth/users/dto";
+import {IUser, IUsersPaged} from "@app/features/auth/users/models";
 
-export function userFromDTO(dto: UserInDTO): User {
+export function userFromDTO(dto: IUserInDTO): IUser {
     return {
         id: dto.id,
         tenantId: dto.tenant_id,
@@ -15,7 +15,7 @@ export function userFromDTO(dto: UserInDTO): User {
     }
 }
 
-export function userToDTO(user: User): UserOutDTO {
+export function userToDTO(user: IUser): IUserOutDTO {
     return {
         id: user.id,
         tenant_id: user.tenantId || null,
@@ -27,7 +27,7 @@ export function userToDTO(user: User): UserOutDTO {
     }
 }
 
-export function usersPagedFromDTO(dto: UsersPagedResponseDTO): UsersPaged {
+export function usersPagedFromDTO(dto: IUsersPagedResponseDTO): IUsersPaged {
     return {
         records: dto.records.map(userFromDTO),
         total: dto.total,
