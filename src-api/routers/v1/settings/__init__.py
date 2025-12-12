@@ -1,9 +1,11 @@
+from typing import Optional
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lib.api.dependencies import get_db_session, get_principal
-from models.api.auth.users import UserOutSchema
-from models.api.auth.clients import ClientOutSchema
+from models.api.auth import Principal
 from models.api.settings import SettingInSchema, SettingOutSchema, SettingsOutSchema
 from routers.root import router_responses
 
@@ -14,71 +16,74 @@ router = APIRouter(
 )
 
 
-@router.get(
+@router.post(
     '',
     response_model=SettingsOutSchema,
-    summary='Retrieves all settings',
-    description='Retrieves all settings for the current authentication context.',
-    operation_id='settings:all',
+    summary='List settings',
+    description='List settings.',
+    operation_id='settings:list',
 )
-async def list_settings(
+async def record_list(
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
     """List settings"""
 
 
 @router.post(
-    '',
+    '/create',
     response_model=SettingOutSchema,
-    summary='Creates a new setting override',
-    description='Creates a new setting override for the tenant or user principals based on current authentication context.',
+    summary='Create setting override',
+    description='Create setting override.',
     operation_id='settings:create',
 )
-async def setting_create(
+async def record_create(
         setting: SettingInSchema,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Create a setting"""
+    """Create setting override"""
 
 
 @router.get(
     '/{key}',
     response_model=SettingOutSchema,
-    summary='Retrieves a setting',
-    description='Retrieves a setting by key for the current authentication context.',
+    summary='Read setting override',
+    description='Read setting override.',
+    operation_id='settings:read',
 )
-async def setting_read(
+async def record_read(
         key: str,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Read a setting"""
+    """Read setting override"""
 
 
 @router.put(
     '/{key}',
     response_model=SettingOutSchema,
-    summary='Updates a setting',
-    description='Updates a setting for the current authentication context.',
+    summary='Update setting override',
+    description='Update setting override.',
+    operation_id='settings:update',
 )
-async def setting_update(
+async def record_update(
         key: str,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Update a setting"""
+    """Update setting override"""
 
 
 @router.delete(
     '/{key}',
-    summary='Deletes a setting',
-    description='Deletes a setting for the current authentication context.',
+    summary='Delete setting override',
+    description='Delete setting override.',
+    operation_id='settings:delete',
 )
-async def setting_delete(
+async def record_delete(
         key: str,
         session: AsyncSession = Depends(get_db_session),
-        principal: UserOutSchema | ClientOutSchema = Depends(get_principal),
+        principal: Principal = Depends(get_principal),
 ):
-    """Delete a setting"""
+    """Delete setting override"""

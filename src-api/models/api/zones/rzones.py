@@ -124,13 +124,6 @@ class RZoneRecordInSchema(BaseApiModel):
     )
     """Whether or not this record is disabled."""
 
-    modified_at: Optional[int] = Field(
-        title='Modified Server Timestamp',
-        description='Timestamp of the last change to the record on the DNS server.',
-        default=None,
-    )
-    """Timestamp of the last change to the record on the DNS server."""
-
 
 class RZoneOutSchema(BaseApiModel):
     """Provides an API response model for representing recursive zones."""
