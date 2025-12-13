@@ -25,7 +25,6 @@ export interface RZoneRecordOutDTO extends BaseDTO {
     content?: string | null;
     comment?: string | null;
     disabled: boolean;
-    modified_at?: number | null;
 }
 
 export interface RZoneRecordsPagedResponseDTO extends BaseDTO {

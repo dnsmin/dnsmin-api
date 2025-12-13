@@ -15,8 +15,8 @@ export interface SettingInDTO extends BaseDTO {
 
 export interface SettingOutDTO extends BaseDTO {
     id?: string;
-    tenant_id: string | null;
-    user_id: string | null;
+    tenant_id?: string | null;
+    user_id?: string | null;
     key: string;
     value?: any | null;
     overridable: boolean;
