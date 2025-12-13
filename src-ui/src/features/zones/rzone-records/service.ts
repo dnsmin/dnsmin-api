@@ -4,7 +4,7 @@ import {recordFromDTO, recordsPagedFromDTO, recordToDTO} from "@app/features/zon
 import {IRZoneRecordInDTO, IRZoneRecordsPagedResponseDTO} from "@app/features/zones/rzone-records/dto";
 import {IRZoneRecord, IRZoneRecordsPaged} from "@app/features/zones/rzone-records/models";
 
-export const RZoneRecordRecordsService = {
+export const RZoneRecordsService = {
     async list(zoneId: string, req?: ListResourceParams): Promise<IRZoneRecordsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,

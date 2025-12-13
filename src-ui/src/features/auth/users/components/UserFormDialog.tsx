@@ -22,7 +22,7 @@ import {
     MenuItem,
 
 } from "@mui/material";
-import {useUser, useCreateUser, useUpdateUser} from "@app/features/auth/users/hooks";
+import {useAuthUser, useCreateAuthUser, useUpdateAuthUser} from "@app/features/auth/users/hooks";
 import {mapFastApiErrorsToFormik} from "@app/utils/fastapi-formik";
 import {IUser} from "@app/features/auth/users/models";
 
@@ -101,9 +101,9 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
     const {action, recordId} = useParams();
     const isEdit = !!recordId;
     const [open, setOpen] = useState(false);
-    const {data} = useUser(recordId!);
-    const createUser = useCreateUser();
-    const updateUser = useUpdateUser(recordId!);
+    const {data} = useAuthUser(recordId!);
+    const createUser = useCreateAuthUser();
+    const updateUser = useUpdateAuthUser(recordId!);
     const isValid = !recordId || (recordId && data?.id);
 
     const initialValues: IUser = isEdit

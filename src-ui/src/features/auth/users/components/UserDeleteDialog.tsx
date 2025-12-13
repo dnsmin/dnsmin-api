@@ -12,7 +12,7 @@ import {
     Typography,
     Button,
 } from "@mui/material";
-import {useUser, useDeleteUser} from "@app/features/auth/users/hooks";
+import {useAuthUser, useDeleteAuthUser} from "@app/features/auth/users/hooks";
 
 
 type FormDialogProps = {
@@ -23,8 +23,8 @@ export const FormDialog: React.FC<FormDialogProps> = ({basePath}) => {
     const navigate = useNavigate();
     const {action, recordId} = useParams();
     const [open, setOpen] = useState(false);
-    const {data} = useUser(recordId!);
-    const deleteUser = useDeleteUser();
+    const {data} = useAuthUser(recordId!);
+    const deleteUser = useDeleteAuthUser();
 
     const closeDialog = () => {
         navigate(basePath);

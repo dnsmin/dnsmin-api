@@ -4,7 +4,7 @@ import {recordFromDTO, recordsPagedFromDTO, recordToDTO} from "@app/features/zon
 import {IAZoneRecordInDTO, IAZoneRecordsPagedResponseDTO} from "@app/features/zones/azone-records/dto";
 import {IAZoneRecord, IAZoneRecordsPaged} from "@app/features/zones/azone-records/models";
 
-export const AZoneRecordRecordsService = {
+export const AZoneRecordsService = {
     async list(zoneId: string, req?: ListResourceParams): Promise<IAZoneRecordsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,

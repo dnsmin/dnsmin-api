@@ -19,7 +19,7 @@ export const SystemTimezonesService = {
         return timezonesPagedFromDTO(response.data);
     },
 
-    async get(id: string): Promise<ITimezone> {
+    async get(id: number): Promise<ITimezone> {
         const response = await http.get<ITimezoneInDTO>(`/system/timezones/${id}`);
         return timezoneFromDTO(response.data);
     },
@@ -30,13 +30,13 @@ export const SystemTimezonesService = {
         return timezoneFromDTO(response.data);
     },
 
-    async update(id: string, payload: Partial<ITimezone>): Promise<ITimezone> {
+    async update(id: number, payload: Partial<ITimezone>): Promise<ITimezone> {
         const dtoPayload = timezoneToDTO(payload as ITimezone);
         const response = await http.put<ITimezoneInDTO>(`/system/timezones/${id}`, dtoPayload);
         return timezoneFromDTO(response.data);
     },
 
-    async remove(id: string): Promise<void> {
+    async remove(id: number): Promise<void> {
         await http.delete(`/system/timezones/${id}`);
     },
 };

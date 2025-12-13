@@ -1,55 +1,54 @@
 import {useQuery, useQueryClient, useMutation} from "@tanstack/react-query";
 import {ListResourceParams} from "@app/types/api";
 import {AuthUsersService} from "@app/features/auth/users/service";
+import {IUser} from "@app/features/auth/users/models";
 
-import {User} from "@app/features/auth/users/models";
-
-export function useUser(id: string) {
+export function useAuthUser(id: string) {
     return useQuery({
-        queryKey: ["user", id],
+        queryKey: ["auth-user", id],
         queryFn: () => AuthUsersService.get(id),
         enabled: !!id,
     });
 }
 
-export function useUsers(params?: ListResourceParams) {
+export function useAuthUsers(params?: ListResourceParams) {
     return useQuery({
-        queryKey: ["users", params],
+        queryKey: ["auth-users", params],
         queryFn: () => AuthUsersService.list(params),
         placeholderData: (previousData) => previousData,
     });
 }
 
-export function useCreateUser() {
+export function useCreateAuthUser() {
     const qc = useQueryClient();
 
     return useMutation({
-        mutationFn: (payload: Omit<User, "id">) => AuthUsersService.create(payload),
+        mutationFn: (payload: Omit<IUser, "id">) => AuthUsersService.create(payload),
         onSuccess: () => {
-            qc.invalidateQueries({queryKey: ["users"]});
+            qc.invalidateQueries({queryKey: ["auth-users"]});
         }
     });
 }
 
-export function useUpdateUser(id: string) {
+export function useUpdateAuthUser(id: string) {
     const qc = useQueryClient();
 
     return useMutation({
-        mutationFn: (payload: Partial<User>) => AuthUsersService.update(id, payload),
+        mutationFn: (payload: Partial<IUser>) => AuthUsersService.update(id, payload),
         onSuccess: () => {
-            qc.invalidateQueries({queryKey: ["users"]});
-            qc.invalidateQueries({queryKey: ["user", id]});
+            qc.invalidateQueries({queryKey: ["auth-users"]});
+            qc.invalidateQueries({queryKey: ["auth-user", id]});
         }
     });
 }
 
-export function useDeleteUser() {
+export function useDeleteAuthUser() {
     const qc = useQueryClient();
 
     return useMutation({
         mutationFn: (id: string) => AuthUsersService.remove(id),
         onSuccess: () => {
-            qc.invalidateQueries({queryKey: ["users"]});
+            qc.invalidateQueries({queryKey: ["auth-users"]});
         }
     });
 }

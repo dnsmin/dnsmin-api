@@ -13,7 +13,7 @@ import {
     GridColDef,
     GridActionsCellItem,
 } from "@mui/x-data-grid-pro";
-import {useUsers} from "@app/features/auth/users/hooks";
+import {useAuthUsers} from "@app/features/auth/users/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
 import FormDialog from "@app/features/auth/users/components/UserFormDialog";
@@ -38,7 +38,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({page: 0, pageSize: 5});
 
-    const {data, isLoading} = useUsers({filterModel, sortModel, paginationModel});
+    const {data, isLoading} = useAuthUsers({filterModel, sortModel, paginationModel});
 
     const isFilteringActive = React.useMemo(() => {
         return filterModel.items.length > 0 || (filterModel.quickFilterValues?.length ?? 0) > 0;
