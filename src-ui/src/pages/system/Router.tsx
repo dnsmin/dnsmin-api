@@ -61,7 +61,7 @@ const routes: RouterRoute[] = [
         component: UsersListView,
         title: 'Delete User - User Management'
     },
-    {path: '/users/sessions', basePath: '/users/sessions', component: SessionsListView, title: 'Session Management'},
+    {path: '/sessions', basePath: '/sessions', component: SessionsListView, title: 'Session Management'},
 ];
 
 const Router: React.FC<RouterProps> = ({basePath}) => {

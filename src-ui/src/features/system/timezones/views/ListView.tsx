@@ -54,8 +54,8 @@ const ListView = ({basePath}: ViewProps) => {
     };
 
     const columns: readonly GridColDef<any>[] = [
-        {field: 'id', headerName: 'Timezone ID', width: 300},
-        {field: 'name', headerName: 'IANA Name', width: 200},
+        {field: 'id', headerName: 'Timezone ID', width: 150},
+        {field: 'name', headerName: 'IANA Name', width: 400},
         {field: 'offset', headerName: 'Offset', width: 200},
         {field: 'offsetDst', headerName: 'Offset (DST)', width: 200},
         {field: 'createdAt', headerName: 'Created', width: 175},

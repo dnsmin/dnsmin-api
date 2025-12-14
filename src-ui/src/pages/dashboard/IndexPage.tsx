@@ -14,6 +14,12 @@ const Page: React.FC<ViewProps> = () => {
                 <PageHeader title={'Dashboard'}/>
                 <Grid container spacing={2}>
                     <Grid size={{sm: 12, md: 2}} display="flex" justifyContent="center">
+                        <StatisticCard label="Total Tenants" value={0}/>
+                    </Grid>
+                    <Grid size={{sm: 12, md: 2}} display="flex" justifyContent="center">
+                        <StatisticCard label="Total API Clients" value={0}/>
+                    </Grid>
+                    <Grid size={{sm: 12, md: 2}} display="flex" justifyContent="center">
                         <StatisticCard label="Total Users" value={0}/>
                     </Grid>
                     <Grid size={{sm: 12, md: 2}} display="flex" justifyContent="center">
@@ -23,7 +29,7 @@ const Page: React.FC<ViewProps> = () => {
                         <StatisticCard label="Total Zones" value={0}/>
                     </Grid>
                     <Grid size={{sm: 12, md: 2}} display="flex" justifyContent="center">
-                        <StatisticCard label="Active User Sessions" value={0}/>
+                        <StatisticCard label="Active Sessions" value={0}/>
                     </Grid>
                 </Grid>
             </Container>

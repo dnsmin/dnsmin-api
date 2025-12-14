@@ -1,7 +1,8 @@
 import * as React from "react";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {Grid} from "@mui/material";
+import {Button, Grid} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
     DataGridPro,
@@ -12,7 +13,7 @@ import {
     GridColDef,
     GridActionsCellItem,
 } from "@mui/x-data-grid-pro";
-import {useAuthSessions} from "@app/features/auth/sessions/hooks";
+import {useRZones} from "@app/features/zones/rzones/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
 
@@ -34,30 +35,47 @@ const ListView = ({basePath}: ViewProps) => {
 
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({page: 0, pageSize: 5});
 
-    const {data, isLoading} = useAuthSessions({filterModel, sortModel, paginationModel});
+    const {data, isLoading} = useRZones({filterModel, sortModel, paginationModel});
 
     const isFilteringActive = React.useMemo(() => {
         return filterModel.items.length > 0 || (filterModel.quickFilterValues?.length ?? 0) > 0;
     }, [filterModel]);
+
+    const openCreate = () => {
+        navigate(`${basePath}/create`);
+    };
+
+    const openUpdate = (id: string) => {
+        navigate(`${basePath}/${id}/update`);
+    };
 
     const openDelete = (id: string) => {
         navigate(`${basePath}/${id}/delete`);
     };
 
     const columns: readonly GridColDef<any>[] = [
-        {field: 'id', headerName: 'Session ID', width: 300},
-        {field: 'tenantId', headerName: 'Tenant ID', width: 300},
-        {field: 'userId', headerName: 'User ID', width: 300},
-        {field: 'clientIp', headerName: 'Client IP', width: 200},
+        {field: 'id', headerName: 'Tenant ID', width: 150},
+        {field: 'tenantId', headerName: 'Tenant ID', width: 150},
+        {field: 'fqdn', headerName: 'FQDN', width: 200},
+        {field: 'kind', headerName: 'Type', width: 200},
+        {field: 'servers', headerName: 'Servers', width: 200},
+        {field: 'recursionDesired', headerName: 'Recursion', width: 150},
+        {field: 'notifyAllowed', headerName: 'Notify', width: 150},
         {field: 'createdAt', headerName: 'Created', width: 175},
         {field: 'updatedAt', headerName: 'Updated', width: 175},
-        {field: 'expiresAt', headerName: 'Expires', width: 175},
         {
             field: 'actions',
             type: 'actions',
             headerName: 'Actions',
             width: 100,
             getActions: (params) => [
+                <GridActionsCellItem
+                    key="edit"
+                    icon={<EditIcon/>}
+                    label="Edit"
+                    onClick={() => openUpdate(params.row.id)}
+                    showInMenu
+                />,
                 <GridActionsCellItem
                     key="delete"
                     icon={<DeleteIcon/>}
@@ -71,12 +89,12 @@ const ListView = ({basePath}: ViewProps) => {
 
     return (
         <>
-            <PageHeader title={'Session Management'}/>
+            <PageHeader title={'Recursive Zones'}/>
             <Grid container justifyContent="space-between">
                 <Grid size={{sm: 12, md: 6, lg: 4}} paddingY={2}>
                     <Grid container spacing={2}>
                         <Grid size={{sm: 12, md: 6}}>
-                            <StatisticCard label="Total Sessions" value={data?.total}/>
+                            <StatisticCard label="Total Zones" value={data?.total}/>
                         </Grid>
                         {isFilteringActive && (
                             <Grid size={{sm: 12, md: 6}}>
@@ -84,6 +102,10 @@ const ListView = ({basePath}: ViewProps) => {
                             </Grid>
                         )}
                     </Grid>
+                </Grid>
+                <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2} display="flex" justifyContent="flex-end"
+                      alignItems="flex-end">
+                    <Button variant="contained" onClick={() => openCreate()}>Create Zone</Button>
                 </Grid>
                 <Grid size={12}>
                     <DataGridPro

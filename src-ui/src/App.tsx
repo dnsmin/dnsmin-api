@@ -1,22 +1,25 @@
-import * as React from 'react';
-import {useEffect, useState} from 'react';
-import {Routes, Route, useLocation} from 'react-router-dom';
-import {ToastContainer} from 'react-toastify';
-import ReactGA from 'react-ga4';
-import {CssBaseline} from '@mui/material';
-import {ThemeProvider} from '@mui/material/styles';
-import {useAppDispatch} from '@store/store';
-import {setCurrentUser} from '@store/reducers/auth';
-import {authService} from '@app/services/auth';
-import {useTheme} from '@app/components/theme';
-import DashboardRouter from '@pages/dashboard/Router';
-import UserRouter from '@pages/user/Router';
-import SystemRouter from '@pages/system/Router';
-import ServersRouter from '@pages/servers/Router';
+import * as React from "react";
+import {useEffect, useState} from "react";
+import {Routes, Route, useLocation} from "react-router-dom";
+import {ToastContainer} from "react-toastify";
+import ReactGA from "react-ga4";
+import {CssBaseline} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
+import {useAppDispatch} from "@store/store";
+import {setCurrentUser} from "@store/reducers/auth";
+import {authService} from "@app/services/auth";
+import {useTheme} from "@app/components/theme";
+import DashboardRouter from "@pages/dashboard/Router";
+import UserRouter from "@pages/user/Router";
+import SettingsRouter from "@pages/settings/Router";
+import SystemRouter from "@pages/system/Router";
+import ServersRouter from "@pages/servers/Router";
+import ZonesRouter from "@pages/zones/Router";
+import AuditsRouter from "@pages/audits/Router";
 
-import {Loading} from '@components/Loading';
+import {Loading} from "@components/Loading";
 
-import './App.scss';
+import "./App.scss";
 
 const {VITE_NODE_ENV} = import.meta.env;
 
@@ -61,8 +64,11 @@ const App = () => {
                 <Routes>
                     <Route path="/*" element={<DashboardRouter basePath=""/>}/>
                     <Route path="/user/*" element={<UserRouter basePath="/user"/>}/>
+                    <Route path="/settings/*" element={<SettingsRouter basePath="/settings"/>}/>
                     <Route path="/system/*" element={<SystemRouter basePath="/system"/>}/>
                     <Route path="/servers/*" element={<ServersRouter basePath="/servers"/>}/>
+                    <Route path="/zones/*" element={<ZonesRouter basePath="/zones"/>}/>
+                    <Route path="/audits/*" element={<AuditsRouter basePath="/audits"/>}/>
                 </Routes>
                 <ToastContainer
                     autoClose={2000}

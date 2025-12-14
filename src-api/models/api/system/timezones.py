@@ -33,10 +33,10 @@ class TimezoneInSchema(BaseApiModel):
 class TimezoneOutSchema(BaseApiModel):
     """Provides an API response model for representing timezones."""
 
-    id: UUID = Field(
+    id: int = Field(
         title='Timezone ID',
         description='The unique identifier of the timezone.',
-        examples=[uuid4()],
+        examples=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     )
     """The unique identifier of the timezone."""
 
