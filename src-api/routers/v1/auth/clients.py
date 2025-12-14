@@ -79,6 +79,7 @@ async def record_create(
         scopes=client.scopes,
         enabled=client.enabled,
     )
+    record.secret = client.secret
 
     # Enforce tenancy
     if principal.tenant_id:
@@ -168,6 +169,9 @@ async def record_update(
     record.redirect_uri = client.redirect_uri
     record.scopes = client.scopes
     record.enabled = client.enabled
+
+    if isinstance(client.secret, str):
+        record.secret = client.secret
 
     # Commit the changes to the database
     session.add(record)

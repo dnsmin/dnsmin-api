@@ -5,6 +5,7 @@ import UserLayout from "@layouts/user/Layout";
 import PageTitle from "@components/PageTitle";
 import SubNavigation from "@components/SubNavigation";
 import SystemIndexPage from "@pages/system/IndexPage";
+import ClientsListView from "@app/features/auth/clients/views/ListView";
 import UsersListView from "@app/features/auth/users/views/ListView";
 
 interface RouterProps {
@@ -26,6 +27,22 @@ const Router: React.FC<RouterProps> = ({basePath}) => {
                             <Route path="/"
                                    element={
                                 <PageTitle title="System Management"><SystemIndexPage basePath={basePath}/></PageTitle>
+                            }/>
+                            <Route path="/clients"
+                                   element={
+                                <PageTitle title="API Client Management"><ClientsListView basePath={`${basePath}/clients`}/></PageTitle>
+                            }/>
+                            <Route path="/clients/:action"
+                                   element={
+                                <PageTitle title="Create API Client - API Client Management"><ClientsListView basePath={`${basePath}/clients`}/></PageTitle>
+                            }/>
+                            <Route path="/clients/:recordId/:action"
+                                   element={
+                                <PageTitle title="Update API Client - API Client Management"><ClientsListView basePath={`${basePath}/clients`}/></PageTitle>
+                            }/>
+                            <Route path="/clients/:recordId/:action"
+                                   element={
+                                <PageTitle title="Delete API Client - API Client Management"><ClientsListView basePath={`${basePath}/clients`}/></PageTitle>
                             }/>
                             <Route path="/users"
                                    element={

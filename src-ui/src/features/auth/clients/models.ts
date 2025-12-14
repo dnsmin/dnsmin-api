@@ -4,6 +4,7 @@ export interface Client extends ModelBase {
     id?: string;
     tenantId?: string | null;
     userId?: string | null;
+    secret?: string | null;
     name: string;
     redirectUri: string | null;
     scopes: string[] | null;

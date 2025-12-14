@@ -19,11 +19,12 @@ export function clientFromDTO(dto: IClientInDTO): IClient {
 export function clientToDTO(client: IClient): IClientOutDTO {
     return {
         id: client.id,
-        tenant_id: client.tenantId,
-        user_id: client.userId,
+        tenant_id: client.tenantId || null,
+        user_id: client.userId || null,
+        secret: client.secret || null,
         name: client.name,
-        redirect_uri: client.redirectUri,
-        scopes: client.scopes,
+        redirect_uri: client.redirectUri || null,
+        scopes: client.scopes || null,
         enabled: client.enabled,
     }
 }

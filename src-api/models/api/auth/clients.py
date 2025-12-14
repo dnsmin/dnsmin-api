@@ -27,6 +27,13 @@ class ClientInSchema(BaseApiModel):
     )
     """The unique identifier of the user associated with the client if any."""
 
+    secret: Optional[str] = Field(
+        title='Client Secret',
+        description='The secret used for authenticating the client.',
+        default=None,
+    )
+    """The secret used for authenticating the client."""
+
     name: str = Field(
         title='Client Name',
         description='The name of the client.',

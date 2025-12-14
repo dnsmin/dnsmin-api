@@ -17,6 +17,7 @@ export interface ClientOutDTO extends BaseDTO {
     id?: string;
     tenant_id?: string | null;
     user_id?: string | null;
+    secret?: string | null;
     name: string;
     redirect_uri?: string | null;
     scopes?: string[] | null;
