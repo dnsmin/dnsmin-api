@@ -12,6 +12,7 @@ import {useTheme} from '@app/components/theme';
 import DashboardRouter from '@pages/dashboard/Router';
 import UserRouter from '@pages/user/Router';
 import SystemRouter from '@pages/system/Router';
+import ServersRouter from '@pages/servers/Router';
 
 import {Loading} from '@components/Loading';
 
@@ -61,6 +62,7 @@ const App = () => {
                     <Route path="/*" element={<DashboardRouter basePath=""/>}/>
                     <Route path="/user/*" element={<UserRouter basePath="/user"/>}/>
                     <Route path="/system/*" element={<SystemRouter basePath="/system"/>}/>
+                    <Route path="/servers/*" element={<ServersRouter basePath="/servers"/>}/>
                 </Routes>
                 <ToastContainer
                     autoClose={2000}

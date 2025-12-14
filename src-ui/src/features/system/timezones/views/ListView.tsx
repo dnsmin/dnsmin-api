@@ -13,19 +13,16 @@ import {
     GridColDef,
     GridActionsCellItem,
 } from "@mui/x-data-grid-pro";
-import {useAuthUsers} from "@app/features/auth/users/hooks";
+import {useSystemTimezones} from "@app/features/system/timezones/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
-import FormDialog from "@app/features/auth/users/components/FormDialog";
-import DeleteDialog from "@app/features/auth/users/components/DeleteDialog";
 
 
 interface ViewProps {
     basePath: string;
-    multiTenant?: boolean;
 }
 
-const ListView = ({basePath, multiTenant = true}: ViewProps) => {
+const ListView = ({basePath}: ViewProps) => {
     const navigate = useNavigate();
 
     const [filterModel, setFilterModel] = useState<GridFilterModel>({
@@ -38,7 +35,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({page: 0, pageSize: 5});
 
-    const {data, isLoading} = useAuthUsers({filterModel, sortModel, paginationModel});
+    const {data, isLoading} = useSystemTimezones({filterModel, sortModel, paginationModel});
 
     const isFilteringActive = React.useMemo(() => {
         return filterModel.items.length > 0 || (filterModel.quickFilterValues?.length ?? 0) > 0;
@@ -57,15 +54,12 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
     };
 
     const columns: readonly GridColDef<any>[] = [
-        {field: 'id', headerName: 'User ID', width: 300},
-        ...(multiTenant ? [{field: 'tenantId', headerName: 'Tenant ID', width: 300}] : []),
-        {field: 'username', headerName: 'Username', width: 150},
-        {field: 'email', headerName: 'Email', width: 200},
-        {field: 'phoneNumber', headerName: 'Phone Number', width: 150},
-        {field: 'status', headerName: 'Status', width: 100},
+        {field: 'id', headerName: 'Timezone ID', width: 300},
+        {field: 'name', headerName: 'IANA Name', width: 200},
+        {field: 'offset', headerName: 'Offset', width: 200},
+        {field: 'offsetDst', headerName: 'Offset (DST)', width: 200},
         {field: 'createdAt', headerName: 'Created', width: 175},
         {field: 'updatedAt', headerName: 'Updated', width: 175},
-        {field: 'authenticatedAt', headerName: 'Last Login', width: 175},
         {
             field: 'actions',
             type: 'actions',
@@ -92,12 +86,12 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     return (
         <>
-            <PageHeader title={'User Management'}/>
+            <PageHeader title={'Timezone Management'}/>
             <Grid container justifyContent="space-between">
                 <Grid size={{sm: 12, md: 6, lg: 4}} paddingY={2}>
                     <Grid container spacing={2}>
                         <Grid size={{sm: 12, md: 6}}>
-                            <StatisticCard label="Total Users" value={data?.total}/>
+                            <StatisticCard label="Total Timezones" value={data?.total}/>
                         </Grid>
                         {isFilteringActive && (
                             <Grid size={{sm: 12, md: 6}}>
@@ -108,7 +102,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                 </Grid>
                 <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2} display="flex" justifyContent="flex-end"
                       alignItems="flex-end">
-                    <Button variant="contained" onClick={() => openCreate()}>Create User</Button>
+                    <Button variant="contained" onClick={() => openCreate()}>Create Timezone</Button>
                 </Grid>
                 <Grid size={12}>
                     <DataGridPro
@@ -137,8 +131,6 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                     />
                 </Grid>
             </Grid>
-            <FormDialog basePath={basePath}/>
-            <DeleteDialog basePath={basePath}/>
         </>
     );
 };

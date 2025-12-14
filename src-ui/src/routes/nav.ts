@@ -6,14 +6,26 @@ export const navItems: NavItem[] = [
     {
         key: 'system', label: 'System', path: '/system', children: [
             {key: 'stopgap_domains', label: 'Stopgap Domains', path: '/stopgap-domains'},
+            {key: 'timezones', label: 'Timezones', path: '/timezones'},
             {key: 'tenants', label: 'Tenants', path: '/tenants'},
             {key: 'clients', label: 'API Clients', path: '/clients'},
             {key: 'users', label: 'Users', path: '/users'},
             {key: 'users-sessions', label: 'User Sessions', path: '/users/sessions'},
         ]
     },
-    {key: 'servers', label: 'Servers', path: '/servers'},
-    {key: 'zones', label: 'Zones', path: '/zones'},
+    {key: 'servers', label: 'Servers', path: '/servers', children: [
+            {key: 'servers', label: 'Servers', path: '/servers'},
+            {key: 'autoPrimaries', label: 'Auto-Primaries', path: '/auto-primaries'},
+            {key: 'views', label: 'Views', path: '/views'},
+            {key: 'networks', label: 'Networks', path: '/networks'},
+            {key: 'tsigKeys', label: 'TSIG Keys', path: '/tsig-keys'},
+        ]
+    },
+    {key: 'zones', label: 'Zones', path: '/zones', children: [
+            {key: 'azones', label: 'Authoritative Zones', path: '/authoritative'},
+            {key: 'rzones', label: 'Recursive Zones', path: '/recursive'},
+        ]
+    },
     {key: 'audits', label: 'Audits', path: '/audits'},
 ];
 

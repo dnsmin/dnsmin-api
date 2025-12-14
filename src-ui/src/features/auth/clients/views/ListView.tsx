@@ -16,8 +16,8 @@ import {
 import {useAuthClients} from "@app/features/auth/clients/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
-import FormDialog from "@app/features/auth/clients/components/ClientFormDialog";
-import DeleteDialog from "@app/features/auth/clients/components/ClientDeleteDialog";
+import FormDialog from "@app/features/auth/clients/components/FormDialog";
+import DeleteDialog from "@app/features/auth/clients/components/DeleteDialog";
 
 
 interface ViewProps {

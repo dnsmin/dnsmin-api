@@ -1,8 +1,7 @@
 import * as React from "react";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {Button, Grid} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+import {Grid} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
     DataGridPro,
@@ -13,19 +12,16 @@ import {
     GridColDef,
     GridActionsCellItem,
 } from "@mui/x-data-grid-pro";
-import {useAuthUsers} from "@app/features/auth/users/hooks";
+import {useAuthSessions} from "@app/features/auth/sessions/hooks";
 import PageHeader from "@components/PageHeader";
 import StatisticCard from "@components/cards/StatisticCard";
-import FormDialog from "@app/features/auth/users/components/FormDialog";
-import DeleteDialog from "@app/features/auth/users/components/DeleteDialog";
 
 
 interface ViewProps {
     basePath: string;
-    multiTenant?: boolean;
 }
 
-const ListView = ({basePath, multiTenant = true}: ViewProps) => {
+const ListView = ({basePath}: ViewProps) => {
     const navigate = useNavigate();
 
     const [filterModel, setFilterModel] = useState<GridFilterModel>({
@@ -38,47 +34,30 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({page: 0, pageSize: 5});
 
-    const {data, isLoading} = useAuthUsers({filterModel, sortModel, paginationModel});
+    const {data, isLoading} = useAuthSessions({filterModel, sortModel, paginationModel});
 
     const isFilteringActive = React.useMemo(() => {
         return filterModel.items.length > 0 || (filterModel.quickFilterValues?.length ?? 0) > 0;
     }, [filterModel]);
-
-    const openCreate = () => {
-        navigate(`${basePath}/create`);
-    };
-
-    const openUpdate = (id: string) => {
-        navigate(`${basePath}/${id}/update`);
-    };
 
     const openDelete = (id: string) => {
         navigate(`${basePath}/${id}/delete`);
     };
 
     const columns: readonly GridColDef<any>[] = [
-        {field: 'id', headerName: 'User ID', width: 300},
-        ...(multiTenant ? [{field: 'tenantId', headerName: 'Tenant ID', width: 300}] : []),
-        {field: 'username', headerName: 'Username', width: 150},
-        {field: 'email', headerName: 'Email', width: 200},
-        {field: 'phoneNumber', headerName: 'Phone Number', width: 150},
-        {field: 'status', headerName: 'Status', width: 100},
+        {field: 'id', headerName: 'Session ID', width: 300},
+        {field: 'tenantId', headerName: 'Tenant ID', width: 300},
+        {field: 'userId', headerName: 'User ID', width: 300},
+        {field: 'clientIp', headerName: 'Client IP', width: 200},
         {field: 'createdAt', headerName: 'Created', width: 175},
         {field: 'updatedAt', headerName: 'Updated', width: 175},
-        {field: 'authenticatedAt', headerName: 'Last Login', width: 175},
+        {field: 'expiresAt', headerName: 'Expires', width: 175},
         {
             field: 'actions',
             type: 'actions',
             headerName: 'Actions',
             width: 100,
             getActions: (params) => [
-                <GridActionsCellItem
-                    key="edit"
-                    icon={<EditIcon/>}
-                    label="Edit"
-                    onClick={() => openUpdate(params.row.id)}
-                    showInMenu
-                />,
                 <GridActionsCellItem
                     key="delete"
                     icon={<DeleteIcon/>}
@@ -92,12 +71,12 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     return (
         <>
-            <PageHeader title={'User Management'}/>
+            <PageHeader title={'User Session Management'}/>
             <Grid container justifyContent="space-between">
                 <Grid size={{sm: 12, md: 6, lg: 4}} paddingY={2}>
                     <Grid container spacing={2}>
                         <Grid size={{sm: 12, md: 6}}>
-                            <StatisticCard label="Total Users" value={data?.total}/>
+                            <StatisticCard label="Total Sessions" value={data?.total}/>
                         </Grid>
                         {isFilteringActive && (
                             <Grid size={{sm: 12, md: 6}}>
@@ -105,10 +84,6 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                             </Grid>
                         )}
                     </Grid>
-                </Grid>
-                <Grid size={{sm: 12, md: 3, lg: 2}} paddingY={2} display="flex" justifyContent="flex-end"
-                      alignItems="flex-end">
-                    <Button variant="contained" onClick={() => openCreate()}>Create User</Button>
                 </Grid>
                 <Grid size={12}>
                     <DataGridPro
@@ -137,8 +112,6 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
                     />
                 </Grid>
             </Grid>
-            <FormDialog basePath={basePath}/>
-            <DeleteDialog basePath={basePath}/>
         </>
     );
 };
