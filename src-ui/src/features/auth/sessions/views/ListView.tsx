@@ -71,7 +71,7 @@ const ListView = ({basePath}: ViewProps) => {
 
     return (
         <>
-            <PageHeader title={'Session Management'}/>
+            <PageHeader title={'Sessions'}/>
             <Grid container justifyContent="space-between">
                 <Grid size={{sm: 12, md: 6, lg: 4}} paddingY={2}>
                     <Grid container spacing={2}>

@@ -92,7 +92,7 @@ const ListView = ({basePath, multiTenant = true}: ViewProps) => {
 
     return (
         <>
-            <PageHeader title={'API Client Management'}/>
+            <PageHeader title={'API Clients'}/>
             <Grid container justifyContent="space-between">
                 <Grid size={{sm: 12, md: 6, lg: 4}} paddingY={2}>
                     <Grid container spacing={2}>

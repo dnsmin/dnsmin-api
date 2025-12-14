@@ -20,7 +20,7 @@ interface RouterRoute {
 }
 
 const routes: RouterRoute[] = [
-    {path: '/', component: ZonesIndexPage, title: 'Servers Management'},
+    {path: '/', component: ZonesIndexPage, title: 'Zones Management'},
     {path: '/authoritative', basePath: '/authoritative', component: AuthoritativeListView, title: 'Authoritative Zones'},
     {path: '/recursive', basePath: '/recursive', component: RecursiveListView, title: 'Recursive Zones'},
 ];

@@ -21,12 +21,12 @@ interface RouterRoute {
 
 const routes: RouterRoute[] = [
     {path: '/', component: ServersIndexPage, title: 'Servers Management'},
-    {path: '/servers', basePath: '/servers', component: ServersListView, title: 'Server Management'},
+    {path: '/servers', basePath: '/servers', component: ServersListView, title: 'Servers'},
     {
         path: '/servers/:serverId/auto-primaries',
         basePath: '/servers/:serverId/auto-primaries',
         component: AutoPrimariesListView,
-        title: 'Auto-Primary Management'
+        title: 'Auto-Primaries'
     },
 ];
 

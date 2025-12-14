@@ -25,43 +25,43 @@ interface RouterRoute {
 
 const routes: RouterRoute[] = [
     {path: '/', component: SystemIndexPage, title: 'System Management'},
-    {path: '/stopgap-domains', basePath: '/stopgap-domains', component: StopgapDomainsListView, title: 'Stopgap Domain Management'},
-    {path: '/timezones', basePath: '/timezones', component: TimezonesListView, title: 'Timezone Management'},
-    {path: '/tenants', basePath: '/tenants', component: TenantsListView, title: 'Tenant Management'},
-    {path: '/clients', basePath: '/clients', component: ClientsListView, title: 'API Client Management'},
+    {path: '/stopgap-domains', basePath: '/stopgap-domains', component: StopgapDomainsListView, title: 'Stopgap Domains'},
+    {path: '/timezones', basePath: '/timezones', component: TimezonesListView, title: 'Timezones'},
+    {path: '/tenants', basePath: '/tenants', component: TenantsListView, title: 'Tenants'},
+    {path: '/clients', basePath: '/clients', component: ClientsListView, title: 'API Clients'},
     {
         path: '/clients/:action',
         basePath: '/clients',
         component: ClientsListView,
-        title: 'Create API Client - API Client Management'
+        title: 'Create API Client - API Clients'
     },
     {
         path: '/clients/:recordId/:action',
         basePath: '/clients',
         component: ClientsListView,
-        title: 'Update API Client - API Client Management'
+        title: 'Update API Client - API Clients'
     },
     {
         path: '/clients/:recordId/:action',
         basePath: '/clients',
         component: ClientsListView,
-        title: 'Delete API Client - API Client Management'
+        title: 'Delete API Client - API Clients'
     },
-    {path: '/users', basePath: '/users', component: UsersListView, title: 'User Management'},
-    {path: '/users/:action', basePath: '/users', component: UsersListView, title: 'Create User - User Management'},
+    {path: '/users', basePath: '/users', component: UsersListView, title: 'Users'},
+    {path: '/users/:action', basePath: '/users', component: UsersListView, title: 'Create User - Users'},
     {
         path: '/users/:recordId/:action',
         basePath: '/users',
         component: UsersListView,
-        title: 'Update User - User Management'
+        title: 'Update User - Users'
     },
     {
         path: '/users/:recordId/:action',
         basePath: '/users',
         component: UsersListView,
-        title: 'Delete User - User Management'
+        title: 'Delete User - Users'
     },
-    {path: '/sessions', basePath: '/sessions', component: SessionsListView, title: 'Session Management'},
+    {path: '/sessions', basePath: '/sessions', component: SessionsListView, title: 'Sessions'},
 ];
 
 const Router: React.FC<RouterProps> = ({basePath}) => {
