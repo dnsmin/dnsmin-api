@@ -1,4 +1,4 @@
-aiosqlite==0.21.0
+aiosqlite==0.22.0
 asyncio==4.0.0
 asyncmy==0.2.10
 celery[redis]==5.6.0
