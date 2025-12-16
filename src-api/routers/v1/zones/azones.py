@@ -11,19 +11,48 @@ from models.api.zones.azones import AZonesSchema, AZoneOutSchema, AZoneInSchema
 from routers.v1.zones import router
 
 
-@router.post(
+@router.get(
     '/authoritative',
-    response_model=AZonesSchema,
+    response_model=list[AZoneOutSchema],
     summary='List authoritative zones',
     description='List authoritative zones.',
     operation_id='zones:authoritative:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[AZoneOutSchema]:
+    """List authoritative zones"""
+    from sqlalchemy import select
+    from models.db.zones import AZone
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(AZone)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(AZone.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [AZoneOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/authoritative/search',
+    response_model=AZonesSchema,
+    summary='Search authoritative zones',
+    description='Search authoritative zones.',
+    operation_id='zones:authoritative:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> AZonesSchema:
-    """List authoritative zones"""
+    """Search authoritative zones"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.zones import AZone
@@ -57,7 +86,7 @@ async def record_list(
 
 
 @router.post(
-    '/authoritative/create',
+    '/authoritative',
     response_model=AZoneOutSchema,
     summary='Create authoritative zone',
     description='Create authoritative zone.',

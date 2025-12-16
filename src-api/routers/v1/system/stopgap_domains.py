@@ -11,19 +11,44 @@ from models.api.system.stopgap_domains import StopgapDomainsSchema, StopgapDomai
 from routers.v1.system import router
 
 
-@router.post(
+@router.get(
     '/stopgap-domains',
-    response_model=StopgapDomainsSchema,
+    response_model=list[StopgapDomainOutSchema],
     summary='List stopgap domains',
     description='List stopgap domains.',
     operation_id='system:stopgap_domains:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[StopgapDomainOutSchema]:
+    """List stopgap domains"""
+    from sqlalchemy import select
+    from models.db.system import StopgapDomain
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(StopgapDomain)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [StopgapDomainOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/stopgap-domains/search',
+    response_model=StopgapDomainsSchema,
+    summary='Search stopgap domains',
+    description='Search stopgap domains.',
+    operation_id='system:stopgap_domains:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> StopgapDomainsSchema:
-    """List stopgap domains"""
+    """Search stopgap domains"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.system import StopgapDomain
@@ -53,7 +78,7 @@ async def record_list(
 
 
 @router.post(
-    '/stopgap-domains/create',
+    '/stopgap-domains',
     response_model=StopgapDomainOutSchema,
     summary='Create stopgap domain',
     description='Create stopgap domain.',

@@ -11,20 +11,50 @@ from models.api.zones.azone_crypto_keys import AZoneCryptoKeyInSchema, AZoneCryp
 from routers.v1.zones import router
 
 
-@router.post(
+@router.get(
     '/authoritative/{zone_id}/crypto-keys',
-    response_model=AZoneCryptoKeysSchema,
+    response_model=list[AZoneCryptoKeyOutSchema],
     summary='List authoritative zone crypto keys',
     description='List authoritative zone crypto keys.',
     operation_id='zones:authoritative:crypto_keys:list',
 )
 async def record_list(
         zone_id: UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[AZoneCryptoKeyOutSchema]:
+    """List authoritative zone crypto keys."""
+    from sqlalchemy import select
+    from models import AZoneCryptoKey
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(AZoneCryptoKey).where(AZoneCryptoKey.zone_id == zone_id)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(AZoneCryptoKey.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [AZoneCryptoKeyOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/authoritative/{zone_id}/crypto-keys/search',
+    response_model=AZoneCryptoKeysSchema,
+    summary='Search authoritative zone crypto keys',
+    description='Search authoritative zone crypto keys.',
+    operation_id='zones:authoritative:crypto_keys:search',
+)
+async def record_search(
+        zone_id: UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> AZoneCryptoKeysSchema:
-    """List authoritative zone crypto keys."""
+    """Search authoritative zone crypto keys."""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models import AZoneCryptoKey
@@ -58,7 +88,7 @@ async def record_list(
 
 
 @router.post(
-    '/authoritative/{zone_id}/crypto-keys/create',
+    '/authoritative/{zone_id}/crypto-keys',
     response_model=AZoneCryptoKeyOutSchema,
     summary='Create authoritative zone crypto key',
     description='Create authoritative zone crypto key.',

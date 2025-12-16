@@ -17,19 +17,44 @@ router = APIRouter(
 )
 
 
-@router.post(
+@router.get(
     '/tenants',
-    response_model=TenantsSchema,
+    response_model=list[TenantOutSchema],
     summary='List tenants',
     description='List tenants.',
     operation_id='tenants:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[TenantOutSchema]:
+    """List tenants"""
+    from sqlalchemy import select
+    from models.db.tenants import Tenant
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(Tenant)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [TenantOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/tenants/search',
+    response_model=TenantsSchema,
+    summary='Search tenants',
+    description='Search tenants.',
+    operation_id='tenants:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> TenantsSchema:
-    """List tenants"""
+    """Search tenants"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.tenants import Tenant
@@ -59,7 +84,7 @@ async def record_list(
 
 
 @router.post(
-    '/tenants/create',
+    '/tenants',
     response_model=TenantOutSchema,
     summary='Create tenant',
     description='Create tenant.',

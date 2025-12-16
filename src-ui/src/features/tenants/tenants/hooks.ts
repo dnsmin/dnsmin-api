@@ -14,7 +14,7 @@ export function useTenant(id: string) {
 export function useTenants(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["tenants-tenants", params],
-        queryFn: () => TenantsService.list(params),
+        queryFn: () => TenantsService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

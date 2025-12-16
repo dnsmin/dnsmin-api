@@ -14,7 +14,7 @@ export function useAZoneCryptoKey(zoneId: string, id: string) {
 export function useAZoneCryptoKeys(zoneId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["zones-azone-crypto-keys", params],
-        queryFn: () => AZoneCryptoKeysService.list(zoneId, params),
+        queryFn: () => AZoneCryptoKeysService.search(zoneId, params),
         placeholderData: (previousData) => previousData,
     });
 }

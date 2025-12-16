@@ -10,19 +10,44 @@ from models.api.system.timezones import TimezonesSchema, TimezoneOutSchema, Time
 from routers.v1.system import router
 
 
-@router.post(
+@router.get(
     '/timezones',
-    response_model=TimezonesSchema,
+    response_model=list[TimezoneOutSchema],
     summary='List timezones',
     description='List timezones.',
     operation_id='system:timezones:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[TimezoneOutSchema]:
+    """List timezones"""
+    from sqlalchemy import select
+    from models.db.system import RefTimezone
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(RefTimezone)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [TimezoneOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/timezones/search',
+    response_model=TimezonesSchema,
+    summary='Search timezones',
+    description='Search timezones.',
+    operation_id='system:timezones:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> TimezonesSchema:
-    """List timezones"""
+    """Search timezones"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.system import RefTimezone
@@ -52,7 +77,7 @@ async def record_list(
 
 
 @router.post(
-    '/timezones/create',
+    '/timezones',
     response_model=TimezoneOutSchema,
     summary='Create timezone',
     description='Create timezone.',

@@ -11,20 +11,50 @@ from models.api.zones.rzone_records import RZoneRecordInSchema, RZoneRecordOutSc
 from routers.v1.zones import router
 
 
-@router.post(
+@router.get(
     '/recursive/{zone_id}/records',
-    response_model=RZoneRecordsSchema,
+    response_model=list[RZoneRecordOutSchema],
     summary='List recursive zone records',
     description='List recursive zone records.',
     operation_id='zones:recursive:records:list',
 )
 async def record_list(
         zone_id:UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[RZoneRecordOutSchema]:
+    """List recursive zone records"""
+    from sqlalchemy import select
+    from models.db.zones import RZoneRecord
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(RZoneRecord).where(RZoneRecord.zone_id == zone_id)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(RZoneRecord.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [RZoneRecordOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/recursive/{zone_id}/records/search',
+    response_model=RZoneRecordsSchema,
+    summary='Search recursive zone records',
+    description='Search recursive zone records.',
+    operation_id='zones:recursive:records:search',
+)
+async def record_search(
+        zone_id:UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> RZoneRecordsSchema:
-    """List recursive zone records"""
+    """Search recursive zone records"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.zones import RZoneRecord
@@ -58,7 +88,7 @@ async def record_list(
 
 
 @router.post(
-    '/recursive/{zone_id}/records/create',
+    '/recursive/{zone_id}/records',
     response_model=RZoneRecordOutSchema,
     summary='Create recursive zone record',
     description='Create recursive zone record.',

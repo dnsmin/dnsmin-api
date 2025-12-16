@@ -5,7 +5,7 @@ import {ITaskJobInDTO, ITaskJobsPagedResponseDTO} from "@app/features/tasks/jobs
 import {ITaskJob, ITaskJobsPaged} from "@app/features/tasks/jobs/models";
 
 export const TaskJobsService = {
-    async list(req?: ListResourceParams): Promise<ITaskJobsPaged> {
+    async search(req?: ListResourceParams): Promise<ITaskJobsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const TaskJobsService = {
         } : {};
 
         const response = await http.post<ITaskJobsPagedResponseDTO>(
-            "/tasks/jobs", params
+            "/tasks/jobs/search", params
         );
 
         return taskJobsPagedFromDTO(response.data);

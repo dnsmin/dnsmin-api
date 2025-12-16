@@ -13,7 +13,7 @@ export function useTaskJob(id: string) {
 export function useTaskJobs(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["tasks-jobs", params],
-        queryFn: () => TaskJobsService.list(params),
+        queryFn: () => TaskJobsService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

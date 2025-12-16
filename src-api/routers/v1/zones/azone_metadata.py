@@ -11,20 +11,50 @@ from models.api.zones.azone_metadata import AZoneMetadataInSchema, AZoneMetadata
 from routers.v1.zones import router
 
 
-@router.post(
+@router.get(
     '/authoritative/{zone_id}/metadata',
-    response_model=AZoneMetadataSchema,
+    response_model=list[AZoneMetadataOutSchema],
     summary='List authoritative zone metadata',
     description='List authoritative zone metadata.',
     operation_id='zones:authoritative:metadata:list',
 )
 async def record_list(
         zone_id:UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[AZoneMetadataOutSchema]:
+    """List authoritative zone metadata"""
+    from sqlalchemy import select
+    from models.db.zones import AZoneMetadata
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(AZoneMetadata).where(AZoneMetadata.zone_id == zone_id)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(AZoneMetadata.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [AZoneMetadataOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/authoritative/{zone_id}/metadata/search',
+    response_model=AZoneMetadataSchema,
+    summary='Search authoritative zone metadata',
+    description='Search authoritative zone metadata.',
+    operation_id='zones:authoritative:metadata:search',
+)
+async def record_search(
+        zone_id:UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> AZoneMetadataSchema:
-    """List authoritative zone metadata"""
+    """Search authoritative zone metadata"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.zones import AZoneMetadata
@@ -58,7 +88,7 @@ async def record_list(
 
 
 @router.post(
-    '/authoritative/{zone_id}/metadata/create',
+    '/authoritative/{zone_id}/metadata',
     response_model=AZoneMetadataOutSchema,
     summary='Create authoritative zone metadata',
     description='Create authoritative zone metadata.',

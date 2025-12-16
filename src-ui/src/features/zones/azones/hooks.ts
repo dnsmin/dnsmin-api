@@ -14,7 +14,7 @@ export function useAZone(id: string) {
 export function useAZones(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["zones-azones", params],
-        queryFn: () => AZonesService.list(params),
+        queryFn: () => AZonesService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

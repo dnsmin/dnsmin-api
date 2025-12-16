@@ -14,7 +14,7 @@ export function useSystemStopgapDomain(id: string) {
 export function useSystemStopgapDomains(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["system-stopgap-domains", params],
-        queryFn: () => SystemStopgapDomainsService.list(params),
+        queryFn: () => SystemStopgapDomainsService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

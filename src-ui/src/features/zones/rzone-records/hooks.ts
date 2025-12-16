@@ -14,7 +14,7 @@ export function useRZoneRecord(zoneId: string, id: string) {
 export function useRZoneRecords(zoneId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["zones-rzone-records", params],
-        queryFn: () => RZoneRecordsService.list(zoneId, params),
+        queryFn: () => RZoneRecordsService.search(zoneId, params),
         placeholderData: (previousData) => previousData,
     });
 }

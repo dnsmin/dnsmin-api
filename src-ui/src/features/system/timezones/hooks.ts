@@ -14,7 +14,7 @@ export function useSystemTimezone(id: number) {
 export function useSystemTimezones(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["system-timezones", params],
-        queryFn: () => SystemTimezonesService.list(params),
+        queryFn: () => SystemTimezonesService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

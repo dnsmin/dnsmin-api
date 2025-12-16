@@ -5,7 +5,7 @@ import {ICryptoKeyInDTO, ICryptoKeysPagedResponseDTO} from "@app/features/zones/
 import {IAZoneCryptoKey, IAZoneCryptoKeysPaged} from "@app/features/zones/azone-crypto-keys/models";
 
 export const AZoneCryptoKeysService = {
-    async list(zoneId: string, req?: ListResourceParams): Promise<IAZoneCryptoKeysPaged> {
+    async search(zoneId: string, req?: ListResourceParams): Promise<IAZoneCryptoKeysPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const AZoneCryptoKeysService = {
         } : {};
 
         const response = await http.post<ICryptoKeysPagedResponseDTO>(
-            `/crypto-keys/authoritative/${zoneId}/crypto-keys`, params
+            `/crypto-keys/authoritative/${zoneId}/crypto-keys/search`, params
         );
 
         return cryptoKeysPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const AZoneCryptoKeysService = {
 
     async create(zoneId: string, payload: Omit<IAZoneCryptoKey, "id">): Promise<IAZoneCryptoKey> {
         const dtoPayload = cryptoKeyToDTO(payload as IAZoneCryptoKey);
-        const response = await http.post<ICryptoKeyInDTO>(`/crypto-keys/authoritative/${zoneId}/crypto-keys/create`, dtoPayload);
+        const response = await http.post<ICryptoKeyInDTO>(`/crypto-keys/authoritative/${zoneId}/crypto-keys`, dtoPayload);
         return cryptoKeyFromDTO(response.data);
     },
 

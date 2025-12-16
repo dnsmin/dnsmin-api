@@ -5,7 +5,7 @@ import {ITenantInDTO, ITenantsPagedResponseDTO} from "@app/features/tenants/tena
 import {ITenant, ITenantsPaged} from "@app/features/tenants/tenants/models";
 
 export const TenantsService = {
-    async list(req?: ListResourceParams): Promise<ITenantsPaged> {
+    async search(req?: ListResourceParams): Promise<ITenantsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const TenantsService = {
         } : {};
 
         const response = await http.post<ITenantsPagedResponseDTO>(
-            "/tenants/tenants", params
+            "/tenants/tenants/search", params
         );
 
         return tenantsPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const TenantsService = {
 
     async create(payload: Omit<ITenant, "id">): Promise<ITenant> {
         const dtoPayload = tenantToDTO(payload as ITenant);
-        const response = await http.post<ITenantInDTO>("/tenants/tenants/create", dtoPayload);
+        const response = await http.post<ITenantInDTO>("/tenants/tenants", dtoPayload);
         return tenantFromDTO(response.data);
     },
 

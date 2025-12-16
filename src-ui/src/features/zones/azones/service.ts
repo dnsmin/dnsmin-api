@@ -5,7 +5,7 @@ import {IAZoneInDTO, IAZonesPagedResponseDTO} from "@app/features/zones/azones/d
 import {IAZone, IAZonesPaged} from "@app/features/zones/azones/models";
 
 export const AZonesService = {
-    async list(req?: ListResourceParams): Promise<IAZonesPaged> {
+    async search(req?: ListResourceParams): Promise<IAZonesPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const AZonesService = {
         } : {};
 
         const response = await http.post<IAZonesPagedResponseDTO>(
-            "/zones/authoritative", params
+            "/zones/authoritative/search", params
         );
 
         return zonesPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const AZonesService = {
 
     async create(payload: Omit<IAZone, "id">): Promise<IAZone> {
         const dtoPayload = zoneToDTO(payload as IAZone);
-        const response = await http.post<IAZoneInDTO>("/zones/authoritative/create", dtoPayload);
+        const response = await http.post<IAZoneInDTO>("/zones/authoritative", dtoPayload);
         return zoneFromDTO(response.data);
     },
 

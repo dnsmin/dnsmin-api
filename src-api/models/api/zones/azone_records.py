@@ -93,7 +93,7 @@ class AZoneRecordOutSchema(BaseApiModel):
     """Provides an API response model for representing authoritative zone records."""
 
     id: UUID = Field(
-        title='AZone ID',
+        title='Record ID',
         description='The unique identifier of the authoritative zone.',
         examples=[uuid4()],
     )

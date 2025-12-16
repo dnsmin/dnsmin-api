@@ -5,7 +5,7 @@ import {ITimezoneInDTO, ITimezonesPagedResponseDTO} from "@app/features/system/t
 import {ITimezone, ITimezonesPaged} from "@app/features/system/timezones/models";
 
 export const SystemTimezonesService = {
-    async list(req?: ListResourceParams): Promise<ITimezonesPaged> {
+    async search(req?: ListResourceParams): Promise<ITimezonesPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const SystemTimezonesService = {
         } : {};
 
         const response = await http.post<ITimezonesPagedResponseDTO>(
-            "/system/timezones", params
+            "/system/timezones/search", params
         );
 
         return timezonesPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const SystemTimezonesService = {
 
     async create(payload: Omit<ITimezone, "id">): Promise<ITimezone> {
         const dtoPayload = timezoneToDTO(payload as ITimezone);
-        const response = await http.post<ITimezoneInDTO>("/system/timezones/create", dtoPayload);
+        const response = await http.post<ITimezoneInDTO>("/system/timezones", dtoPayload);
         return timezoneFromDTO(response.data);
     },
 

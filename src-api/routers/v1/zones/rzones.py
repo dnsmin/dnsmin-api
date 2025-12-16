@@ -11,19 +11,48 @@ from models.api.zones.rzones import RZonesSchema, RZoneOutSchema, RZoneInSchema
 from routers.v1.zones import router
 
 
-@router.post(
+@router.get(
     '/recursive',
-    response_model=RZonesSchema,
+    response_model=list[RZoneOutSchema],
     summary='List recursive zones',
     description='List recursive zones.',
     operation_id='zones:recursive:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[RZoneOutSchema]:
+    """List recursive zones"""
+    from sqlalchemy import select
+    from models.db.zones import RZone
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(RZone)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(RZone.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [RZoneOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/recursive/search',
+    response_model=RZonesSchema,
+    summary='Search recursive zones',
+    description='Search recursive zones.',
+    operation_id='zones:recursive:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> RZonesSchema:
-    """List recursive zones"""
+    """Search recursive zones"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.zones import RZone
@@ -57,7 +86,7 @@ async def record_list(
 
 
 @router.post(
-    '/recursive/create',
+    '/recursive',
     response_model=RZoneOutSchema,
     summary='Create recursive zone',
     description='Create recursive zone.',

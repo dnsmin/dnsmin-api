@@ -5,7 +5,7 @@ import {IStopgapDomainInDTO, IStopgapDomainsPagedResponseDTO} from "@app/feature
 import {IStopgapDomain, IStopgapDomainsPaged} from "@app/features/system/stopgap-domains/models";
 
 export const SystemStopgapDomainsService = {
-    async list(req?: ListResourceParams): Promise<IStopgapDomainsPaged> {
+    async search(req?: ListResourceParams): Promise<IStopgapDomainsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const SystemStopgapDomainsService = {
         } : {};
 
         const response = await http.post<IStopgapDomainsPagedResponseDTO>(
-            "/system/stopgap-domains", params
+            "/system/stopgap-domains/search", params
         );
 
         return stopgapDomainsPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const SystemStopgapDomainsService = {
 
     async create(payload: Omit<IStopgapDomain, "id">): Promise<IStopgapDomain> {
         const dtoPayload = stopgapDomainToDTO(payload as IStopgapDomain);
-        const response = await http.post<IStopgapDomainInDTO>("/system/stopgap-domains/create", dtoPayload);
+        const response = await http.post<IStopgapDomainInDTO>("/system/stopgap-domains", dtoPayload);
         return stopgapDomainFromDTO(response.data);
     },
 

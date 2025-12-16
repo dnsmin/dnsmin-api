@@ -171,7 +171,7 @@ class AZoneOutSchema(BaseApiModel):
     """Provides an API response model for representing authoritative zones."""
 
     id: UUID = Field(
-        title='AZone ID',
+        title='Zone ID',
         description='The unique identifier of the authoritative zone.',
         examples=[uuid4()],
     )

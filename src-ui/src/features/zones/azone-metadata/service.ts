@@ -5,7 +5,7 @@ import {IAZoneMetadataInDTO, IAZoneMetadataPagedResponseDTO} from "@app/features
 import {IAZoneMetadata, IAZoneMetadataPaged} from "@app/features/zones/azone-metadata/models";
 
 export const AZoneMetadataService = {
-    async list(zoneId: string, req?: ListResourceParams): Promise<IAZoneMetadataPaged> {
+    async search(zoneId: string, req?: ListResourceParams): Promise<IAZoneMetadataPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const AZoneMetadataService = {
         } : {};
 
         const response = await http.post<IAZoneMetadataPagedResponseDTO>(
-            `/metadata/authoritative/${zoneId}/metadata`, params
+            `/metadata/authoritative/${zoneId}/metadata/search`, params
         );
 
         return metadataPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const AZoneMetadataService = {
 
     async create(zoneId: string, payload: Omit<IAZoneMetadata, "id">): Promise<IAZoneMetadata> {
         const dtoPayload = metadataToDTO(payload as IAZoneMetadata);
-        const response = await http.post<IAZoneMetadataInDTO>(`/metadata/authoritative/${zoneId}/metadata/create`, dtoPayload);
+        const response = await http.post<IAZoneMetadataInDTO>(`/metadata/authoritative/${zoneId}/metadata`, dtoPayload);
         return metadataFromDTO(response.data);
     },
 

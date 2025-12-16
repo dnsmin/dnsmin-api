@@ -51,7 +51,7 @@ class AZoneMetadataOutSchema(BaseApiModel):
     """Provides an API response model for representing authoritative zone metadata."""
 
     id: UUID = Field(
-        title='AZone ID',
+        title='Metadata ID',
         description='The unique identifier of the authoritative zone.',
         examples=[uuid4()],
     )

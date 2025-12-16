@@ -14,7 +14,7 @@ export function useAZoneMetadata(zoneId: string, id: string) {
 export function useAZoneMetadatas(zoneId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["zones-azone-metadatas", params],
-        queryFn: () => AZoneMetadataService.list(zoneId, params),
+        queryFn: () => AZoneMetadataService.search(zoneId, params),
         placeholderData: (previousData) => previousData,
     });
 }

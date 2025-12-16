@@ -5,7 +5,7 @@ import {IRZoneRecordInDTO, IRZoneRecordsPagedResponseDTO} from "@app/features/zo
 import {IRZoneRecord, IRZoneRecordsPaged} from "@app/features/zones/rzone-records/models";
 
 export const RZoneRecordsService = {
-    async list(zoneId: string, req?: ListResourceParams): Promise<IRZoneRecordsPaged> {
+    async search(zoneId: string, req?: ListResourceParams): Promise<IRZoneRecordsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const RZoneRecordsService = {
         } : {};
 
         const response = await http.post<IRZoneRecordsPagedResponseDTO>(
-            `/records/recursive/${zoneId}/records`, params
+            `/records/recursive/${zoneId}/records/search`, params
         );
 
         return recordsPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const RZoneRecordsService = {
 
     async create(zoneId: string, payload: Omit<IRZoneRecord, "id">): Promise<IRZoneRecord> {
         const dtoPayload = recordToDTO(payload as IRZoneRecord);
-        const response = await http.post<IRZoneRecordInDTO>(`/records/recursive/${zoneId}/records/create`, dtoPayload);
+        const response = await http.post<IRZoneRecordInDTO>(`/records/recursive/${zoneId}/records`, dtoPayload);
         return recordFromDTO(response.data);
     },
 

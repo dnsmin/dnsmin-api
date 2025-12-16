@@ -62,7 +62,7 @@ class RZoneOutSchema(BaseApiModel):
     """Provides an API response model for representing recursive zones."""
 
     id: UUID = Field(
-        title='RZone ID',
+        title='Zone ID',
         description='The unique identifier of the recursive zone.',
         examples=[uuid4()],
     )
