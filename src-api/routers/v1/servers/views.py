@@ -13,18 +13,44 @@ from routers.v1.servers import router
 
 @router.get(
     '/{server_id}/views',
-    response_model=ServerViewsSchema,
+    response_model=list[ServerViewOutSchema],
     summary='List server views',
     description='List server views.',
     operation_id='servers:views:list',
 )
 async def record_list(
         server_id: UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[ServerViewOutSchema]:
+    """List server views"""
+    from sqlalchemy import select
+    from models.db.servers import ServerView
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(ServerView).where(ServerView.server_id == server_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [ServerViewOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/{server_id}/views/search',
+    response_model=ServerViewsSchema,
+    summary='Search server views',
+    description='Search server views.',
+    operation_id='servers:views:search',
+)
+async def record_search(
+        server_id: UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ServerViewsSchema:
-    """List server views"""
+    """Search server views"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.servers import ServerView
@@ -54,7 +80,7 @@ async def record_list(
 
 
 @router.post(
-    '/{server_id}/views/create',
+    '/{server_id}/views',
     response_model=ServerViewOutSchema,
     summary='Create server view',
     description='Create server view.',

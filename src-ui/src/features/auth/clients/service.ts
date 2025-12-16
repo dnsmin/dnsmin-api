@@ -26,7 +26,7 @@ export const AuthClientsService = {
 
     async create(payload: Omit<IClient, "id">): Promise<IClient> {
         const dtoPayload = clientToDTO(payload as IClient);
-        const response = await http.post<IClientInDTO>("/auth/clients/create", dtoPayload);
+        const response = await http.post<IClientInDTO>("/auth/clients", dtoPayload);
         return clientFromDTO(response.data);
     },
 

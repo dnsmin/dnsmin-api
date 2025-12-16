@@ -5,7 +5,7 @@ import {IServerTsigKeyInDTO, IServerTsigKeysPagedResponseDTO} from "@app/feature
 import {IServerTsigKey, IServerTsigKeysPaged} from "@app/features/servers/tsig-keys/models";
 
 export const ServerTsigKeysService = {
-    async list(serverId: string, req?: ListResourceParams): Promise<IServerTsigKeysPaged> {
+    async search(serverId: string, req?: ListResourceParams): Promise<IServerTsigKeysPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const ServerTsigKeysService = {
         } : {};
 
         const response = await http.post<IServerTsigKeysPagedResponseDTO>(
-            `/servers/${serverId}/tsig-keys`, params
+            `/servers/${serverId}/tsig-keys/search`, params
         );
 
         return tsigKeysPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const ServerTsigKeysService = {
 
     async create(serverId: string, payload: Omit<IServerTsigKey, "id">): Promise<IServerTsigKey> {
         const dtoPayload = tsigKeyToDTO(payload as IServerTsigKey);
-        const response = await http.post<IServerTsigKeyInDTO>(`/servers/${serverId}/tsig-keys/create`, dtoPayload);
+        const response = await http.post<IServerTsigKeyInDTO>(`/servers/${serverId}/tsig-keys`, dtoPayload);
         return tsigKeyFromDTO(response.data);
     },
 

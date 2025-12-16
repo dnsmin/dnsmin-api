@@ -14,7 +14,7 @@ export function useServerView(serverId: string, id: string) {
 export function useServerViews(serverId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["servers-views", params],
-        queryFn: () => ServerViewsService.list(serverId, params),
+        queryFn: () => ServerViewsService.search(serverId, params),
         placeholderData: (previousData) => previousData,
     });
 }

@@ -14,7 +14,7 @@ export function useServerNetwork(serverId: string, id: string) {
 export function useServerNetworks(serverId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["servers-networks", params],
-        queryFn: () => ServerNetworksService.list(serverId, params),
+        queryFn: () => ServerNetworksService.search(serverId, params),
         placeholderData: (previousData) => previousData,
     });
 }

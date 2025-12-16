@@ -11,20 +11,46 @@ from models.api.servers.networks import ServerNetworksSchema, ServerNetworkOutSc
 from routers.v1.servers import router
 
 
-@router.post(
+@router.get(
     '/{server_id}/networks',
-    response_model=ServerNetworksSchema,
+    response_model=list[ServerNetworkOutSchema],
     summary='List server networks',
     description='List server networks.',
     operation_id='servers:networks:list',
 )
 async def record_list(
         server_id: UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[ServerNetworkOutSchema]:
+    """List server networks"""
+    from sqlalchemy import select
+    from models.db.servers import ServerNetwork
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(ServerNetwork).where(ServerNetwork.server_id == server_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [ServerNetworkOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/{server_id}/networks/search',
+    response_model=ServerNetworksSchema,
+    summary='Search server networks',
+    description='Search server networks.',
+    operation_id='servers:networks:search',
+)
+async def record_search(
+        server_id: UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ServerNetworksSchema:
-    """List server networks"""
+    """Search server networks"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.servers import ServerNetwork
@@ -54,7 +80,7 @@ async def record_list(
 
 
 @router.post(
-    '/{server_id}/networks/create',
+    '/{server_id}/networks',
     response_model=ServerNetworkOutSchema,
     summary='Create server network',
     description='Create server network.',

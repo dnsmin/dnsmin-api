@@ -5,7 +5,7 @@ import {IServerAutoPrimaryInDTO, IServerAutoPrimariesPagedResponseDTO} from "@ap
 import {IServerAutoPrimary, IServerAutoPrimariesPaged} from "@app/features/servers/autoprimaries/models";
 
 export const ServerAutoPrimariesService = {
-    async list(serverId: string, req?: ListResourceParams): Promise<IServerAutoPrimariesPaged> {
+    async search(serverId: string, req?: ListResourceParams): Promise<IServerAutoPrimariesPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const ServerAutoPrimariesService = {
         } : {};
 
         const response = await http.post<IServerAutoPrimariesPagedResponseDTO>(
-            `/servers/${serverId}/auto-primaries`, params
+            `/servers/${serverId}/auto-primaries/search`, params
         );
 
         return autoPrimariesPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const ServerAutoPrimariesService = {
 
     async create(serverId: string, payload: Omit<IServerAutoPrimary, "id">): Promise<IServerAutoPrimary> {
         const dtoPayload = autoPrimaryToDTO(payload as IServerAutoPrimary);
-        const response = await http.post<IServerAutoPrimaryInDTO>(`/servers/${serverId}/auto-primaries/create`, dtoPayload);
+        const response = await http.post<IServerAutoPrimaryInDTO>(`/servers/${serverId}/auto-primaries`, dtoPayload);
         return autoPrimaryFromDTO(response.data);
     },
 

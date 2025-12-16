@@ -14,7 +14,7 @@ export function useServer(id: string) {
 export function useServers(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["servers-servers", params],
-        queryFn: () => ServersService.list(params),
+        queryFn: () => ServersService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

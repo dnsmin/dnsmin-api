@@ -11,20 +11,50 @@ from models.api.servers.tsig_keys import ServerTSIGKeysSchema, ServerTSIGKeyOutS
 from routers.v1.servers import router
 
 
-@router.post(
+@router.get(
     '/{server_id}/tsig-keys',
-    response_model=ServerTSIGKeysSchema,
+    response_model=list[ServerTSIGKeyOutSchema],
     summary='List server TSIG keys',
     description='List server TSIG keys.',
     operation_id='servers:tsig_keys:list',
 )
 async def record_list(
         server_id: UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[ServerTSIGKeyOutSchema]:
+    """List server TSIG keys."""
+    from sqlalchemy import select
+    from models.db.servers import ServerTsigKey
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(ServerTsigKey).where(ServerTsigKey.server_id == server_id)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(ServerTsigKey.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [ServerTSIGKeyOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/{server_id}/tsig-keys/search',
+    response_model=ServerTSIGKeysSchema,
+    summary='Search server TSIG keys',
+    description='Search server TSIG keys.',
+    operation_id='servers:tsig_keys:search',
+)
+async def record_search(
+        server_id: UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ServerTSIGKeysSchema:
-    """List server TSIG keys."""
+    """Search server TSIG keys."""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.servers import ServerTsigKey
@@ -58,7 +88,7 @@ async def record_list(
 
 
 @router.post(
-    '/{server_id}/tsig-keys/create',
+    '/{server_id}/tsig-keys',
     response_model=ServerTSIGKeyOutSchema,
     summary='Create server TSIG key',
     description='Create server TSIG key.',

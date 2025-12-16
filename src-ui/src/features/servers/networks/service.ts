@@ -5,7 +5,7 @@ import {IServerNetworkInDTO, IServerNetworksPagedResponseDTO} from "@app/feature
 import {IServerNetwork, IServerNetworksPaged} from "@app/features/servers/networks/models";
 
 export const ServerNetworksService = {
-    async list(serverId: string, req?: ListResourceParams): Promise<IServerNetworksPaged> {
+    async search(serverId: string, req?: ListResourceParams): Promise<IServerNetworksPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const ServerNetworksService = {
         } : {};
 
         const response = await http.post<IServerNetworksPagedResponseDTO>(
-            `/servers/${serverId}/networks`, params
+            `/servers/${serverId}/networks/search`, params
         );
 
         return networksPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const ServerNetworksService = {
 
     async create(serverId: string, payload: Omit<IServerNetwork, "id">): Promise<IServerNetwork> {
         const dtoPayload = networkToDTO(payload as IServerNetwork);
-        const response = await http.post<IServerNetworkInDTO>(`/servers/${serverId}/networks/create`, dtoPayload);
+        const response = await http.post<IServerNetworkInDTO>(`/servers/${serverId}/networks`, dtoPayload);
         return networkFromDTO(response.data);
     },
 

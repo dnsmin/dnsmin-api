@@ -14,7 +14,7 @@ export function useServerAutoPrimary(serverId: string, id: string) {
 export function useServerAutoPrimaries(serverId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["servers-auto-primaries", params],
-        queryFn: () => ServerAutoPrimariesService.list(serverId, params),
+        queryFn: () => ServerAutoPrimariesService.search(serverId, params),
         placeholderData: (previousData) => previousData,
     });
 }

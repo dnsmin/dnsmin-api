@@ -10,7 +10,7 @@ router = APIRouter(
 
 
 from .servers import *
-from .autoprimaries import *
+from .auto_primaries import *
 from .tsig_keys import *
 from .views import *
 from .networks import *

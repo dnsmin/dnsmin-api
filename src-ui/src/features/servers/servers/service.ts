@@ -5,7 +5,7 @@ import {IServerInDTO, IServersPagedResponseDTO} from "@app/features/servers/serv
 import {IServer, IServersPaged} from "@app/features/servers/servers/models";
 
 export const ServersService = {
-    async list(req?: ListResourceParams): Promise<IServersPaged> {
+    async search(req?: ListResourceParams): Promise<IServersPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const ServersService = {
         } : {};
 
         const response = await http.post<IServersPagedResponseDTO>(
-            `/servers`, params
+            `/servers/search`, params
         );
 
         return serversPagedFromDTO(response.data);
@@ -26,7 +26,7 @@ export const ServersService = {
 
     async create(payload: Omit<IServer, "id">): Promise<IServer> {
         const dtoPayload = serverToDTO(payload as IServer);
-        const response = await http.post<IServerInDTO>(`/servers/create`, dtoPayload);
+        const response = await http.post<IServerInDTO>(`/servers`, dtoPayload);
         return serverFromDTO(response.data);
     },
 

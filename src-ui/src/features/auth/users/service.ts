@@ -26,7 +26,7 @@ export const AuthUsersService = {
 
     async create(payload: Omit<IUser, "id">): Promise<IUser> {
         const dtoPayload = userToDTO(payload as IUser);
-        const response = await http.post<IUserInDTO>("/auth/users/create", dtoPayload);
+        const response = await http.post<IUserInDTO>("/auth/users", dtoPayload);
         return userFromDTO(response.data);
     },
 

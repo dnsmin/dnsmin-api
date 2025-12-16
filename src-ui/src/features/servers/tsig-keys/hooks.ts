@@ -14,7 +14,7 @@ export function useServerTsigKey(serverId: string, id: string) {
 export function useServerTsigKeys(serverId: string, params?: ListResourceParams) {
     return useQuery({
         queryKey: ["servers-tsig-keys", params],
-        queryFn: () => ServerTsigKeysService.list(serverId, params),
+        queryFn: () => ServerTsigKeysService.search(serverId, params),
         placeholderData: (previousData) => previousData,
     });
 }

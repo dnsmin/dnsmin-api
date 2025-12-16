@@ -23,7 +23,7 @@ async def record_list(
         principal: Principal = Depends(get_principal),
 ) -> list[ClientOutSchema]:
     """List clients."""
-    from sqlalchemy import select, func
+    from sqlalchemy import select
     from models.db.auth import Client
 
     # Build a statement to retrieve the relevant records

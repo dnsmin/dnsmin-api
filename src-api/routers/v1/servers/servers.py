@@ -11,19 +11,48 @@ from models.api.servers.servers import ServersSchema, ServerOutSchema, ServerInS
 from routers.v1.servers import router
 
 
-@router.post(
+@router.get(
     '',
-    response_model=ServersSchema,
+    response_model=list[ServerOutSchema],
     summary='List servers',
     description='List servers.',
     operation_id='servers:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[ServerOutSchema]:
+    """List servers"""
+    from sqlalchemy import select
+    from models.db.servers import Server
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(Server)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(Server.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [ServerOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/search',
+    response_model=ServersSchema,
+    summary='Search servers',
+    description='Search servers.',
+    operation_id='servers:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ServersSchema:
-    """List servers"""
+    """Search servers"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.servers import Server
@@ -57,7 +86,7 @@ async def record_list(
 
 
 @router.post(
-    '/create',
+    '',
     response_model=ServerOutSchema,
     summary='Create server',
     description='Create server.',

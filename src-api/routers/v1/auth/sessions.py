@@ -23,7 +23,7 @@ async def record_list(
         principal: Principal = Depends(get_principal),
 ) -> list[SessionOutSchema]:
     """List sessions."""
-    from sqlalchemy import select, func
+    from sqlalchemy import select
     from models.db.auth import Session
 
     # Build a statement to retrieve the relevant records

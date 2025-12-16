@@ -12,20 +12,46 @@ from models.api.servers.autoprimaries import (ServerAutoPrimariesSchema, ServerA
 from routers.v1.servers import router
 
 
-@router.post(
+@router.get(
     '/{server_id}/auto-primaries',
-    response_model=ServerAutoPrimariesSchema,
+    response_model=list[ServerAutoPrimaryOutSchema],
     summary='List server auto-primaries',
     description='List server auto-primaries.',
     operation_id='servers:auto_primaries:list',
 )
 async def record_list(
         server_id: UUID,
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[ServerAutoPrimaryOutSchema]:
+    """List server auto-primaries"""
+    from sqlalchemy import select
+    from models.db.servers import ServerAutoPrimary
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(ServerAutoPrimary).where(ServerAutoPrimary.server_id == server_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [ServerAutoPrimaryOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/{server_id}/auto-primaries/search',
+    response_model=ServerAutoPrimariesSchema,
+    summary='Search server auto-primaries',
+    description='Search server auto-primaries.',
+    operation_id='servers:auto_primaries:search',
+)
+async def record_search(
+        server_id: UUID,
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ServerAutoPrimariesSchema:
-    """List server auto-primaries"""
+    """Search server auto-primaries"""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.servers import ServerAutoPrimary
@@ -55,7 +81,7 @@ async def record_list(
 
 
 @router.post(
-    '/{server_id}/auto-primaries/create',
+    '/{server_id}/auto-primaries',
     response_model=ServerAutoPrimaryOutSchema,
     summary='Create server auto-primary',
     description='Create server auto-primary.',
