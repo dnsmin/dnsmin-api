@@ -18,7 +18,7 @@ router = APIRouter(
 
 
 @router.get(
-    '/tenants',
+    '',
     response_model=list[TenantOutSchema],
     summary='List tenants',
     description='List tenants.',
@@ -43,7 +43,7 @@ async def record_list(
 
 
 @router.post(
-    '/tenants/search',
+    '/search',
     response_model=TenantsSchema,
     summary='Search tenants',
     description='Search tenants.',
@@ -84,7 +84,7 @@ async def record_search(
 
 
 @router.post(
-    '/tenants',
+    '',
     response_model=TenantOutSchema,
     summary='Create tenant',
     description='Create tenant.',
@@ -116,7 +116,7 @@ async def record_create(
 
 
 @router.get(
-    '/tenants/{tenant_id}',
+    '/{tenant_id}',
     response_model=TenantOutSchema,
     summary='Read tenant',
     description='Read tenant.',
@@ -147,7 +147,7 @@ async def record_read(
 
 
 @router.put(
-    '/tenants/{tenant_id}',
+    '/{tenant_id}',
     response_model=TenantOutSchema,
     summary='Update tenant',
     description='Update tenant.',
@@ -190,7 +190,7 @@ async def record_update(
 
 
 @router.delete(
-    '/tenants/{tenant_id}',
+    '/{tenant_id}',
     summary='Delete tenant',
     description='Delete tenant.',
     operation_id='tenants:delete',
