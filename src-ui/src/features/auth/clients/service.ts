@@ -5,7 +5,7 @@ import {IClientInDTO, IClientsPagedResponseDTO} from "@app/features/auth/clients
 import {IClient, IClientsPaged} from "@app/features/auth/clients/models";
 
 export const AuthClientsService = {
-    async list(req?: ListResourceParams): Promise<IClientsPaged> {
+    async search(req?: ListResourceParams): Promise<IClientsPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const AuthClientsService = {
         } : {};
 
         const response = await http.post<IClientsPagedResponseDTO>(
-            "/auth/clients", params
+            "/auth/clients/search", params
         );
 
         return clientsPagedFromDTO(response.data);

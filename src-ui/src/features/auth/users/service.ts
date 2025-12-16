@@ -5,7 +5,7 @@ import {IUserInDTO, IUsersPagedResponseDTO} from "@app/features/auth/users/dto";
 import {IUser, IUsersPaged} from "@app/features/auth/users/models";
 
 export const AuthUsersService = {
-    async list(req?: ListResourceParams): Promise<IUsersPaged> {
+    async search(req?: ListResourceParams): Promise<IUsersPaged> {
         const params = req !== undefined ? {
             filterModel: req.filterModel,
             sortModel: req.sortModel,
@@ -13,7 +13,7 @@ export const AuthUsersService = {
         } : {};
 
         const response = await http.post<IUsersPagedResponseDTO>(
-            "/auth/users", params
+            "/auth/users/search", params
         );
 
         return usersPagedFromDTO(response.data);

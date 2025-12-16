@@ -14,7 +14,7 @@ export function useAuthClient(id: string) {
 export function useAuthClients(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["auth-clients", params],
-        queryFn: () => AuthClientsService.list(params),
+        queryFn: () => AuthClientsService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

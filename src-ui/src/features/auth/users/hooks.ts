@@ -14,7 +14,7 @@ export function useAuthUser(id: string) {
 export function useAuthUsers(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["auth-users", params],
-        queryFn: () => AuthUsersService.list(params),
+        queryFn: () => AuthUsersService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }

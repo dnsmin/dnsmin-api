@@ -11,19 +11,48 @@ from models.api.auth.users import UsersSchema, UserOutSchema, UserInSchema
 from routers.v1.auth import router
 
 
-@router.post(
+@router.get(
     '/users',
-    response_model=UsersSchema,
+    response_model=list[UserOutSchema],
     summary='List Users',
-    description='Lists authentication users for the current authentication context.',
+    description='Lists users.',
     operation_id='auth:users:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[UserOutSchema]:
+    """List users."""
+    from sqlalchemy import select, func
+    from models.db.auth import User
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(User)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(User.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [UserOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/users/search',
+    response_model=UsersSchema,
+    summary='Search Users',
+    description='Searches users.',
+    operation_id='auth:users:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> UsersSchema:
-    """List authentication users."""
+    """Search users."""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.auth import User
@@ -57,10 +86,10 @@ async def record_list(
 
 
 @router.post(
-    '/users/create',
+    '/users',
     response_model=UserOutSchema,
-    summary='Create authentication user',
-    description='Create authentication user for the current authentication context.',
+    summary='Create user',
+    description='Create user.',
     operation_id='auth:users:create',
 )
 async def record_create(
@@ -68,7 +97,7 @@ async def record_create(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> UserOutSchema:
-    """Create authentication user"""
+    """Create user"""
     from fastapi import HTTPException, status
     from models.db.auth import User
 
@@ -122,8 +151,8 @@ async def record_create(
 @router.get(
     '/users/{user_id}',
     response_model=UserOutSchema,
-    summary='Read authentication user',
-    description='Read authentication user from the current authentication context.',
+    summary='Read user',
+    description='Read user.',
     operation_id='auth:users:read',
 )
 async def record_read(
@@ -131,7 +160,7 @@ async def record_read(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> UserOutSchema:
-    """Read authentication user"""
+    """Read user"""
     from fastapi import HTTPException, status
     from sqlalchemy import select
     from models.db.auth import User
@@ -157,8 +186,8 @@ async def record_read(
 @router.put(
     '/users/{user_id}',
     response_model=UserOutSchema,
-    summary='Update authentication user',
-    description='Update authentication user in the current authentication context.',
+    summary='Update user',
+    description='Update user.',
     operation_id='auth:users:update',
 )
 async def record_update(
@@ -167,7 +196,7 @@ async def record_update(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> UserOutSchema:
-    """Update authentication user"""
+    """Update user"""
     from fastapi import HTTPException, status
     from sqlalchemy import select
     from models.db.auth import User
@@ -229,8 +258,8 @@ async def record_update(
 
 @router.delete(
     '/users/{user_id}',
-    summary='Delete authentication user',
-    description='Delete authentication user from the current authentication context.',
+    summary='Delete user',
+    description='Delete user.',
     operation_id='auth:users:delete',
 )
 async def record_delete(
@@ -238,7 +267,7 @@ async def record_delete(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """Delete authentication user"""
+    """Delete user"""
     from fastapi import HTTPException, status
     from sqlalchemy import delete
     from models.db.auth import User

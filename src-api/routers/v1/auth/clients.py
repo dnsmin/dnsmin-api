@@ -11,19 +11,48 @@ from models.api.auth.clients import ClientsSchema, ClientOutSchema, ClientInSche
 from routers.v1.auth import router
 
 
-@router.post(
+@router.get(
     '/clients',
-    response_model=ClientsSchema,
+    response_model=list[ClientOutSchema],
     summary='List Clients',
-    description='Lists authentication clients for the current authentication context.',
+    description='Lists clients.',
     operation_id='auth:clients:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[ClientOutSchema]:
+    """List clients."""
+    from sqlalchemy import select, func
+    from models.db.auth import Client
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(Client)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(Client.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [ClientOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/clients/search',
+    response_model=ClientsSchema,
+    summary='Search Clients',
+    description='Search clients.',
+    operation_id='auth:clients:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ClientsSchema:
-    """List authentication clients."""
+    """Search clients."""
     from sqlalchemy import select, func
     from lib.sql import SqlQueryBuilder
     from models.db.auth import Client
@@ -57,10 +86,10 @@ async def record_list(
 
 
 @router.post(
-    '/clients/create',
+    '/clients',
     response_model=ClientOutSchema,
-    summary='Create authentication client',
-    description='Create authentication client for the current authentication context.',
+    summary='Create client',
+    description='Create client.',
     operation_id='auth:clients:create',
 )
 async def record_create(
@@ -68,7 +97,7 @@ async def record_create(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ClientOutSchema:
-    """Create authentication client"""
+    """Create client"""
     from models.db.auth import Client
 
     # Create the record
@@ -99,8 +128,8 @@ async def record_create(
 @router.get(
     '/clients/{client_id}',
     response_model=ClientOutSchema,
-    summary='Read authentication client',
-    description='Read authentication client from the current authentication context.',
+    summary='Read client',
+    description='Read client.',
     operation_id='auth:clients:read',
 )
 async def record_read(
@@ -108,7 +137,7 @@ async def record_read(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ClientOutSchema:
-    """Read authentication client"""
+    """Read client"""
     from fastapi import HTTPException, status
     from sqlalchemy import select
     from models.db.auth import Client
@@ -134,8 +163,8 @@ async def record_read(
 @router.put(
     '/clients/{client_id}',
     response_model=ClientOutSchema,
-    summary='Update authentication client',
-    description='Update authentication client in the current authentication context.',
+    summary='Update client',
+    description='Update client.',
     operation_id='auth:clients:update',
 )
 async def record_update(
@@ -144,7 +173,7 @@ async def record_update(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> ClientOutSchema:
-    """Update authentication client"""
+    """Update client"""
     from fastapi import HTTPException, status
     from sqlalchemy import select
     from models.db.auth import Client
@@ -184,8 +213,8 @@ async def record_update(
 
 @router.delete(
     '/clients/{client_id}',
-    summary='Delete authentication client',
-    description='Delete authentication client from the current authentication context.',
+    summary='Delete client',
+    description='Delete client.',
     operation_id='auth:clients:delete',
 )
 async def record_delete(
@@ -193,7 +222,7 @@ async def record_delete(
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ):
-    """Delete authentication client"""
+    """Delete client"""
     from fastapi import HTTPException, status
     from sqlalchemy import delete
     from models.db.auth import Client

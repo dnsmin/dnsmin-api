@@ -13,7 +13,7 @@ export function useAuthSession(id: string) {
 export function useAuthSessions(params?: ListResourceParams) {
     return useQuery({
         queryKey: ["auth-sessions", params],
-        queryFn: () => AuthSessionsService.list(params),
+        queryFn: () => AuthSessionsService.search(params),
         placeholderData: (previousData) => previousData,
     });
 }
