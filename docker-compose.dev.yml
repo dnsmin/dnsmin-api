@@ -48,7 +48,7 @@ services:
     container_name: dnsmin_api
     hostname: dnsmin_api
     restart: unless-stopped
-    command: python3 -m uvicorn --host 0.0.0.0 --port 8081 --root-path / --log-level debug --access-log --proxy-headers --reload api:app
+    command: python3 -m uvicorn --host 0.0.0.0 --port 8000 --root-path / --log-level debug --access-log --proxy-headers --reload api:app
     build:
       context: .
       dockerfile: ./deploy/docker/api/Dockerfile
@@ -60,7 +60,7 @@ services:
     networks:
       - dnsmin
     healthcheck:
-      test: [ 'CMD', 'curl', '-f', 'http://dnsmin_api:8081/api/status' ]
+      test: [ 'CMD', 'curl', '-f', 'http://dnsmin_api:8000/api/status' ]
       interval: 30s
       timeout: 10s
       retries: 3
