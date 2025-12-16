@@ -29,7 +29,7 @@ class ServerViewOutSchema(BaseApiModel):
     """Provides an API response model for representing server views."""
 
     id: UUID = Field(
-        title='ServerView ID',
+        title='View ID',
         description='The unique identifier of the server.',
         examples=[uuid4()],
     )

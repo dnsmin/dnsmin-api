@@ -36,7 +36,7 @@ class ServerNetworkOutSchema(BaseApiModel):
     """Provides an API response model for representing server networks."""
 
     id: UUID = Field(
-        title='ServerNetwork ID',
+        title='Network ID',
         description='The unique identifier of the server.',
         examples=[uuid4()],
     )
