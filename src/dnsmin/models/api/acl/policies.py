@@ -194,6 +194,7 @@ class PoliciesSchema(BaseApiModel):
         default_factory=list[PolicyOutSchema],
         examples=[[
             PolicyOutSchema(
+                id=uuid4(),
                 resource_type=ResourceTypeEnum.auth_user,
                 resource_id=uuid4(),
                 principal_type=PrincipalTypeEnum.client,
@@ -201,6 +202,7 @@ class PoliciesSchema(BaseApiModel):
                 permission=Permissions.auth_users.uri,
             ),
             PolicyOutSchema(
+                id=uuid4(),
                 resource_type=ResourceTypeEnum.auth_user,
                 resource_id=uuid4(),
                 principal_type=PrincipalTypeEnum.user,
@@ -208,6 +210,7 @@ class PoliciesSchema(BaseApiModel):
                 permission=Permissions.auth_users_read.uri,
             ),
             PolicyOutSchema(
+                id=uuid4(),
                 resource_type=ResourceTypeEnum.zones_azone,
                 resource_id=uuid4(),
                 principal_type=PrincipalTypeEnum.role,
@@ -215,6 +218,7 @@ class PoliciesSchema(BaseApiModel):
                 permission=Permissions.zones_azone_read.uri,
             ),
             PolicyOutSchema(
+                id=uuid4(),
                 resource_type=ResourceTypeEnum.zones_azone,
                 resource_id=uuid4(),
                 principal_type=PrincipalTypeEnum.tenant,
