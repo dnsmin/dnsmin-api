@@ -11,9 +11,9 @@ Runtime configuration is used to configure application features during runtime.
 #### Environment Configuration
 
 To view the alphabetical list of environment configuration settings, see the
-[Environment Configuration Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/settings/environment-settings.md).
+[Environment Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/environment-settings.md).
 
 #### Runtime Configuration
 
 To view the alphabetical list of environment configuration settings, see the
-[Runtime Configuration Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/settings/runtime-settings.md).
+[Runtime Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/runtime-settings.md).

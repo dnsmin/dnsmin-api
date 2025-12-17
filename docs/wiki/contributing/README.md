@@ -24,12 +24,12 @@ Some general tips for engaging here on GitHub:
 
 ### :bug: Reporting Bugs
 
-* First, ensure that you're running the [latest stable version](https://github.com/dnsmin/dnsmin/releases) of DNSMin. If you're running an older version, there's a chance that the bug has already been fixed.
+* First, ensure that you're running the [latest stable version](https://github.com/dnsmin/dnsmin-api/releases) of DNSMin. If you're running an older version, there's a chance that the bug has already been fixed.
 
-* Next, search our [issues list](https://github.com/dnsmin/dnsmin/issues?q=is%3Aissue) to see if the bug you've found has already been reported. If you come across a bug report that seems to match, please click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This will help draw more attention to it. Any comments you can add to provide additional information or context would also be much appreciated.
+* Next, search our [issues list](https://github.com/dnsmin/dnsmin-api/issues?q=is%3Aissue) to see if the bug you've found has already been reported. If you come across a bug report that seems to match, please click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This will help draw more attention to it. Any comments you can add to provide additional information or context would also be much appreciated.
 
 * If you can't find any existing issues (open or closed) that seem to match yours, you're welcome to
-[submit a new bug report](https://github.com/dnsmin/dnsmin/issues/new?assignees=&labels=bug+%2F+broken-feature&template=bug_report.yaml).
+[submit a new bug report](https://github.com/dnsmin/dnsmin-api/issues/new?assignees=&labels=bug+%2F+broken-feature&template=bug_report.yaml).
 Be sure to complete the entire report template, including detailed steps that someone triaging your issue
 can follow to confirm the reported behavior. (If we're not able to replicate the bug based on the information
 provided, we'll ask for additional detail.)
@@ -41,15 +41,15 @@ provided, we'll ask for additional detail.)
   * We appreciate your patience as bugs are prioritized by their severity, impact, and difficulty to resolve.
 
 * Also, please consider reading our
-[Labeling Standards](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/contributing/labeling-standards.md).
+[Labeling Standards](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/contributing/labeling-standards.md).
 
 ### :bulb: Feature Requests
 
-* First, check the GitHub [issues list](https://github.com/dnsmin/dnsmin/issues?q=is%3Aissue) to see if the feature you have in mind has already been proposed. If you happen to find an open feature request that matches your idea, click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This ensures that the issue has a better chance of receiving attention. Also feel free to add a comment with any additional justification for the feature.
+* First, check the GitHub [issues list](https://github.com/dnsmin/dnsmin-api/issues?q=is%3Aissue) to see if the feature you have in mind has already been proposed. If you happen to find an open feature request that matches your idea, click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This ensures that the issue has a better chance of receiving attention. Also feel free to add a comment with any additional justification for the feature.
 
-* If you have a rough idea that's not quite ready for formal submission yet, start a [GitHub discussion](https://github.com/dnsmin/dnsmin/discussions) instead. This is a great way to test the viability and narrow down the scope of a new feature prior to submitting a formal proposal, and can serve to generate interest in your idea from other community members.
+* If you have a rough idea that's not quite ready for formal submission yet, start a [GitHub discussion](https://github.com/dnsmin/dnsmin-api/discussions) instead. This is a great way to test the viability and narrow down the scope of a new feature prior to submitting a formal proposal, and can serve to generate interest in your idea from other community members.
 
-* Once you're ready, submit a feature request [using this template](https://github.com/dnsmin/dnsmin/issues/new?assignees=&labels=feature+%2F+request&template=feature_request.yaml). Be sure to provide sufficient context and detail to convey exactly what you're proposing and why. The stronger your use case, the better chance your proposal has of being accepted.
+* Once you're ready, submit a feature request [using this template](https://github.com/dnsmin/dnsmin-api/issues/new?assignees=&labels=feature+%2F+request&template=feature_request.yaml). Be sure to provide sufficient context and detail to convey exactly what you're proposing and why. The stronger your use case, the better chance your proposal has of being accepted.
 
 * Some other tips to keep in mind:
   * Don't prepend your issue title with a label like `[Feature]`; the proper label will be assigned automatically.
@@ -58,7 +58,7 @@ provided, we'll ask for additional detail.)
   * You're welcome to volunteer to implement your FR, but don't submit a pull request until it has been approved.
 
 * Also, please consider reading our
-[Labeling Standards](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/contributing/labeling-standards.md).
+[Labeling Standards](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/contributing/labeling-standards.md).
 
 ### :arrow_heading_up: Submitting Pull Requests
 
@@ -86,7 +86,7 @@ provided, we'll ask for additional detail.)
   * All new functionality must include relevant tests where applicable.
 
 * Also, please consider reading our
-[Labeling Standards](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/contributing/labeling-standards.md).
+[Labeling Standards](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/contributing/labeling-standards.md).
 
 ### :rescue_worker_helmet: Become a Maintainer
 
@@ -113,5 +113,5 @@ Interested? You can contact our lead maintainer, Matt Scott, at matt@dnsmin.org.
 
 You don't have to be a developer to contribute to DNSMin: There are plenty of other ways you can add value to the community! Below are just a few examples:
 
-* Help answer questions and provide feedback in our [GitHub discussions](https://github.com/dnsmin/dnsmin/discussions).
+* Help answer questions and provide feedback in our [GitHub discussions](https://github.com/dnsmin/dnsmin-api/discussions).
 * Write a blog article or record a YouTube video demonstrating how DNSMin is used at your organization.

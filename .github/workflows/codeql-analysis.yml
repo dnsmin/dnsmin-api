@@ -22,11 +22,6 @@ on:
       - 'feature/**'
       - 'issue/**'
     paths:
-      - '!src/locale/**'
-      - '!src/requirements**'
-      - '!src/static/css/**'
-      - '!src/static/images/**'
-      - '!src/.babelrc'
       - src/**
       - setup.py
   pull_request:
@@ -38,11 +33,6 @@ on:
       - 'feature/**'
       - 'issue/**'
     paths:
-      - '!src/locale/**'
-      - '!src/requirements**'
-      - '!src/static/css/**'
-      - '!src/static/images/**'
-      - '!src/.babelrc'
       - src/**
       - setup.py
   schedule:
@@ -60,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python' ]
+        language: [ 'python' ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 

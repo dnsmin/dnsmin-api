@@ -12,7 +12,7 @@ There is a plethora of environment configuration settings that can be used to bo
 varying environments. All of these settings can be set using environment variables or by creating a
 `.env` file in the root directory of the application that contains one or more environment variables to be
 loaded at application startup. For more information on these settings, see the
-[Environment Configuration Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/settings/environment-settings.md)
+[Environment Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/environment-settings.md)
 section.
 
 If you want to change the default path of the `.env` file, you can set the ` DNSMIN_ENV_FILE` environment variable
@@ -36,14 +36,14 @@ contents as the value of the setting.
 ### Application Settings
 
 To get an in-depth understanding of the many application settings available, see the
-[Application Settings Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/settings/README.md).
+[Application Settings Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/README.md).
 
 #### Environment Configuration
 
 To view the alphabetical list of environment configuration settings, see the
-[Environment Configuration Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/settings/environment-settings.md).
+[Environment Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/environment-settings.md).
 
 #### Runtime Configuration
 
 To view the alphabetical list of environment configuration settings, see the
-[Runtime Configuration Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/settings/runtime-settings.md).
+[Runtime Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/runtime-settings.md).

@@ -18,7 +18,7 @@ deployment/setup.sh
 If you wish to deploy the application on bare metal, the project contains a plethora of guides for doing so.
 
 Please refer to the
-[Bare Metal Deployment Guides](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/deployment/bare-metal/README.md)
+[Bare Metal Deployment Guides](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/deployment/bare-metal/README.md)
 for an index of currently available guides.
 
 ### Docker
@@ -26,7 +26,7 @@ for an index of currently available guides.
 The project currently provides a few guides of common Docker deployment methods and templates.
 
 Please refer to the
-[Docker Deployment Guides](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/deployment/docker/README.md)
+[Docker Deployment Guides](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/deployment/docker/README.md)
 for an index of currently available guides.
 
 ### Kubernetes
@@ -34,5 +34,5 @@ for an index of currently available guides.
 The project currently provides a few guides of common Kubernetes deployment methods and templates.
 
 Please refer to the
-[Kubernetes Deployment Guides](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/deployment/kubernetes/README.md)
+[Kubernetes Deployment Guides](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/deployment/kubernetes/README.md)
 for an index of currently available guides.

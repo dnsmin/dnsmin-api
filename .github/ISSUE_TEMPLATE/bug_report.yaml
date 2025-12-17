@@ -9,7 +9,7 @@ body:
         **NOTE:** This form is only for reporting _reproducible bugs_ in a current DNSMin
         installation. If you're having trouble with installation or just looking for
         assistance with using DNSMin, please visit our
-        [discussion forum](https://github.com/dnsmin/dnsmin/discussions) instead.
+        [discussion forum](https://github.com/dnsmin/dnsmin-api/discussions) instead.
   - type: dropdown
     attributes:
       label: DNSMin version

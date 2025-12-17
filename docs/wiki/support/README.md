@@ -3,7 +3,7 @@
 ## Project Support
 
 **Looking for help?** DNSMin has a somewhat active community of fellow users that may be able to provide assistance.
-Just [start a discussion](https://github.com/dnsmin/dnsmin/discussions/new) right here on GitHub!
+Just [start a discussion](https://github.com/dnsmin/dnsmin-api/discussions/new) right here on GitHub!
 
 Looking to chat with someone? Join our [Discord Server](https://discord.dnsmin.org).
 

@@ -1,16 +1,18 @@
 # DNSMin
 
-An advanced management and monitoring tool for the PowerDNS software suite.
+Built for Big DNS.
+
+An API service designed to provide advanced management and monitoring capabilities for the PowerDNS server suite.
 
 ***WARNING: This project is a work in progress and is NOT ready for production use!***
 
-If you're excited to follow the development progress of the next-generation DNSMin application, then please wait for
+If you're excited to follow the development progress of the DNSMin application, then please wait for
 an official release announcement before using this project.
 
 | Branch  | CodeQL                                                                                                                                                                                                         | MegaLinter                                                                                                                                                                                                 | Python Build                                                                                                                                                                                                   | Image Build                                                                                                                                                                                                 |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dev`   | [![CodeQL](https://github.com/dnsmin/dnsmin/actions/workflows/codeql-analysis.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin/actions/workflows/codeql-analysis.yml)           | [![MegaLinter](https://github.com/dnsmin/dnsmin/actions/workflows/mega-linter.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin/actions/workflows/mega-linter.yml)           | [![Python Build](https://github.com/dnsmin/dnsmin/actions/workflows/python-build.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin/actions/workflows/python-build.yml)           | [![Image Build](https://github.com/dnsmin/dnsmin/actions/workflows/image-build.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin/actions/workflows/image-build.yml)           |
-| `0.1.0` | [![CodeQL](https://github.com/dnsmin/dnsmin/actions/workflows/codeql-analysis.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin/actions/workflows/codeql-analysis.yml) | [![MegaLinter](https://github.com/dnsmin/dnsmin/actions/workflows/mega-linter.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin/actions/workflows/mega-linter.yml) | [![Python Build](https://github.com/dnsmin/dnsmin/actions/workflows/python-build.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin/actions/workflows/python-build.yml) | [![Image Build](https://github.com/dnsmin/dnsmin/actions/workflows/image-build.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin/actions/workflows/image-build.yml) |
+| `dev`   | [![CodeQL](https://github.com/dnsmin/dnsmin-api/actions/workflows/codeql-analysis.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin-api/actions/workflows/codeql-analysis.yml)           | [![MegaLinter](https://github.com/dnsmin/dnsmin-api/actions/workflows/mega-linter.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin-api/actions/workflows/mega-linter.yml)           | [![Python Build](https://github.com/dnsmin/dnsmin-api/actions/workflows/python-build.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin-api/actions/workflows/python-build.yml)           | [![Image Build](https://github.com/dnsmin/dnsmin-api/actions/workflows/image-build.yml/badge.svg?branch=dev)](https://github.com/dnsmin/dnsmin-api/actions/workflows/image-build.yml)           |
+| `0.1.0` | [![CodeQL](https://github.com/dnsmin/dnsmin-api/actions/workflows/codeql-analysis.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin-api/actions/workflows/codeql-analysis.yml) | [![MegaLinter](https://github.com/dnsmin/dnsmin-api/actions/workflows/mega-linter.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin-api/actions/workflows/mega-linter.yml) | [![Python Build](https://github.com/dnsmin/dnsmin-api/actions/workflows/python-build.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin-api/actions/workflows/python-build.yml) | [![Image Build](https://github.com/dnsmin/dnsmin-api/actions/workflows/image-build.yml/badge.svg?branch=release/0.1.0)](https://github.com/dnsmin/dnsmin-api/actions/workflows/image-build.yml) |
 
 ## Features
 
@@ -54,17 +56,17 @@ an official release announcement before using this project.
 - Provides IDN/Punycode support
 
 For additional information on features, please see the
-[Project Features](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/project/features.md) document.
+[Project Features](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/project/features.md) document.
 
 ## TL;DR
 
 To get started quickly with a simple local development deployment, execute the following commands on a *nix based
-system with `bash` and `git` installed:
+system with `bash`, `git`, and `docker` installed:
 
 ```
-git clone https://github.com/dnsmin/dnsmin.git
-cd dnsmin
-deploy/start.sh
+git clone https://github.com/dnsmin/dnsmin-api.git
+cd dnsmin-api
+docker compose up -d
 ```
 
 ## Project Documentation
@@ -72,48 +74,48 @@ deploy/start.sh
 ### Project Information
 
 For information about the project such as feature planning, the roadmap, and milestones, then please see the
-[Project Information](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/project/README.md) section of the
+[Project Information](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/project/README.md) section of the
 wiki.
 
 ### Contributing
 
 If you're interested in participating in the project design discussions, or you want to actively submit work to the
 project then you should check out the
-[Contribution Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/contributing/README.md)!
+[Contribution Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/contributing/README.md)!
 
 ### Application Configuration
 
 For information about all the ways this application can be configured and what each setting does, please visit the
-[Configuration Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/configuration/README.md) section of
+[Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/README.md) section of
 the wiki.
 
 ### Application Deployment
 
 For information about how to deploy the application in various environments, please visit the
-[Deployment Guides](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/deployment/README.md) section of the
+[Deployment Guides](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/deployment/README.md) section of the
 wiki.
 
 ### Application Testing
 
 For information on how to create and execute automated application tests, please visit the
-[Testing Guide](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/testing/README.md) section of the wiki.
+[Testing Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/testing/README.md) section of the wiki.
 
 ## Security Policy
 
 Please see our
-[Security Policy](https://github.com/dnsmin/dnsmin/blob/main/.github/SECURITY.md).
+[Security Policy](https://github.com/dnsmin/dnsmin-api/blob/main/.github/SECURITY.md).
 
 ## Support Policy
 
 Please see our
-[Support Policy](https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/support/README.md).
+[Support Policy](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/support/README.md).
 
 Looking to chat with someone? Join our [Discord Server](https://discord.dnsmin.org).
 
 ## Code of Conduct
 
 Please see our
-[Code of Conduct](https://github.com/dnsmin/dnsmin/blob/main/.github/CODE_OF_CONDUCT.md).
+[Code of Conduct](https://github.com/dnsmin/dnsmin-api/blob/main/.github/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -121,7 +123,7 @@ This project is released under the Attribution-NonCommercial 4.0 International l
 commercial licensing as well!
 
 For additional
-information, [see the full license](https://github.com/dnsmin/dnsmin/blob/main/LICENSE).
+information, [see the full license](https://github.com/dnsmin/dnsmin-api/blob/main/LICENSE).
 
 ## Donate
 

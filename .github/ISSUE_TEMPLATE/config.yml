@@ -3,10 +3,10 @@
 blank_issues_enabled: true
 contact_links:
   - name: 📖 Contribution Guide
-    url: https://github.com/dnsmin/dnsmin/blob/main/docs/wiki/contributing/README.md
+    url: https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/contributing/README.md
     about: "Please read through our contribution guide before opening an issue or pull request"
   - name: ❓ Discussion
-    url: https://github.com/dnsmin/dnsmin/discussions
+    url: https://github.com/dnsmin/dnsmin-api/discussions
     about: "If you're just looking for help, try starting a discussion instead"
   - name: 💬 Discord Server
     url: https://discord.dnsmin.org

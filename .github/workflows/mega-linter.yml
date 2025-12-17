@@ -17,10 +17,9 @@ on:
       - '-v*.*.*'
     paths:
       - .github/**
-      - deployment/**
+      - deploy/**
       - docs/**
       - src/**
-      - tests/**
       - setup.py
       - '*.md'
   pull_request:
@@ -35,10 +34,9 @@ on:
       - '-v*.*.*'
     paths:
       - .github/**
-      - deployment/**
+      - deploy/**
       - docs/**
       - src/**
-      - tests/**
       - setup.py
       - '*.md'
 
