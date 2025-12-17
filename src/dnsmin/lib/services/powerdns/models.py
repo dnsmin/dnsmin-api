@@ -2,8 +2,71 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from dnsmin.models.enums import (ZoneRecordTypeEnum, SOAEditTypeEnum, AZoneRRSetChangeTypeEnum,
-                                 RZoneRRSetChangeTypeEnum, AZoneKindEnum, RZoneKindEnum)
+from dnsmin.models.enums import (
+    ZoneRecordTypeEnum, SOAEditTypeEnum,
+    AZoneRRSetChangeTypeEnum, RZoneRRSetChangeTypeEnum,
+    AZoneKindEnum, RZoneKindEnum, CryptoKeyTypeEnum
+)
+
+
+class ServerAutoPrimary(BaseModel):
+    """Provides an API input model for creating and updating auto-primaries."""
+
+    ip: str = Field(
+        title='Auto-Primary IP Address',
+        description='The IP address of the auto-primary server.',
+        examples=['1.1.1.1', '10.0.0.1'],
+    )
+    """The IP address of the auto-primary server."""
+
+    nameserver: str = Field(
+        title='Auto-Primary DNS Name',
+        description='The DNS name of the auto-primary server.',
+    )
+    """The DNS name of the auto-primary server."""
+
+    account: Optional[str] = Field(
+        title='Auto-Primary Account Name',
+        description='The account name for the auto-primary server.',
+        default=None,
+    )
+    """The account name for the auto-primary server."""
+
+
+class ServerTSIGKey(BaseModel):
+    """Provides an API model for managing server TSIG keys."""
+
+    id: Optional[str] = Field(
+        title='TSIG Key ID',
+        description='The ID of the TSIG key.',
+        default=None,
+    )
+    """The ID of the TSIG key."""
+
+    type: str = Field(
+        title='TSIG Key Type',
+        description='The type of the TSIG key.',
+        default='TSIGKey',
+    )
+    """The type of the TSIG key."""
+
+    name: str = Field(
+        title='TSIG Key Name',
+        description='The name of the TSIG key.',
+    )
+    """The name of the TSIG key."""
+
+    algorithm: str = Field(
+        title='TSIG Key Algorithm',
+        description='The algorithm of the TSIG key.',
+    )
+    """The algorithm of the TSIG key."""
+
+    key: str = Field(
+        title='TSIG Key Secret Key',
+        description='The base64 encoded secret key.',
+    )
+    """The base64 encoded secret key."""
 
 
 class RRSetComment(BaseModel):
@@ -528,3 +591,100 @@ class AZoneUpdate(BaseModel):
         default=None,
     )
     """The account this zone is a member of."""
+
+
+class AZoneMetadata(BaseModel):
+    """Provides an API input model for creating and updating authoritative zone metadata."""
+
+    name: str = Field(
+        title='Metadata Type',
+        description='The kind of the metadata.',
+        alias='kind',
+    )
+    """The kind of the metadata."""
+
+    values: Optional[list[str]] = Field(
+        title='Metadata Values',
+        description='The list of metadata values associated with this kind.',
+        alias='metadata',
+        default=None,
+    )
+    """The list of metadata values associated with this kind."""
+
+
+class AZoneCryptoKey(BaseModel):
+    """Provides an API model for managing authoritative zone crypto keys."""
+
+    id: Optional[int] = Field(
+        title='Crypto Key ID',
+        description='The ID of the crypto key.',
+        default=None,
+    )
+    """The ID of the crypto key."""
+
+    type: CryptoKeyTypeEnum = Field(
+        title='Crypto Key Type',
+        description='The type of the key.',
+    )
+    """The type of the key."""
+
+    key_type: Optional[str] = Field(
+        title='Key Type',
+        description='The key type of this key.',
+        alias='keytype',
+        default=None,
+    )
+    """The key type of this key."""
+
+    active: Optional[bool] = Field(
+        title='Crypto Key Active',
+        description='Whether the key is in active use.',
+        default=None,
+    )
+    """Whether the key is in active use."""
+
+    published: Optional[bool] = Field(
+        title='Crypto Key Published',
+        description='Whether the DNSKEY crypto key is published in the zone.',
+        default=None,
+    )
+    """Whether the DNSKEY crypto key is published in the zone."""
+
+    dns_key: str = Field(
+        title='Crypto Key DNSKEY',
+        description='The DNSKEY crypto key for this key.',
+        alias='dnskey',
+    )
+    """The DNSKEY crypto key for this key."""
+
+    ds: list[str] = Field(
+        title='DS Crypto Keys',
+        description='A list of DS crypto keys for this key.',
+    )
+    """A list of DS crypto keys for this key."""
+
+    cds: list[str] = Field(
+        title='Filtered DS Crypto Keys',
+        description='A list of DS crypto keys for this key, filtered by CDS publication settings.',
+    )
+    """A list of DS crypto keys for this key, filtered by CDS publication settings."""
+
+    private_key: str = Field(
+        title='Private Key',
+        description='The private key in ISC format.',
+        alias='privatekey',
+    )
+    """The private key in ISC format."""
+
+    algorithm: str = Field(
+        title='Crypto Key Algorithm',
+        description='The name of the algorithm of the key, should be a mnemonic.',
+    )
+    """The name of the algorithm of the key, should be a mnemonic."""
+
+    bits: int = Field(
+        title='Crypto Key Bits',
+        description='The size of the key.',
+        examples=[128, 256, 512, 1024, 2048, 4096],
+    )
+    """The size of the key."""

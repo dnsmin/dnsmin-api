@@ -33,6 +33,7 @@ class ServerAutoPrimaryInSchema(BaseApiModel):
     account: Optional[str] = Field(
         title='Auto-Primary Account Name',
         description='The account name for the auto-primary server.',
+        default=None,
     )
     """The account name for the auto-primary server."""
 
@@ -70,6 +71,7 @@ class ServerAutoPrimaryOutSchema(BaseApiModel):
     account: Optional[str] = Field(
         title='Auto-Primary Account Name',
         description='The account name for the auto-primary server.',
+        default=None,
     )
     """The account name for the auto-primary server."""
 
