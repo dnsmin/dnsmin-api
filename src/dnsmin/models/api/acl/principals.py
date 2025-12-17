@@ -4,12 +4,20 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
-from dnsmin.models import BaseApiModel, PrincipalTypeEnum
+from dnsmin.models.api import BaseApiModel
+from dnsmin.models.enums import PrincipalTypeEnum
 from dnsmin.models.api.acl.roles import RoleOutSchema
 
 
 class PrincipalInSchema(BaseApiModel):
     """Provides an API input model for creating ACL role principals."""
+
+    id: UUID = Field(
+        title='Principal ID',
+        description='The unique identifier of the principal.',
+        examples=[uuid4()],
+    )
+    """The unique identifier of the principal."""
 
     tenant_id: Optional[UUID] = Field(
         title='Tenant ID',
@@ -36,7 +44,6 @@ class PrincipalOutSchema(BaseApiModel):
     id: UUID = Field(
         title='Principal ID',
         description='The unique identifier of the principal.',
-        default_factory=uuid4,
         examples=[uuid4()],
     )
     """The unique identifier of the principal."""
@@ -61,11 +68,11 @@ class PrincipalOutSchema(BaseApiModel):
 
     created_at: datetime = Field(
         title='Created At',
-        description='The timestamp representing when the association was created.',
+        description='The timestamp representing when the principal was created.',
         default_factory=datetime.now,
         examples=[datetime.now()],
     )
-    """The timestamp representing when the association was created."""
+    """The timestamp representing when the principal was created."""
 
 
 class PrincipalsSchema(BaseApiModel):

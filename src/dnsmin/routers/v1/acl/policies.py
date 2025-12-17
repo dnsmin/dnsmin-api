@@ -10,19 +10,48 @@ from dnsmin.models.api.acl.policies import PoliciesSchema, PolicyOutSchema, Poli
 from dnsmin.routers.v1.acl import router
 
 
-@router.post(
+@router.get(
     '/policies',
-    response_model=PoliciesSchema,
+    response_model=list[PolicyOutSchema],
     summary='List ACL policies',
-    description='Lists ACL policies for the current authentication context.',
+    description='Lists ACL policies.',
     operation_id='acl:policies:list',
 )
 async def record_list(
+        session: AsyncSession = Depends(get_db_session),
+        principal: Principal = Depends(get_principal),
+) -> list[PolicyOutSchema]:
+    """List ACL policies"""
+    from sqlalchemy import select
+    from dnsmin.models.db.acl import Policy
+
+    # Build a statement to retrieve the relevant records
+    stmt = select(Policy)
+
+    # Enforce tenancy
+    if principal.tenant_id:
+        stmt = stmt.where(Policy.tenant_id == principal.tenant_id)
+
+    # Retrieve the records
+    records = (await session.execute(stmt)).scalars().all()
+
+    # Build the response
+    return [PolicyOutSchema.model_validate(r) for r in records]
+
+
+@router.post(
+    '/policies/search',
+    response_model=PoliciesSchema,
+    summary='Search ACL policies',
+    description='Search ACL policies.',
+    operation_id='acl:policies:search',
+)
+async def record_search(
         params: Optional[ListParamsModel] = None,
         session: AsyncSession = Depends(get_db_session),
         principal: Principal = Depends(get_principal),
 ) -> PoliciesSchema:
-    """List ACL policies"""
+    """Search ACL policies"""
     from sqlalchemy import select, func
     from dnsmin.lib.sql import SqlQueryBuilder
     from dnsmin.models.db.acl import Policy
@@ -52,10 +81,10 @@ async def record_list(
 
 
 @router.post(
-    '/policies/create',
+    '/policies',
     response_model=PolicyOutSchema,
     summary='Create ACL policy',
-    description='Create ACL policy for the current authentication context.',
+    description='Create ACL policy.',
     operation_id='acl:policies:create',
 )
 async def record_create(
@@ -94,7 +123,7 @@ async def record_create(
     '/policies/{policy_id}',
     response_model=PolicyOutSchema,
     summary='Read ACL policy',
-    description='Read ACL policy from the current authentication context.',
+    description='Read ACL policy.',
     operation_id='acl:policies:read',
 )
 async def record_read(
@@ -129,7 +158,7 @@ async def record_read(
     '/policies/{policy_id}',
     response_model=PolicyOutSchema,
     summary='Update ACL policy',
-    description='Update ACL policy in the current authentication context.',
+    description='Update ACL policy.',
     operation_id='acl:policies:update',
 )
 async def record_update(
@@ -176,7 +205,7 @@ async def record_update(
 @router.delete(
     '/policies/{policy_id}',
     summary='Delete ACL policy',
-    description='Delete ACL policy from the current authentication context.',
+    description='Delete ACL policy.',
     operation_id='acl:policies:delete',
 )
 async def record_delete(
