@@ -50,6 +50,7 @@ class TaskEnum(str, Enum):
     APP_TEST_EXCEPTION = 'app.test.exception'
     APP_TEST_EXCEPTION_RETRY = 'app.test.exception_retry'
     APP_TEST_DELAY = 'app.test.delay'
+    ZONES_COMPARISON = 'zones.comparison'
 
 
 class TwilioNotificationTypeEnum(str, Enum):

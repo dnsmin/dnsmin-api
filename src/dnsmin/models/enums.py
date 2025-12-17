@@ -177,21 +177,38 @@ class TaskJobStatusEnum(str, Enum):
     """When a task job has failed permanently from having an internal error."""
 
 
+class SOAEditTypeEnum(str, Enum):
+    """Defines the different types of SOA-EDIT types there can be."""
+    DEFAULT = "DEFAULT"
+    INCREASE = "INCREASE"
+    EPOCH = "EPOCH"
+    OFF = "OFF"
+    EMPTY = ""
+
+
+class RRSetChangeTypeEnum(str, Enum):
+    """Defines the different types of RRSet change types there can be."""
+    DELETE = "DELETE"
+    EXTEND = "EXTEND"
+    PRUNE = "PRUNE"
+    REPLACE = "REPLACE"
+
+
 class AZoneKindEnum(str, Enum):
     """Defines the different kinds of authoritative zones there can be."""
-    NATIVE = "NATIVE"
+    NATIVE = "Native"
     """A stand-alone zone that does not participate in DNS-based replication."""
 
-    MASTER = "MASTER"
+    MASTER = "Master"
     """A source of truth for a zone's data."""
 
-    SLAVE = "SLAVE"
+    SLAVE = "Slave"
     """A read-only replica of a zone obtained from a primary server."""
 
-    PRODUCER = "PRODUCER"
+    PRODUCER = "Producer"
     """A source of truth for a zone's data when using catalog zones."""
 
-    CONSUMER = "CONSUMER"
+    CONSUMER = "Consumer"
     """A read-only replica of a zone obtained from a primary server when using catalog zones."""
 
 
