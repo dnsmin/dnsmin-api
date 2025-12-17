@@ -1,0 +1,17 @@
+from fastapi import APIRouter
+
+from dnsmin.routers.root import router_responses
+
+router = APIRouter(
+    prefix='/zones',
+    tags=['zones'],
+    responses=router_responses,
+)
+
+
+from .azones import *
+from .azone_records import *
+from .azone_metadata import *
+from .azone_crypto_keys import *
+from .rzones import *
+from .rzone_records import *

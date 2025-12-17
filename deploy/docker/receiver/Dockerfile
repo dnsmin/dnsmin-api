@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /srv/app
 
-COPY ./src-api/receiver.py /srv/app/server.py
+COPY ./src/dnsmin/receiver.py ./server.py
 
 RUN apt update \
     && apt install -y --no-install-recommends curl \

@@ -10,12 +10,6 @@ dnsmin.db
 config.yml
 notifications.yml
 schedules.yml
-docker/nginx/certs/*
-src-ui/.vite
-src-ui/node_modules/
-src-ui/build/*
-src-ui/dist/*
-src-ui/package-lock.json
 node_modules
-venv
 var
+venv

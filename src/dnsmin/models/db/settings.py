@@ -1,0 +1,65 @@
+"""
+App Settings Database Models
+
+This file defines the database models associated with app settings functionality.
+"""
+from datetime import datetime
+from typing import Optional
+from uuid import UUID, uuid4
+
+from sqlalchemy import Boolean, DateTime, String, TEXT, Uuid, text, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from dnsmin.app import DB_PREFIX
+from dnsmin.models.db import BaseSqlModel
+
+
+class Setting(BaseSqlModel):
+    """Represents an app setting."""
+
+    __tablename__ = f'{DB_PREFIX}_settings'
+    """Defines the database table name."""
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    """The unique identifier of the setting."""
+
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
+    """The unique identifier of the tenant associated with the setting."""
+
+    user_id: Mapped[Optional[UUID]] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_auth_users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
+    """The unique identifier of the user associated with the setting."""
+
+    key: Mapped[str] = mapped_column(String(255), nullable=False)
+    """The key of the setting."""
+
+    raw_value: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
+    """The raw value of the setting."""
+
+    overridable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    """Whether the setting can be overridden in lower contexts."""
+
+    hidden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    """Whether the setting is hidden in lower contexts."""
+
+    readonly: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    """Whether the setting can be modified in non-system contexts."""
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the setting was created."""
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the setting was last updated."""
+
+    tenant = relationship('Tenant', back_populates='settings', cascade='expunge')
+    """The tenant associated with the setting."""
+
+    user = relationship('User', back_populates='settings', cascade='expunge')
+    """The user associated with the setting."""

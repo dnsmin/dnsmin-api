@@ -1,10 +1,10 @@
-aiosqlite==0.21.0
+aiosqlite==0.22.0
 asyncio==4.0.0
 asyncmy==0.2.10
 celery[redis]==5.6.0
 cryptography==46.0.3
 email-validator==2.3.0
-fastapi==0.124.0
+fastapi==0.124.4
 itsdangerous==2.2.0
 jinja2==3.1.6
 jsonpickle==4.1.1
@@ -22,7 +22,7 @@ python-multipart==0.0.20
 pyyaml==6.0.3
 redis==5.2.1 # This lower version is currently required by dependencies
 requests==2.32.5
-sqlalchemy[asyncio]==2.0.44
+sqlalchemy[asyncio]==2.0.45
 twilio==9.8.8
-urllib3==2.6.0
+urllib3==2.6.2
 uvicorn==0.38.0
