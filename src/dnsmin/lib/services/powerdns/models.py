@@ -9,6 +9,116 @@ from dnsmin.models.enums import (
 )
 
 
+class StatisticItem(BaseModel):
+    """Provides an API model representing a statistic item."""
+
+    name: str = Field(
+        title='Statistic Name',
+        description='The name of the statistic.',
+    )
+    """The name of the statistic."""
+
+    type: str = Field(
+        title='Statistic Type',
+        description='The type of the statistic.',
+        default='StatisticItem',
+        examples=['StatisticItem'],
+    )
+    """The type of the statistic."""
+
+    value: str = Field(
+        title='Statistic Value',
+        description='The value of the statistic.',
+    )
+    """The value of the statistic."""
+
+
+class SimpleStatisticItem(BaseModel):
+    """Provides an API model representing a simple statistic."""
+
+    name: str = Field(
+        title='Statistic Name',
+        description='The name of the statistic.',
+    )
+    """The name of the statistic."""
+
+    value: str = Field(
+        title='Statistic Value',
+        description='The value of the statistic.',
+    )
+    """The value of the statistic."""
+
+
+class MapStatisticItem(BaseModel):
+    """Provides an API model representing a map statistic item."""
+
+    name: str = Field(
+        title='Item Name',
+        description='The name of the item.',
+    )
+    """The name of the item."""
+
+    type: str = Field(
+        title='Item Type',
+        description='The type of the item.',
+        default='MapStatisticItem',
+        examples=['MapStatisticItem'],
+    )
+    """The type of the item."""
+
+    value: list[SimpleStatisticItem] = Field(
+        title='Item Values',
+        description='A list of simple statistic items associated with the map statistic item.',
+    )
+    """A list of simple statistic items associated with the map statistic item."""
+
+
+class RingStatisticItem(BaseModel):
+    """Provides an API model representing a ring statistic item."""
+
+    name: str = Field(
+        title='Item Name',
+        description='The name of the item.',
+    )
+    """The name of the item."""
+
+    type: str = Field(
+        title='Item Type',
+        description='The type of the item.',
+        default='RingStatisticItem',
+        examples=['RingStatisticItem'],
+    )
+    """The type of the item."""
+
+    size: int = Field(
+        title='Ring Size',
+        description='The size of the ring.',
+    )
+    """The size of the ring."""
+
+    value: list[SimpleStatisticItem] = Field(
+        title='Item Values',
+        description='A list of simple statistic items associated with the ring statistic item.',
+    )
+    """A list of simple statistic items associated with the ring statistic item."""
+
+
+class CacheFlushResult(BaseModel):
+    """Provides an API model representing a cache flush result."""
+
+    count: float = Field(
+        title='Entry Flush Count',
+        description='The count of cache entries flushed.',
+    )
+    """The count of cache entries flushed."""
+
+    result: str = Field(
+        title='Flush Message',
+        description='The message from the cache flush.',
+    )
+    """The message from the cache flush."""
+
+
 class ServerAutoPrimary(BaseModel):
     """Provides an API input model for creating and updating auto-primaries."""
 
@@ -67,6 +177,43 @@ class ServerTSIGKey(BaseModel):
         description='The base64 encoded secret key.',
     )
     """The base64 encoded secret key."""
+
+
+class ServerView(BaseModel):
+    """Provides an API model for managing server views."""
+
+    name: str = Field(
+        title='View Name',
+        description='The name of the view.',
+        examples=['trusted', 'internal', 'global'],
+    )
+    """The name of the view."""
+
+    zones: Optional[list[str]] = Field(
+        title='View Zones',
+        description='A list of the zones associated with the view.',
+        default=None,
+        examples=['example.com..trusted', 'intranet.lan..internal', 'company-site.com..global'],
+    )
+    """A list of the zones associated with the view."""
+
+
+class ServerNetwork(BaseModel):
+    """Provides an API model for managing server networks."""
+
+    network: str = Field(
+        title='Network CIDR',
+        description='The CIDR specification of the network.',
+        examples=['1.1.1.1/8', '192.168.1.0/24', '10.0.1.2/16'],
+    )
+    """The CIDR specification of the network."""
+
+    view: str = Field(
+        title='View Name',
+        description='The name of the view.',
+        examples=['trusted', 'internal', 'global'],
+    )
+    """The name of the view."""
 
 
 class RRSetComment(BaseModel):

@@ -2,7 +2,8 @@ from typing import Optional
 
 from dnsmin.lib.services.powerdns import PowerDNSApiConfig, PowerDNSApiBase
 from dnsmin.lib.services.powerdns.models import (
-    ServerAutoPrimary, ServerTSIGKey,
+    StatisticItem, MapStatisticItem, RingStatisticItem, SimpleStatisticItem, CacheFlushResult,
+    ServerAutoPrimary, ServerTSIGKey, ServerView, ServerNetwork,
     AZone, AZoneUpdate, AZoneMetadata, AZoneCryptoKey
 )
 
@@ -74,6 +75,68 @@ class PowerDNSTSIGKeysApi(PowerDNSApiBase):
     def delete(self, server_id: str, tsig_key_id: str) -> None:
         """Deletes a TSIG key for the given TSIG key ID in the PowerDNS server."""
         self.make_request(f'/v1/servers/{server_id}/tsigkeys/{tsig_key_id}', method='DELETE')
+
+
+class PowerDNSViewsApi(PowerDNSApiBase):
+    """Provides an API for managing PowerDNS views via API."""
+
+    def list(self, server_id: str) -> list[ServerView]:
+        """Returns a list of views known to the PowerDNS server."""
+        data = self.make_request(f'/v1/servers/{server_id}/views', method='GET')
+        return [ServerView(name=v) for v in data['views']]
+
+    def get(self, server_id: str, view: str) -> ServerView:
+        """Returns a view with the specified name."""
+        data = self.make_request(f'/v1/servers/{server_id}/views/{view}', method='GET')
+        return ServerView(name=view, zones=data['zones'])
+
+    def create(self, server_id: str, view: str, zone: str) -> None:
+        """Creates a view or adds to a view in the PowerDNS server."""
+        data = self.make_request(
+            f'/v1/servers/{server_id}/views/{view}',
+            method='POST',
+            payload={'name': f'{zone}.{view}'},
+        )
+
+    def delete(self, server_id: str, view: str, zone: str) -> None:
+        """Deletes the given zone from the given view in the PowerDNS server."""
+        self.make_request(f'/v1/servers/{server_id}/views/{view}/{zone}', method='DELETE')
+
+
+class PowerDNSNetworksApi(PowerDNSApiBase):
+    """Provides an API for managing PowerDNS networks via API."""
+
+    def list(self, server_id: str) -> list[ServerNetwork]:
+        """Returns a list of networks known to the PowerDNS server."""
+        data: dict[str, list[dict[str, str]]] = self.make_request(
+            f'/v1/servers/{server_id}/networks',
+            method='GET',
+        )
+        return [ServerNetwork(network=n['network'], view=n['view']) for n in data['networks']]
+
+    def get(self, server_id: str, network: str) -> ServerNetwork:
+        """Returns a network with the specified network."""
+        data: dict[str, list[dict[str, str]]] = self.make_request(
+            f'/v1/servers/{server_id}/networks/{network}',
+            method='GET',
+        )
+        return ServerNetwork(network=data['networks'][0]['network'], view=data['networks'][0]['view'])
+
+    def create(self, server_id: str, network: str, view: str) -> None:
+        """Add the given network to the given view in the PowerDNS server."""
+        self.make_request(
+            f'/v1/servers/{server_id}/networks/{network}',
+            method='PUT',
+            payload={'view': view},
+        )
+
+    def delete(self, server_id: str, network: str, view: str) -> None:
+        """Deletes the given network from the given view in the PowerDNS server."""
+        self.make_request(
+            f'/v1/servers/{server_id}/networks/{network}',
+            method='DELETE',
+            payload={'view': view},
+        )
 
 
 class PowerDNSZonesApi(PowerDNSApiBase):
@@ -220,6 +283,44 @@ class PowerDNSCryptoKeysApi(PowerDNSApiBase):
         )
 
 
+class PowerDNSStatisticsApi(PowerDNSApiBase):
+    """Provides an API for retrieving PowerDNS statistics via API."""
+
+    def list(self, server_id: str, statistic: Optional[str] = None, include_rings: bool = True) \
+            -> list[StatisticItem | MapStatisticItem | RingStatisticItem | SimpleStatisticItem]:
+        """Returns a list of crypto keys known to the PowerDNS server for the given zone ID."""
+        params: dict[str, bool | str] = {'includerings': include_rings}
+        if isinstance(statistic, str):
+            params['statistic'] = statistic
+        data = self.make_request(f'/v1/servers/{server_id}/statistics', method='GET', params=params)
+        stats = []
+
+        for stat in data:
+            if stat['type'] == 'StatisticItem':
+                stats.append(StatisticItem(**stat))
+            elif stat['type'] == 'MapStatisticItem':
+                stats.append(MapStatisticItem(**stat))
+            elif stat['type'] == 'RingStatisticItem':
+                stats.append(RingStatisticItem(**stat))
+            elif stat['type'] == 'SimpleStatisticItem':
+                stats.append(SimpleStatisticItem(**stat))
+
+        return stats
+
+
+class PowerDNSCacheApi(PowerDNSApiBase):
+    """Provides an API for managing the PowerDNS cache via API."""
+
+    def flush(self, server_id: str, domain: str) -> CacheFlushResult:
+        """Flushes the given domain from the PowerDNS server."""
+        data = self.make_request(
+            f'/v1/servers/{server_id}/cache/flush',
+            method='PUT',
+            params={'domain': domain},
+        )
+        return CacheFlushResult(**data)
+
+
 class PowerDNSAuthApi(PowerDNSApiBase):
     """Provides an API for interacting with the PowerDNS authoritative server API."""
 
@@ -229,17 +330,29 @@ class PowerDNSAuthApi(PowerDNSApiBase):
 
     tsig_keys: PowerDNSTSIGKeysApi
 
+    views: PowerDNSViewsApi
+
+    networks: PowerDNSNetworksApi
+
     zones: PowerDNSZonesApi
 
     metadata: PowerDNSMetadataApi
 
     crypto_keys: PowerDNSCryptoKeysApi
 
+    statistics: PowerDNSStatisticsApi
+
+    cache: PowerDNSCacheApi
+
     def __init__(self, config: PowerDNSApiConfig):
         super().__init__(config)
         self.servers = PowerDNSServersApi(config)
         self.auto_primaries = PowerDNSAutoPrimariesApi(config)
         self.tsig_keys = PowerDNSTSIGKeysApi(config)
+        self.views = PowerDNSViewsApi(config)
+        self.networks = PowerDNSNetworksApi(config)
         self.zones = PowerDNSZonesApi(config)
         self.metadata = PowerDNSMetadataApi(config)
         self.crypto_keys = PowerDNSCryptoKeysApi(config)
+        self.statistics = PowerDNSStatisticsApi(config)
+        self.cache = PowerDNSCacheApi(config)
