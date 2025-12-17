@@ -64,7 +64,7 @@ class MailNotificationSender(NotificationSender):
     def send(self, recipient: MailServiceRecipient):
         """Sends a notification to the given service recipient for the given event."""
         from loguru import logger
-        from worker import app as celery_app
+        from dnsmin.worker import app as celery_app
 
         try:
             super().send(recipient)

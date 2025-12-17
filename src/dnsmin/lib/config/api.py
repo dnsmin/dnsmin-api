@@ -56,10 +56,6 @@ class ApiConfig(BaseConfig):
                         description='Provides functionality for managing and monitoring task execution.',
                     ),
                     self.ApiMetadataTagConfig(
-                        name='services',
-                        description='Provides access to various system service features.',
-                    ),
-                    self.ApiMetadataTagConfig(
                         name='dev',
                         description='Provides development mode resources and tools.',
                     ),

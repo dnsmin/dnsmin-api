@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from dnsmin.routers.root import router_responses
-from dnsmin.lib.pda.api import OperationResponse
+from dnsmin.lib.api.responses import OperationResponse
 
 router = APIRouter(
     prefix='/tasks',
@@ -13,7 +13,7 @@ router = APIRouter(
 # @router.post('/jobs', tags=['tasks'], response_model=OperationResponse)
 async def create_job(request: Request) -> JSONResponse:
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
 
     payload = await request.json()
 
@@ -48,56 +48,56 @@ async def create_job(request: Request) -> JSONResponse:
 
 @router.get('/conf', tags=['tasks'])
 async def get_worker_configuration() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().conf()
     return JSONResponse(result)
 
 
 @router.get('/stats', tags=['tasks'])
 async def get_worker_stats() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().stats()
     return JSONResponse(result)
 
 
 @router.get('/queues', tags=['tasks'])
 async def get_worker_queues() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().active_queues()
     return JSONResponse(result)
 
 
 @router.get('/status/reserved', tags=['tasks'])
 async def get_tasks_by_status_reserved() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().reserved()
     return JSONResponse(result)
 
 
 @router.get('/status/scheduled', tags=['tasks'])
 async def get_tasks_by_status_scheduled() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().scheduled()
     return JSONResponse(result)
 
 
 @router.get('/status/active', tags=['tasks'])
 async def get_tasks_by_status_active() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().active()
     return JSONResponse(result)
 
 
 @router.get('/status/revoked', tags=['tasks'])
 async def get_tasks_by_status_revoked() -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     result = celery_app.control.inspect().revoked()
     return JSONResponse(result)
 
 
 @router.get('/run/name/{name}', tags=['tasks'], response_model=OperationResponse)
 async def run_by_name(name: str) -> JSONResponse:
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
 
     response = OperationResponse(
         message=f'Scheduled the task named "{name}" for immediate execution.',
@@ -116,7 +116,7 @@ async def run_by_name(name: str) -> JSONResponse:
 @router.get('/run/key/{key}', tags=['tasks'], response_model=OperationResponse)
 async def run_by_key(key: str) -> JSONResponse:
     from dnsmin.app import schedules
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
 
     response = OperationResponse(
         success=False,
@@ -148,7 +148,7 @@ async def run_by_key(key: str) -> JSONResponse:
 @router.get('/revoke/id/{id}', tags=['tasks'])
 async def revoke_task_by_id(id: str) -> JSONResponse:
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     logger.debug(f'Revoking Celery task by id: {id}')
     celery_app.control.revoke(id)
     return JSONResponse({'success': True})
@@ -157,7 +157,7 @@ async def revoke_task_by_id(id: str) -> JSONResponse:
 @router.get('/terminate/id/{id}', tags=['tasks'])
 async def terminate_task_by_id(id: str) -> JSONResponse:
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     logger.debug(f'Terminating Celery task by id: {id}')
     celery_app.control.terminate(id)
     return JSONResponse({'success': True})
@@ -166,7 +166,7 @@ async def terminate_task_by_id(id: str) -> JSONResponse:
 @router.get('/purge', tags=['tasks'])
 async def purge_all_tasks() -> JSONResponse:
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     logger.debug(f'Purging all waiting Celery tasks...')
     celery_app.control.purge()
     return JSONResponse({'success': True})
@@ -175,7 +175,7 @@ async def purge_all_tasks() -> JSONResponse:
 @router.get('/broadcast/shutdown', tags=['tasks'])
 async def broadcast_command_shutdown() -> JSONResponse:
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     logger.debug(f'Broadcasting worker shutdown command...')
     celery_app.control.broadcast('shutdown')
     return JSONResponse({'success': True})

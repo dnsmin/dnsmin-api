@@ -11,7 +11,7 @@ def mail(individual_tasks: bool = True, **kwargs) -> EmailSendResult:
     import jsonpickle
     import time
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     from dnsmin.lib.mail import Email
 
     if 'mail_to' not in kwargs:
@@ -130,7 +130,7 @@ def test():
 def test_mail():
     """Sends an alert message to test the mailing system."""
     from loguru import logger
-    from worker import app as celery_app
+    from dnsmin.worker import app as celery_app
     logger.warning(f'Starting mail test task.')
     celery_app.send_task(TaskEnum.APP_ALERT.value, kwargs={
         'msg': 'App Mail Test',

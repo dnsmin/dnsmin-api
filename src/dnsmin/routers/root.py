@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse, RedirectResponse
-from dnsmin.lib.pda.api import NotFoundResponse, StatusResponse
+from dnsmin.lib.api.responses import NotFoundResponse, StatusResponse
 
 # Define generic responses to be used by routers
 router_responses: dict = {

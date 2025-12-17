@@ -1,3 +1,4 @@
+import uuid
 from email.message import EmailMessage
 from email.mime.application import MIMEApplication
 from email.mime.audio import MIMEAudio
@@ -8,6 +9,7 @@ from email.mime.text import MIMEText
 from enum import Enum
 from pydantic import ConfigDict, Field, computed_field
 from typing import Optional, Union
+
 from dnsmin.models import BaseModel
 
 MESSAGE_TYPES = Union[EmailMessage, MIMEApplication, MIMEAudio, MIMEImage, MIMEMessage, MIMEMultipart, MIMEText]

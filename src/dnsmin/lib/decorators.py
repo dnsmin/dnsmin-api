@@ -17,7 +17,7 @@ _throttle_registry = {}
 _registry_lock = threading.Lock()
 
 
-class registry:
+class Registry:
     _redis_client = None
 
     @classmethod
@@ -264,7 +264,7 @@ def redis_throttle(
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Get the Redis client
-            r = registry.get_redis_client()
+            r = Registry.get_redis_client()
 
             # Resolve the dynamic key if necessary
             resolved_key = group_key(args, kwargs) if callable(group_key) else group_key

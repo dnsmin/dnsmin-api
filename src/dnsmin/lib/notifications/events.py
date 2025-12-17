@@ -312,7 +312,7 @@ class TaskEvent(TaskInfoMixin, NotificationEvent):
             return self.task.label
 
         if isinstance(task_name := self.task_name, str) and len(self.task_name.strip()):
-            from worker import app as celery_app
+            from dnsmin.worker import app as celery_app
             if (task_name in celery_app.tasks and hasattr(celery_app.tasks[task_name], 'label')
                     and isinstance(celery_app.tasks[task_name].label, str)
                     and len(celery_app.tasks[task_name].label.strip())):
