@@ -6,9 +6,9 @@ To get started quickly with a simple deployment, execute the following commands 
 with `bash` and `git` installed:
 
 ```
-git clone https://github.com/dnsmin/dnsmin.git
-cd dnsmin
-deployment/setup.sh
+git clone https://github.com/dnsmin/dnsmin-api.git
+cd dnsmin-api
+deploy/setup.sh
 ```
 
 ## Deployment Guides

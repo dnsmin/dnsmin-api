@@ -16,22 +16,22 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'dev'
-      - 'main'
-      - 'dependabot/**'
-      - 'feature/**'
-      - 'issue/**'
+      - '-dev'
+      - '-main'
+      - '-dependabot/**'
+      - '-feature/**'
+      - '-issue/**'
     paths:
       - src/**
       - setup.py
   pull_request:
     # The branches below must be a subset of the branches above
     branches:
-      - 'dev'
-      - 'main'
-      - 'dependabot/**'
-      - 'feature/**'
-      - 'issue/**'
+      - '-dev'
+      - '-main'
+      - '-dependabot/**'
+      - '-feature/**'
+      - '-issue/**'
     paths:
       - src/**
       - setup.py
