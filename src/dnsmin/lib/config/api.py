@@ -4,18 +4,6 @@ from dnsmin.lib.config.base import BaseConfig
 class ApiConfig(BaseConfig):
     """A model that represents a configuration hierarchy for the FastAPI app."""
 
-    class ApiRuntimeConfig(BaseConfig):
-        class ApiRuntimeInitConfig(BaseConfig):
-            repeat: bool = False
-            repeat_interval: float = 300
-            repeat_recovery_interval: float = 300
-            init_db: bool = False
-            repeat_db: bool = False
-            repeat_db_interval: float = 300
-            repeat_db_recovery_interval: float = 300
-
-        init: ApiRuntimeInitConfig
-
     class ApiMetadataConfig(BaseConfig):
         class ApiMetadataTagConfig(BaseConfig):
             name: str
@@ -78,4 +66,3 @@ class ApiConfig(BaseConfig):
                 ]
 
     metadata: ApiMetadataConfig
-    runtime: ApiRuntimeConfig

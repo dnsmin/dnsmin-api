@@ -271,6 +271,6 @@ def init_logging(config: Config = None, settings: AppSettings = None) -> None:
 def init_redis(config: Config) -> Redis:
     """ Initialize a Redis connection instance. """
     return Redis.from_url(
-        url=f'redis://{config.db.redis.host}:{config.db.redis.port}/{config.db.redis.database}',
+        url=config.db.redis_url,
         decode_responses=True,
     )

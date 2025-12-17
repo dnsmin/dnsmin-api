@@ -2,27 +2,8 @@ from typing import Optional, Union
 from dnsmin.lib.config.base import BaseConfig
 
 
-class DatabaseConnection(BaseConfig):
-    host: str = 'localhost'
-    port: int = 0
-    username: Union[str, None] = None
-    password: Union[str, None] = None
-    database: Union[str, None] = None
-
-
-class MySQLDatabaseConnection(DatabaseConnection):
-    port: int = 3306
-
-
-class RedisDatabaseConnection(DatabaseConnection):
-    host: str = 'redis'
-    port: int = 6379
-    database: Union[int, str, None] = 0
-
-
 class DbConfig(BaseConfig):
     """A model that represents a configuration hierarchy for database connection settings."""
-    mysql: MySQLDatabaseConnection
-    redis: RedisDatabaseConnection
+    redis_url: Optional[str] = 'redis://redis:6379/0'
     sql_async_url: Optional[str] = 'sqlite+aiosqlite:///./dnsmin.db'
     sql_sync_url: Optional[str] = 'sqlite:///./dnsmin.db'

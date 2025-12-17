@@ -31,61 +31,6 @@
               }
             }
           }
-        },
-        "runtime": {
-          "type": "object",
-          "description": "This object provides configuration for the API app provided by the app.",
-          "properties": {
-            "init": {
-              "type": "object",
-              "description": "This object defines the configuration of app and database initialization.",
-              "properties": {
-                "repeat": {
-                  "type": "boolean",
-                  "description": "Whether the app initialization process should be repeated on an interval.",
-                  "default": false
-                },
-                "repeat_interval": {
-                  "type": "integer",
-                  "description": "Seconds between repeated app initializations if enabled.",
-                  "default": 300,
-                  "minimum": 0.5,
-                  "maximum": 31536000
-                },
-                "repeat_recovery_interval": {
-                  "type": "integer",
-                  "description": "Seconds to wait before checking updated app configuration when repeating initialization has been disabled.",
-                  "default": 300,
-                  "minimum": 0.5,
-                  "maximum": 31536000
-                },
-                "init_db": {
-                  "type": "boolean",
-                  "description": "Initialize the database during startup.",
-                  "default": false
-                },
-                "repeat_db": {
-                  "type": "boolean",
-                  "description": "Whether the database initialization process should be repeated on an interval.",
-                  "default": false
-                },
-                "repeat_db_interval": {
-                  "type": "integer",
-                  "description": "Seconds between repeated database initialization if enabled.",
-                  "default": 300,
-                  "minimum": 0.5,
-                  "maximum": 31536000
-                },
-                "repeat_db_recovery_interval": {
-                  "type": "integer",
-                  "description": "Seconds to wait before checking updated app configuration when repeating database initialization has been disabled.",
-                  "default": 300,
-                  "minimum": 0.5,
-                  "maximum": 31536000
-                }
-              }
-            }
-          }
         }
       }
     },
@@ -107,7 +52,7 @@
         "summary": {
           "type": "string",
           "description": "Provides a summary of the application.",
-          "default": "An advanced management and monitoring tool for the PowerDNS software suite."
+          "default": "An application designed to provide advanced management and monitoring capabilities for the PowerDNS server suite."
         },
         "timezone": {
           "type": "string",
@@ -133,12 +78,12 @@
             "name": {
               "type": "string",
               "description": "The name of the app author.",
-              "default": "Matt Scott"
+              "default": "DNSMin"
             },
             "email": {
               "type": "string",
               "description": "The email address of the app author.",
-              "default": "matt@dnsadmin.org",
+              "default": "help@dnsadmin.org",
               "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
             },
             "url": {
@@ -159,7 +104,7 @@
               "default": "prod",
               "enum": [
                 "prod",
-                "staging",
+                "qa",
                 "dev",
                 "local"
               ]
@@ -244,78 +189,20 @@
       "type": "object",
       "description": "Provides connection information for database connections.",
       "properties": {
-        "mysql": {
-          "type": "object",
-          "description": "Provides connection information for the app's MySQL database connection.",
-          "properties": {
-            "host": {
-              "type": "string",
-              "description": "MySQL server hostname or IP address.",
-              "default": "localhost",
-              "pattern": "^([a-zA-Z0-9-]+\\\\.)*[a-zA-Z0-9-]+$|^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-            },
-            "port": {
-              "type": "integer",
-              "description": "MySQL server port.",
-              "default": 3306,
-              "minimum": 1,
-              "maximum": 65535
-            },
-            "username": {
-              "type": "string",
-              "description": "MySQL database username."
-            },
-            "password": {
-              "type": "string",
-              "description": "MySQL database password."
-            },
-            "database": {
-              "type": "string",
-              "description": "MySQL database name.",
-              "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
-            }
-          },
-          "required": [
-            "username",
-            "password",
-            "database"
-          ]
-        },
-        "redis": {
-          "type": "object",
-          "description": "Provides connection information for the app's Redis key-store connection.",
-          "properties": {
-            "host": {
-              "type": "string",
-              "description": "Redis server hostname or IP address.",
-              "default": "redis",
-              "pattern": "^([a-zA-Z0-9-]+\\\\.)*[a-zA-Z0-9-]+$|^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-            },
-            "port": {
-              "type": "integer",
-              "description": "Redis server port.",
-              "default": 6379,
-              "minimum": 1,
-              "maximum": 65535
-            },
-            "database": {
-              "type": "integer",
-              "description": "Redis server database index.",
-              "default": 0,
-              "minimum": 0,
-              "maximum": 1024
-            }
-          }
+        "redis_url": {
+          "type": "string",
+          "description": "The connection URI for a supported Redis-compatible key-store.",
+          "default": "redis://redis:6379/0"
         },
         "sql_async_url": {
           "type": "string",
           "description": "The connection URI for a supported asynchronous SQL storage driver.",
-          "default": "sqlite+aiosqlite:///./pda.db"
+          "default": "sqlite+aiosqlite:///./dnsmin.db"
         },
         "sql_sync_url": {
           "type": "string",
           "description": "The connection URI for a supported synchronous SQL storage driver.",
-          "default": "sqlite:///./pda.db"
+          "default": "sqlite:///./dnsmin.db"
         }
       }
     },

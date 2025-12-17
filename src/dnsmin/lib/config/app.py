@@ -15,8 +15,8 @@ class AppConfig(BaseConfig):
     """A model that represents a configuration hierarchy shared across descendant apps."""
 
     class AuthorConfig(BaseConfig):
-        name: str = 'Matt Scott'
-        email: str = 'matt@dnsmin.org'
+        name: str = 'DNSMin'
+        email: str = 'help@dnsmin.org'
         url: str = 'https://dnsmin.org'
 
     class EnvironmentConfig(BaseConfig):
@@ -34,7 +34,7 @@ class AppConfig(BaseConfig):
 
     name: str = 'dnsmin'
     version: str = '0.1.0'
-    summary: str = 'An advanced management and monitoring tool for the PowerDNS software suite.'
+    summary: str = 'An application designed to provide advanced management and monitoring capabilities for the PowerDNS server suite.'
     timezone: str = 'Etc/UTC'
     timezone_code: str = 'UTC'
     author: AuthorConfig

@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=./schemas/config.schema.json
+app:
+  name: dnsmin
+  summary: An application designed to provide advanced management and monitoring capabilities for the PowerDNS server suite.
+  timezone: Etc/UTC                               # Valid IANA timezone name
+  timezone_code: UTC                              # Valid IANA timezone short code
+  secret_key: CHANGE-TO-SECURE-SECRET             # Long random string used for encryption
+  author:
+    name: DNSMin
+    email: help@dnsmin.org
+    url: https://dnsmin.org
+  environment:
+    name: prod                                    # App environment name. One of prod, qa, dev, local
+    prefix: DNSMIN                                # Environment variable prefix
+    file: config/.app.env                         # API-only environment variables file path
+    urls:
+      api: https://api.prod.dnsmin.org
+      web: https://prod.dnsmin.org
+  metadata:
+    description: The API provides a backend interface for core functionality and support of the UI.
+celery:
+  broker:
+    url: redis://redis:6379/0
+  backend:
+    url: redis://redis:6379/0
+db:
+  redis_url: redis://redis:6379/0
+  sql_async_url: mysql+asyncmy://MYSQL-USERNAME:MYSQL-PASSWORD@MYSQL-HOST/MYSQL-DATABASE-NAME
+  sql_sync_url: mysql+pymysql://MYSQL-USERNAME:MYSQL-PASSWORD@MYSQL-HOST/MYSQL-DATABASE-NAME
+logging:
+  level: info
+mail:
+  servers:
+    - alias: Primary SMTP                         # SMTP server alias used in logging
+      host: smtp.your-provider.com                # SMTP server hostname
+      port: 587                                   # SMTP server port
+      tls: true                                   # Whether to enable TLS for the SMTP connection
+      ssl: false                                  # Whether to enable SSL for the SMTP connection
+      #local_hostname:                            # Defines the local system hostname listed in email headers
+      #source_address:                            # Defines the source address used when sending email
+      timeout: 60                                 # Connection timeout in seconds
+      username: USERNAME-HERE                     # SMTP server username
+      password: PASSWORD-HERE                     # SMTP server password
+      from_address: DNSMin <noreply@dnsmin.org>   # Email from address
+      throttle:                                   # Send throttle settings
+        threshold: 30                             # Email send limit
+        period: 60                                # Email send limit period in seconds
+        mode: sleep                               # Throttle limit mode. One of sleep or raise. Sleep waits and raise continues to next server
+        backoff_strategy: fixed                   # One of fixed or exponential
+        backoff_base: 1.0                         # Exponential backoff base in seconds
+        backoff_cap: 60.0                         # Maximum exponential backoff time in seconds
+        jitter: false                             # Whether to introduce jitter into the exponential backoff strategy
+    - alias: Secondary SMTP                       # SMTP server alias used in logging
+    - host: smtp.your-provider.com                # SMTP server hostname
+    - port: 587                                   # SMTP server port
+    - tls: true                                   # Whether to enable TLS for the SMTP connection
+    - timeout: 60                                 # Connection timeout in seconds
+    - username: USERNAME-HERE                     # SMTP server username
+    - password: PASSWORD-HERE                     # SMTP server password
+    - from_address: DNSMin <noreply@dnsmin.org>   # Email from address
+notifications:                                    # Notification Event Settings
+  mail:
+    enabled: true                                 # Whether email-based notifications are enabled
+  microsoft_teams:
+    enabled: false                                # Whether Microsoft Teams-based notifications are enabled
+  twilio:
+    enabled: false                                # Whether Twilio-based notifications are enabled
+paths:
+  templates: src/dnsmin/templates                 # Path to Jinja templates used for emails and notifications
+server:
+  middleware:
+    - name: fastapi.middleware.cors.CORSMiddleware
+      config:
+        allow_origins:
+          - https://prod.dnsmin.org
+          - https://qa.dnsmin.org
+          - https://dev.dnsmin.org
+          - https://local.dnsmin.org
+        allow_methods: ['*']
+        allow_headers: ['*']
+        allow_credentials: true
+services:
+  twilio:
+    api:
+      live:
+        account_sid: TWILIO-LIVE-ACCOUNT-SID-HERE
+        auth_token: TWILIO-LIVE-AUTH-TOKEN-HERE
+      test:
+        account_sid: TWILIO-TEST-ACCOUNT-SID-HERE
+        auth_token: TWILIO-TEST-AUTH-TOKEN-HERE
+    numbers:
+      - sid: TWILIO-NUMBER-SID-HERE
+        number: '+18885551234'
+        voice: true
+        sms: true
+        mms: true
+        fax: false
+  zabbix:
+    hostname: 10.0.0.1
+    port: 10051
+    send_interval: 1
+    default_node_name: dnsmin
+    reporter_enabled: false
+    sender_enabled: false
+tasks:                                            # Task Scheduler Settings
+  enabled: true                                   # Whether scheduled tasks are enabled
+  scheduler:
+    tick_interval: 30                             # The interval in seconds that the task scheduler resets scheduling data
+    max_schedule_lifetime: 5                      # The maximum number of seconds before loaded scheduling data is considered stale

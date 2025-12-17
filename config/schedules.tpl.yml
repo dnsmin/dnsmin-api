@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./schemas/schedules.schema.json
+enabled: false
+key: app.test
+name: App Test
+task: app.test
+at:
+  - '*/1 * * * * America/Indiana/Indianapolis'
+---
+enabled: false
+key: app.test.exception
+name: App Test Exception
+task: app.test.exception
+at:
+  - '6 AM America/Indiana/Indianapolis'
+---
+enabled: false
+key: app.test.exception
+name: App Test Exception
+task: app.test.exception
+at:
+  - '9:35 PM America/Indiana/Indianapolis'
