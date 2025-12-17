@@ -10,7 +10,7 @@ from dnsmin.models.api.acl.roles import RoleOutSchema
 
 
 class PrincipalInSchema(BaseApiModel):
-    """Provides an API input model for creating ACL role principals."""
+    """Provides an API input model for creating ACL principals."""
 
     id: UUID = Field(
         title='Principal ID',
@@ -39,7 +39,7 @@ class PrincipalInSchema(BaseApiModel):
 
 
 class PrincipalOutSchema(BaseApiModel):
-    """Provides an API response model for representing ACL role principals."""
+    """Provides an API response model for representing ACL principals."""
 
     id: UUID = Field(
         title='Principal ID',

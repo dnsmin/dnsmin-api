@@ -222,6 +222,50 @@ class Permissions:
         ],
     )
     """Provides the ability to delete client records within context."""
+
+    acl_principals: Permission = Permission(
+        uri="acl:principals",
+        title="All Principals Permissions",
+        description="Includes all principals-related permissions.",
+        resource_types=[
+            ResourceTypeEnum.acl_principal,
+            ResourceTypeEnum.acl_principal_role,
+        ],
+    )
+    """Includes all principals-related permissions."""
+
+    acl_principals_read: Permission = Permission(
+        uri="acl:principals:read",
+        title="Read Principals",
+        description="Provides the ability to read principal records within context.",
+        resource_types=[
+            ResourceTypeEnum.acl_principal,
+            ResourceTypeEnum.acl_principal_role,
+        ],
+    )
+    """Provides the ability to read principal records within context."""
+
+    acl_principals_create: Permission = Permission(
+        uri="acl:principals:create",
+        title="Create Principals",
+        description="Provides the ability to create principal records within context.",
+        resource_types=[
+            ResourceTypeEnum.acl_principal,
+            ResourceTypeEnum.acl_principal_role,
+        ],
+    )
+    """Provides the ability to create principal records within context."""
+
+    acl_principals_delete: Permission = Permission(
+        uri="acl:principals:delete",
+        title="Delete Principals",
+        description="Provides the ability to delete principal records within context.",
+        resource_types=[
+            ResourceTypeEnum.acl_principal,
+            ResourceTypeEnum.acl_principal_role,
+        ],
+    )
+    """Provides the ability to delete principal records within context."""
     
     acl_roles: Permission = Permission(
         uri="acl:roles",
@@ -229,7 +273,7 @@ class Permissions:
         description="Includes all roles-related permissions.",
         resource_types=[
             ResourceTypeEnum.acl_role,
-            ResourceTypeEnum.acl_role_permission,
+            ResourceTypeEnum.acl_role_association,
         ],
     )
     """Includes all roles-related permissions."""
@@ -240,7 +284,7 @@ class Permissions:
         description="Provides the ability to read role records within context.",
         resource_types=[
             ResourceTypeEnum.acl_role,
-            ResourceTypeEnum.acl_role_permission,
+            ResourceTypeEnum.acl_role_association,
         ],
     )
     """Provides the ability to read role records within context."""
@@ -251,7 +295,7 @@ class Permissions:
         description="Provides the ability to create role records within context.",
         resource_types=[
             ResourceTypeEnum.acl_role,
-            ResourceTypeEnum.acl_role_permission,
+            ResourceTypeEnum.acl_role_association,
         ],
     )
     """Provides the ability to create role records within context."""
@@ -262,7 +306,7 @@ class Permissions:
         description="Provides the ability to update role records within context.",
         resource_types=[
             ResourceTypeEnum.acl_role,
-            ResourceTypeEnum.acl_role_permission,
+            ResourceTypeEnum.acl_role_association,
         ],
     )
     """Provides the ability to update role records within context."""
@@ -273,7 +317,7 @@ class Permissions:
         description="Provides the ability to delete role records within context.",
         resource_types=[
             ResourceTypeEnum.acl_role,
-            ResourceTypeEnum.acl_role_permission,
+            ResourceTypeEnum.acl_role_association,
         ],
     )
     """Provides the ability to delete role records within context."""

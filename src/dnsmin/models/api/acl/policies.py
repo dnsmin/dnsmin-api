@@ -97,7 +97,6 @@ class PolicyOutSchema(BaseApiModel):
     id: UUID = Field(
         title='Policy ID',
         description='The unique identifier of the policy.',
-        default_factory=uuid4,
         examples=[uuid4()],
     )
     """The unique identifier of the policy."""

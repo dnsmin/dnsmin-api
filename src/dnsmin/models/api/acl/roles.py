@@ -51,7 +51,6 @@ class RoleOutSchema(BaseApiModel):
     id: UUID = Field(
         title='Role ID',
         description='The unique identifier of the role.',
-        default_factory=uuid4,
         examples=[uuid4()],
     )
     """The unique identifier of the role."""
