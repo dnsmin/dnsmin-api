@@ -114,6 +114,11 @@ class PowerDNSRecursorApi(PowerDNSApiBase):
 
     cache: PowerDNSCacheApi
 
+    # XXX: Consider implementing Query Tracing API
+    # XXX: Consider implementing Failure Logging API
+    # XXX: Consider implementing RPZ Statistics API
+    # XXX: Consider implementing JSON Statistics API
+
     def __init__(self, config: PowerDNSApiConfig):
         super().__init__(config)
         self.servers = PowerDNSServersApi(config)
