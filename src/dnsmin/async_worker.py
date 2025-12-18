@@ -11,9 +11,7 @@ from dnsmin.lib.config import AppConfig
 from dnsmin.lib.sync import RedisStreamSyncWorker
 from dnsmin.lib.sync.zones import ZoneSyncWorker
 
-WORKER_COUNT = 4
-NAMESPACE = "dns"
-CONSUMER_GROUP = "dns-sync"
+ZONE_SYNC_WORKER_COUNT = 4
 
 
 async def run_worker(worker: RedisStreamSyncWorker):
@@ -24,6 +22,8 @@ async def run_worker(worker: RedisStreamSyncWorker):
 
 
 async def main():
+    from loguru import logger
+
     env_prefix = AppConfig.EnvironmentConfig.model_fields['prefix'].default
 
     load_environment(env_prefix)
@@ -38,13 +38,15 @@ async def main():
 
     tasks = []
 
-    for i in range(WORKER_COUNT):
+    logger.info(f'Worker process starting up...')
+
+    for i in range(ZONE_SYNC_WORKER_COUNT):
         worker = ZoneSyncWorker(
             redis=redis,
             db_session=db_session,
-            namespace=NAMESPACE,
-            consumer_group=CONSUMER_GROUP,
-            consumer_name=f"sync-worker-{i+1}-{uuid.uuid4().hex[:6]}",
+            namespace="dns",
+            consumer_group="dns-sync",
+            consumer_name=f"sync-worker-{i + 1}-{uuid.uuid4().hex[:6]}",
         )
 
         await worker.init()
@@ -56,7 +58,6 @@ async def main():
     stop_event = asyncio.Event()
 
     def _stop(stop_signal: Literal[Signals.SIGINT, Signals.SIGTERM]):
-        from loguru import logger
         signal_label = f'{stop_signal}'
 
         if stop_signal is Signals.SIGINT:

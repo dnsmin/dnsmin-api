@@ -75,12 +75,12 @@ services:
     stop_signal: SIGTERM
     stop_grace_period: 900s
 
-  sync_worker:
+  async_worker:
     image: dnsmin/dnsmin-api:latest
     container_name: dnsmin_sync_worker
     hostname: dnsmin_sync_worker
     restart: unless-stopped
-    command: python3 src/dnsmin/sync_worker.py
+    command: python3 src/dnsmin/async_worker.py
     build:
       context: .
       dockerfile: ./deploy/docker/api/Dockerfile
