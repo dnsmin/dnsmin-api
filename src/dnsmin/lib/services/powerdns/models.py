@@ -9,6 +9,30 @@ from dnsmin.models.enums import (
 )
 
 
+class ConfigSetting(BaseModel):
+    """Provides an API model representing a config setting."""
+
+    name: str = Field(
+        title='Setting Name',
+        description='The name of the setting.',
+    )
+    """The name of the setting."""
+
+    type: str = Field(
+        title='Setting Type',
+        description='The type of the setting.',
+        default='ConfigSetting',
+        examples=['ConfigSetting'],
+    )
+    """The type of the setting."""
+
+    value: str | list[str] = Field(
+        title='Setting Value',
+        description='The value of the setting.',
+    )
+    """The value of the setting."""
+
+
 class StatisticItem(BaseModel):
     """Provides an API model representing a statistic item."""
 
