@@ -1,11 +1,16 @@
 import logging
 import os
 import sys
-from loguru import logger
 from pathlib import Path
+from typing import Union, Optional
+
+from loguru import logger
 from pydantic_settings import BaseSettings
 from redis.asyncio.client import Redis
-from typing import Union
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+
 from dnsmin.lib.config import Config
 from dnsmin.lib.config.app import AppConfig
 from dnsmin.lib.config.tasks import TaskSchedule
@@ -274,3 +279,43 @@ def init_redis(config: Config) -> Redis:
         url=config.db.redis_url,
         decode_responses=True,
     )
+
+
+def init_sql(config: Config, use_sync: bool = False)\
+        -> tuple[AsyncEngine, AsyncSession] | tuple[Engine, sessionmaker[Session]]:
+    """Initialize a SQL connection and session instance."""
+    from sqlalchemy.engine import create_engine
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    if use_sync:
+        db_engine = create_engine(
+            config.db.sql_sync_url,
+            echo=False,
+            future=True,
+            pool_pre_ping=True,
+        )
+
+        session = sessionmaker(
+            bind=db_engine,
+            class_=Session,
+            expire_on_commit=False,
+            autocommit=False,
+            autoflush=False,
+        )
+    else:
+        db_engine = create_async_engine(
+            config.db.sql_async_url,
+            echo=False,
+            future=True,
+            pool_pre_ping=True,
+        )
+
+        session = async_sessionmaker(
+            bind=db_engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+            autocommit=False,
+            autoflush=False,
+        )
+
+    return db_engine, session

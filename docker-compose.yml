@@ -1,7 +1,7 @@
 services:
 
   redis:
-    image: redis:8.0.1
+    image: redis/redis-stack:latest
     container_name: dnsmin_redis
     hostname: dnsmin_redis
     restart: unless-stopped
@@ -10,6 +10,9 @@ services:
       - redis:/data
     networks:
       - dnsmin
+    ports:
+      - "${DNSMIN_REDIS_IP}:6379:6379"
+      - "${DNSMIN_REDIS_IP}:8001:8001"
     healthcheck:
       test: [ 'CMD', 'redis-cli', '--raw', 'incr', 'ping' ]
       interval: 30s
@@ -45,10 +48,10 @@ services:
     stop_signal: SIGTERM
     stop_grace_period: 900s
 
-  worker:
+  task_worker:
     image: dnsmin/dnsmin-api:latest
-    container_name: dnsmin_worker
-    hostname: dnsmin_worker
+    container_name: dnsmin_task_worker
+    hostname: dnsmin_task_worker
     restart: unless-stopped
     command: python3 -m celery -A dnsmin.worker.app worker --beat --loglevel debug
     build:
@@ -71,6 +74,24 @@ services:
       start_interval: 5s
     stop_signal: SIGTERM
     stop_grace_period: 900s
+
+  sync_worker:
+    image: dnsmin/dnsmin-api:latest
+    container_name: dnsmin_sync_worker
+    hostname: dnsmin_sync_worker
+    restart: unless-stopped
+    command: python3 src/dnsmin/sync_worker.py
+    build:
+      context: .
+      dockerfile: ./deploy/docker/api/Dockerfile
+    depends_on:
+      - redis
+    env_file: .env
+    volumes:
+      - ./src:/srv/app/src
+      - ./config:/srv/app/config
+    networks:
+      - dnsmin
 
   receiver:
     image: dnsmin/dnsmin-receiver:latest

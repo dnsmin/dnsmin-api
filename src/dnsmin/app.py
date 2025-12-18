@@ -5,9 +5,9 @@ from typing import Optional
 from fastapi import FastAPI
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from redis.asyncio import Redis
-from sqlalchemy.engine import Engine, create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from dnsmin.lib import AppSettings
 from dnsmin.lib.config import Config
@@ -37,7 +37,7 @@ zabbix: Optional[ZabbixReporter] = None
 
 def app_startup(use_sync: bool = False):
     """Executes appropriate app startup tasks."""
-    from dnsmin.lib import load_environment, load_settings, init_logging, init_redis
+    from dnsmin.lib import load_environment, load_settings, init_logging, init_redis, init_sql
     from dnsmin.lib.jinja import JinjaFilters
 
     global settings, config, notifications, schedules, redis, db_engine, db_engine_sync, AsyncSessionLocal, \
@@ -74,36 +74,9 @@ def app_startup(use_sync: bool = False):
     redis = init_redis(config=config)
 
     # Initialize SQL connection
-    db_engine = create_async_engine(
-        config.db.sql_async_url,
-        echo=False,
-        future=True,
-        pool_pre_ping=True,
-    )
-
-    AsyncSessionLocal = async_sessionmaker(
-        bind=db_engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
-        autocommit=False,
-        autoflush=False,
-    )
-
+    db_engine, AsyncSessionLocal = init_sql(config=config, use_sync=False)
     if use_sync:
-        db_engine_sync = create_engine(
-            config.db.sql_sync_url,
-            echo=False,
-            future=True,
-            pool_pre_ping=True,
-        )
-
-        SessionLocal = sessionmaker(
-            bind=db_engine_sync,
-            class_=Session,
-            expire_on_commit=False,
-            autocommit=False,
-            autoflush=False,
-        )
+        db_engine_sync, SessionLocal = init_sql(config=config, use_sync=True)
 
     # Set up Jinja2 template rendering
     j2 = Environment(
