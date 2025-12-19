@@ -149,18 +149,36 @@ async def fetch_axfr_from_master(master_addr: str, zone: str, port: int = 53, ti
 class NotifyProtocol(asyncio.DatagramProtocol):
     def __init__(self, on_notify: Callable[[str, Tuple[str,int]], None]):
         self.on_notify = on_notify
+        self.transport = None
+
+    def connection_made(self, transport):
+        self.transport = transport
 
     def datagram_received(self, data: bytes, addr):
-        # Parse DNS wire; we only need the qname(s) from the message
         try:
             msg = dns.message.from_wire(data)
-            for q in msg.question:
-                zone = q.name.to_text().rstrip(".")
-                logger.info("NOTIFY received for zone=%s from %s", zone, addr)
-                # schedule handler async
-                asyncio.create_task(self.on_notify(zone, addr))
         except Exception as e:
             logger.debug("Failed to parse NOTIFY from %s: %s", addr, e)
+            return
+
+        # Build and send RFC 1996-compliant response
+        try:
+            response = dns.message.make_response(msg)
+            response.set_rcode(dns.rcode.NOERROR)
+            wire = response.to_wire()
+            self.transport.sendto(wire, addr)
+            logger.debug("Sent NOTIFY ACK to %s", addr)
+        except Exception as e:
+            logger.warning("Failed to send NOTIFY response to %s: %s", addr, e)
+            return
+
+        # Process NOTIFY questions
+        for q in msg.question:
+            zone = q.name.to_text().rstrip(".")
+            logger.info("NOTIFY received and acknowledged for zone=%s from %s", zone, addr)
+
+            # Schedule async handling (AXFR pull, debounce, etc.)
+            asyncio.create_task(self.on_notify(zone, addr))
 
 
 # ---------- AXFR acceptor: accept incoming TCP AXFR pushes (optional) ----------
