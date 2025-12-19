@@ -36,12 +36,15 @@ async def login(
         username: str = Form(...),
         password: str = Form(...),
 ) -> UserOutSchema:
+    from dnsmin.app import config
+    from dnsmin.lib.config.app import EnvironmentEnum
     from dnsmin.lib.tenants import TenantManager
     from dnsmin.lib.settings import SettingsManager
     from dnsmin.lib.settings.definitions import sd
     from dnsmin.models.db.auth import User, Session
     from dnsmin.models.enums import UserStatusEnum
 
+    cookie_secure = config.app.environment.name != EnvironmentEnum.local
     cookie_name = (await SettingsManager.get(session=session, key=sd.auth_session_cookie_name.key)).value
     cookie_age = (await SettingsManager.get(session=session, key=sd.auth_session_expiration_age.key)).value
 
@@ -50,8 +53,8 @@ async def login(
         key=cookie_name,
         path='/',
         httponly=True,
-        samesite='none',
-        secure=True,
+        samesite='none' if cookie_secure else 'strict',
+        secure=cookie_secure,
     )
 
     if not username or isinstance(username, str) and not len(username.strip()):
@@ -102,8 +105,8 @@ async def login(
         max_age=cookie_age,
         path='/',
         httponly=True,
-        samesite='none',
-        secure=True,
+        samesite='none' if cookie_secure else 'strict',
+        secure=cookie_secure,
     )
 
     return user
@@ -115,16 +118,19 @@ async def logout(
         response: Response,
         session: AsyncSession = Depends(get_db_session),
 ) -> JSONResponse:
+    from dnsmin.app import config
+    from dnsmin.lib.config.app import EnvironmentEnum
     from dnsmin.lib.settings import SettingsManager
     from dnsmin.lib.settings.definitions import sd
     from dnsmin.models.db.auth import Session
 
+    cookie_secure = config.app.environment.name != EnvironmentEnum.local
     cookie_name = (await SettingsManager.get(session=session, key=sd.auth_session_cookie_name.key)).value
 
     session_token = request.cookies.get(cookie_name)
 
     if session_token:
-        db_session = await Session.get_by_token(session, session_token, request.client.host)
+        db_session = await Session.get_by_token(session, session_token, request.headers.get('X-Real-IP', request.client.host))
         if db_session:
             await Session.destroy_session(session, db_session.id)
 
@@ -133,8 +139,8 @@ async def logout(
         key=cookie_name,
         path='/',
         httponly=True,
-        samesite='none',
-        secure=True,
+        samesite='none' if cookie_secure else 'strict',
+        secure=cookie_secure,
     )
 
     return JSONResponse({'message': 'Successfully logged out.'})

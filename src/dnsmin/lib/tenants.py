@@ -30,7 +30,10 @@ class TenantManager:
         # Attempt to identify tenant by associated stopgap domain if not found by FQDN
         fqdn_parts = fqdn.split('.', 1)
         hostname = fqdn_parts[0]
-        stopgap_domain = fqdn_parts[1]
+        stopgap_domain = fqdn_parts[1] if len(fqdn_parts) > 1 else None
+
+        if stopgap_domain is None:
+            return None
 
         stmt = select(StopgapDomain.id).where(StopgapDomain.fqdn == stopgap_domain)
         stopgap_domain_id = (await session.execute(stmt)).scalar_one_or_none()
