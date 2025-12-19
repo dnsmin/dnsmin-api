@@ -1,0 +1,51 @@
+name: 'CI/CD - PROD'
+
+concurrency: dnsmin-api-prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - prod
+    paths:
+      - '.github/workflows/cicd-prod.yml'
+      - 'deploy/**'
+      - 'src/**'
+      - '.dockerignore'
+      - '.gitignore'
+      - 'docker-compose.prod.yml'
+      - 'requirements.txt'
+      - 'sync-exclusions.txt'
+
+jobs:
+  deploy-api:
+    name: Deploy Service
+    runs-on: prod
+    environment: prod
+    permissions: write-all
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Deploy Application
+
+      - name: Copying Application Files
+        id: copy
+        shell: bash
+        run: |
+          rsync -a --delete --ignore-errors --exclude-from='./sync-exclusions.txt' ./ /srv/stacks/dnsmin-api
+
+      - name: Building Updated Images
+        id: build
+        shell: bash
+        run: |
+          cd /srv/stacks/dnsmin-api
+          docker compose -f docker-compose.${{ vars.ENVIRONMENT }}.yml build
+
+      - name: Deploying Updated Images
+        id: deploy
+        shell: bash
+        run: |
+          cd /srv/stacks/dnsmin-api
+          docker compose -f docker-compose.${{ vars.ENVIRONMENT }}.yml stop api task_worker async_worker receiver
+          docker compose -f docker-compose.${{ vars.ENVIRONMENT }}.yml up api task_worker async_worker receiver -d

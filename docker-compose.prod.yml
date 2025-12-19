@@ -8,8 +8,6 @@ services:
     env_file: .env
     volumes:
       - redis:/data
-    networks:
-      - dnsmin
     ports:
       - "${DNSMIN_SERVICE_IP}:6379:6379"
     healthcheck:
@@ -34,8 +32,6 @@ services:
     env_file: .env
     volumes:
       - ./config:/srv/app/config
-    networks:
-      - dnsmin
     ports:
       - "${DNSMIN_SERVICE_IP}:8000:8000"
     healthcheck:
@@ -60,8 +56,6 @@ services:
     env_file: .env
     volumes:
       - ./config:/srv/app/config
-    networks:
-      - dnsmin
     healthcheck:
       test: [ 'CMD-SHELL', 'celery', '-A', 'worker.app', 'inspect', 'ping', '--destination', 'celery@$$HOSTNAME' ]
       interval: 30s
@@ -86,8 +80,6 @@ services:
     env_file: .env
     volumes:
       - ./config:/srv/app/config
-    networks:
-      - dnsmin
 
   receiver:
     image: dnsmin/dnsmin-receiver:latest
@@ -102,8 +94,6 @@ services:
     env_file: .env
     volumes:
       - ./config:/srv/app/config
-    networks:
-      - dnsmin
     ports:
       - "${DNSMIN_SERVICE_IP}:5353:5353"
       - "${DNSMIN_SERVICE_IP}:5354:5354/udp"
@@ -119,8 +109,3 @@ services:
 
 volumes:
   redis:
-
-networks:
- dnsmin:
-    external: false
-    name: dnsmin

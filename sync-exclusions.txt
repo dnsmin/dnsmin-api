@@ -1,0 +1,8 @@
+__pycache__
+var/
+.app.env
+.env
+celerybeat-schedule
+config.yml
+notifications.yml
+schedules.yml
