@@ -76,6 +76,7 @@ server:
           - https://qa.dnsmin.org
           - https://dev.dnsmin.org
           - https://local.dnsmin.org
+          - http://localhost                       # Only include for locally hosted development environments
         allow_methods: ['*']
         allow_headers: ['*']
         allow_credentials: true

@@ -1,15 +1,17 @@
 services:
 
   redis:
-    image: redis:8.0.1
+    image: redis:latest
     container_name: dnsmin_redis
-    hostname: redis
+    hostname: dnsmin_redis
     restart: unless-stopped
     env_file: .env
     volumes:
       - redis:/data
     networks:
       - dnsmin
+    ports:
+      - "${DNSMIN_SERVICE_IP}:6379:6379"
     healthcheck:
       test: [ 'CMD', 'redis-cli', '--raw', 'incr', 'ping' ]
       interval: 30s
@@ -34,6 +36,8 @@ services:
       - ./config:/srv/app/config
     networks:
       - dnsmin
+    ports:
+      - "${DNSMIN_SERVICE_IP}:8000:8000"
     healthcheck:
       test: [ 'CMD', 'curl', '-f', 'http://dnsmin_api:8000/api/status' ]
       interval: 30s
@@ -42,12 +46,12 @@ services:
       start_period: 15s
       start_interval: 5s
 
-  worker:
+  task_worker:
     image: dnsmin/dnsmin-api:latest
-    container_name: dnsmin_worker
-    hostname: dnsmin_worker
+    container_name: dnsmin_task_worker
+    hostname: dnsmin_task_worker
     restart: unless-stopped
-    command: python3 -m celery -A worker.app worker --beat --loglevel debug
+    command: python3 -m celery -A dnsmin.worker.app worker --beat --loglevel debug
     build:
       context: .
       dockerfile: ./deploy/docker/api/Dockerfile
@@ -68,6 +72,24 @@ services:
     stop_signal: SIGTERM
     stop_grace_period: 900s
 
+  async_worker:
+    image: dnsmin/dnsmin-api:latest
+    container_name: dnsmin_sync_worker
+    hostname: dnsmin_sync_worker
+    restart: unless-stopped
+    command: python3 src/dnsmin/async_worker.py
+    build:
+      context: .
+      dockerfile: ./deploy/docker/api/Dockerfile
+    depends_on:
+      - redis
+    env_file: .env
+    volumes:
+      - ./src:/srv/app/src
+      - ./config:/srv/app/config
+    networks:
+      - dnsmin
+
   receiver:
     image: dnsmin/dnsmin-receiver:latest
     container_name: dnsmin_receiver
@@ -83,6 +105,9 @@ services:
       - ./config:/srv/app/config
     networks:
       - dnsmin
+    ports:
+      - "${DNSMIN_SERVICE_IP}:5353:5353"
+      - "${DNSMIN_SERVICE_IP}:5354:5354/udp"
     healthcheck:
       test: [ 'CMD', 'curl', '-f', 'http://dnsmin_receiver:8000/health' ]
       interval: 30s
@@ -92,30 +117,6 @@ services:
       start_interval: 5s
     stop_signal: SIGTERM
     stop_grace_period: 900s
-
-  proxy:
-    image: nginx:1.27
-    container_name: dnsmin_proxy
-    hostname: dnsmin_proxy
-    restart: unless-stopped
-    env_file: .env
-    volumes:
-      - ./deploy/docker/nginx/certs:/etc/nginx/certs
-      - ./deploy/docker/nginx/conf/proxy.conf.template:/etc/nginx/templates/default.conf.template
-      - ./var/log/nginx:/var/log/nginx
-    ports:
-      - "${DNSMIN_SERVICE_IP}:81:8000"
-      - "${DNSMIN_SERVICE_IP}:5353:5353"
-      - "${DNSMIN_SERVICE_IP}:5354:5354/udp"
-    networks:
-      - dnsmin
-    healthcheck:
-      test: [ 'CMD', 'curl', '-f', 'http://dnsmin_proxy:80' ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-      start_interval: 5s
 
 volumes:
   redis:

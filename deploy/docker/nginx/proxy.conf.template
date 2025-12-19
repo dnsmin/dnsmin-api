@@ -1,3 +1,4 @@
+resolver 127.0.0.11 valid=30s;
 
 upstream backend_api {
     server dnsmin_api:8000 fail_timeout=10 max_fails=1;
@@ -10,6 +11,18 @@ server {
     error_log /var/log/nginx/proxy.error.log debug;
 
     root /var/www/html;
+
+    location / {
+      set $web_host "dnsmin_web:8000";
+      proxy_pass http://$web_host;
+      proxy_pass_request_headers on;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $remote_addr;
+      proxy_connect_timeout 5s;
+      proxy_send_timeout 5s;
+      proxy_read_timeout 5s;
+    }
 
     location /openapi.json {
       client_max_body_size 0;
