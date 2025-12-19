@@ -99,8 +99,6 @@ async def get_principal(
             )).value
 
             # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
-            from loguru import logger
-            logger.warning(f'Client IP: ' + request.headers.get('X-Real-IP', request.client.host))
             if (session_ip_lock and isinstance(db_session.client_ip, str)
                     and db_session.client_ip != request.headers.get('X-Real-IP', request.client.host)):
                 await Session.destroy_session(session, db_session.id)
