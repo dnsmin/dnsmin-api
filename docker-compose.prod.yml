@@ -25,7 +25,7 @@ services:
     container_name: dnsmin_api
     hostname: dnsmin_api
     restart: unless-stopped
-    command: python3 -m uvicorn --host 0.0.0.0 --port 8000 --root-path / --log-level info --access-log --proxy-headers api:app
+    command: python3 -m uvicorn --host 0.0.0.0 --port 8000 --root-path / --log-level info --access-log --proxy-headers dnsmin.api:app
     build:
       context: .
       dockerfile: ./deploy/docker/api/Dockerfile
@@ -85,7 +85,6 @@ services:
       - redis
     env_file: .env
     volumes:
-      - ./src:/srv/app/src
       - ./config:/srv/app/config
     networks:
       - dnsmin

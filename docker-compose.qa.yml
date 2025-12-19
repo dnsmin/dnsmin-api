@@ -34,7 +34,6 @@ services:
       - redis
     env_file: .env
     volumes:
-      - ./src:/srv/app/src
       - ./config:/srv/app/config
     networks:
       - dnsmin
@@ -63,7 +62,6 @@ services:
       - redis
     env_file: .env
     volumes:
-      - ./src:/srv/app/src
       - ./config:/srv/app/config
     networks:
       - dnsmin
@@ -90,7 +88,6 @@ services:
       - redis
     env_file: .env
     volumes:
-      - ./src:/srv/app/src
       - ./config:/srv/app/config
     networks:
       - dnsmin
