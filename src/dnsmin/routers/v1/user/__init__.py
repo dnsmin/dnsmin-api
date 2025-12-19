@@ -37,6 +37,7 @@ async def login(
         password: str = Form(...),
 ) -> UserOutSchema:
     from dnsmin.app import config
+    from dnsmin.lib.api import get_client_ip
     from dnsmin.lib.config.app import EnvironmentEnum
     from dnsmin.lib.tenants import TenantManager
     from dnsmin.lib.settings import SettingsManager
@@ -97,7 +98,7 @@ async def login(
     user = UserOutSchema.model_validate(db_user)
 
     # Create a new auth session for the user
-    auth_session = await Session.create_session(session, user, request.headers.get('X-Real-IP', request.client.host))
+    auth_session = await Session.create_session(session, user, get_client_ip(request))
 
     response.set_cookie(
         key=cookie_name,
@@ -119,6 +120,7 @@ async def logout(
         session: AsyncSession = Depends(get_db_session),
 ) -> JSONResponse:
     from dnsmin.app import config
+    from dnsmin.lib.api import get_client_ip
     from dnsmin.lib.config.app import EnvironmentEnum
     from dnsmin.lib.settings import SettingsManager
     from dnsmin.lib.settings.definitions import sd
@@ -130,7 +132,7 @@ async def logout(
     session_token = request.cookies.get(cookie_name)
 
     if session_token:
-        db_session = await Session.get_by_token(session, session_token, request.headers.get('X-Real-IP', request.client.host))
+        db_session = await Session.get_by_token(session, session_token, get_client_ip(request))
         if db_session:
             await Session.destroy_session(session, db_session.id)
 

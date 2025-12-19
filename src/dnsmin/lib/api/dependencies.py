@@ -43,6 +43,7 @@ async def get_principal(
     from typing import Optional
     from jose import JWTError, jwt
     from dnsmin.app import config
+    from dnsmin.lib.api import get_client_ip
     from dnsmin.lib.security import ALGORITHM
     from dnsmin.lib.settings import SettingsManager
     from dnsmin.lib.settings.definitions import sd
@@ -100,7 +101,7 @@ async def get_principal(
 
             # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
             if (session_ip_lock and isinstance(db_session.client_ip, str)
-                    and db_session.client_ip != request.headers.get('X-Real-IP', request.client.host)):
+                    and db_session.client_ip != get_client_ip(request)):
                 await Session.destroy_session(session, db_session.id)
                 raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
 
@@ -127,6 +128,7 @@ async def get_session_user(
         session: AsyncSession = Depends(get_db_session),
 ) -> Optional[UserOutSchema]:
     from typing import Optional
+    from dnsmin.lib.api import get_client_ip
     from dnsmin.lib.settings import SettingsManager
     from dnsmin.lib.settings.definitions import sd
     from dnsmin.lib.tenants import TenantManager
@@ -155,7 +157,7 @@ async def get_session_user(
 
     # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
     if (session_ip_lock and isinstance(db_session.client_ip, str)
-            and db_session.client_ip != request.headers.get('X-Real-IP', request.client.host)):
+            and db_session.client_ip != get_client_ip(request)):
         await Session.destroy_session(session, db_session.id)
         raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
 
