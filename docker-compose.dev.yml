@@ -106,6 +106,9 @@ services:
     env_file: .env
     volumes:
       - ./config:/srv/app/config
+    ports:
+      - "${DNSMIN_PUBLIC_IP}:5353:5353"
+      - "${DNSMIN_PUBLIC_IP}:5354:5354/udp"
     networks:
       - dnsmin
     healthcheck:

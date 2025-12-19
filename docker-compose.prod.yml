@@ -103,8 +103,8 @@ services:
     volumes:
       - ./config:/srv/app/config
     ports:
-      - "${DNSMIN_SERVICE_IP}:5353:5353"
-      - "${DNSMIN_SERVICE_IP}:5354:5354/udp"
+      - "${DNSMIN_PUBLIC_IP}:5353:5353"
+      - "${DNSMIN_PUBLIC_IP}:5354:5354/udp"
     networks:
       - dnsmin
     healthcheck:
