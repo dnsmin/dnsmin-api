@@ -100,7 +100,7 @@ async def get_principal(
 
             # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
             if (session_ip_lock and isinstance(db_session.client_ip, str)
-                    and db_session.client_ip != request.client.host):
+                    and db_session.client_ip != request.headers.get('X-Real-IP', request.client.host)):
                 await Session.destroy_session(session, db_session.id)
                 raise HTTPException(status.HTTP_403_FORBIDDEN, SESSION_IP_CHANGE_MSG)
 

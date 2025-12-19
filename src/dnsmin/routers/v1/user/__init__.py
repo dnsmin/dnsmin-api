@@ -94,7 +94,7 @@ async def login(
     user = UserOutSchema.model_validate(db_user)
 
     # Create a new auth session for the user
-    auth_session = await Session.create_session(session, user, request.client.host)
+    auth_session = await Session.create_session(session, user, request.headers.get('X-Real-IP', request.client.host))
 
     response.set_cookie(
         key=cookie_name,
