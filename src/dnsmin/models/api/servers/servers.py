@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from pydantic import Field
 
 from dnsmin.models.api import BaseApiModel
-from dnsmin.models.enums import ServerTypeEnum
+from dnsmin.models.enums import ServerTypeEnum, AuthServerModeEnum
 
 
 class ServerInSchema(BaseApiModel):
@@ -16,6 +16,19 @@ class ServerInSchema(BaseApiModel):
         description='The type of DNS server.',
     )
     """The type of DNS server."""
+
+    mode: AuthServerModeEnum = Field(
+        title='Server Mode',
+        description='The mode of DNS server.',
+    )
+    """The mode of DNS server."""
+
+    server_id: str = Field(
+        title='Server API ID',
+        description='The API server ID of the server.',
+        default='localhost',
+    )
+    """The API server ID of the server."""
 
     version: str = Field(
         title='Software Version',
@@ -65,6 +78,19 @@ class ServerOutSchema(BaseApiModel):
         description='The type of DNS server.',
     )
     """The type of DNS server."""
+
+    mode: AuthServerModeEnum = Field(
+        title='Server Mode',
+        description='The mode of DNS server.',
+    )
+    """The mode of DNS server."""
+
+    server_id: str = Field(
+        title='Server API ID',
+        description='The API server ID of the server.',
+        default='localhost',
+    )
+    """The API server ID of the server."""
 
     version: str = Field(
         title='Software Version',

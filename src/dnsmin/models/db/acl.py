@@ -130,7 +130,7 @@ class Principal(BaseSqlModel):
         back_populates='principal',
         cascade='all, delete, delete-orphan',
     )
-    """The parent roles associated with the role."""
+    """The roles associated with the principal."""
 
 
 class PrincipalRoleAssoc(BaseSqlModel):

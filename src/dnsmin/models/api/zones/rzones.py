@@ -30,8 +30,8 @@ class RZoneInSchema(BaseApiModel):
         title='Zone Kind',
         description='The kind of the zone.',
         examples=[
-            RZoneKindEnum.NATIVE,
-            RZoneKindEnum.FORWARDED,
+            RZoneKindEnum.Native,
+            RZoneKindEnum.Forwarded,
         ],
     )
     """The kind of the zone."""
@@ -87,8 +87,8 @@ class RZoneOutSchema(BaseApiModel):
         title='Zone Kind',
         description='The kind of the zone.',
         examples=[
-            RZoneKindEnum.NATIVE,
-            RZoneKindEnum.FORWARDED,
+            RZoneKindEnum.Native,
+            RZoneKindEnum.Forwarded,
         ],
     )
     """The kind of the zone."""

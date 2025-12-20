@@ -13,7 +13,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from dnsmin.app import DB_PREFIX
 from dnsmin.models.db import BaseSqlModel
-from dnsmin.models.enums import ServerTypeEnum
+from dnsmin.models.db.zones import AZoneServer
+from dnsmin.models.enums import ServerTypeEnum, AuthServerModeEnum
 
 
 class Server(BaseSqlModel):
@@ -27,6 +28,12 @@ class Server(BaseSqlModel):
 
     type: Mapped[ServerTypeEnum] = mapped_column(String(20), nullable=False)
     """The type of DNS server."""
+
+    mode: Mapped[AuthServerModeEnum] = mapped_column(String(10), nullable=False)
+    """The mode of the DNS server."""
+
+    server_id: Mapped[str] = mapped_column(String(100), nullable=False, default='localhost')
+    """The API ID of the server."""
 
     version: Mapped[str] = mapped_column(String(20), nullable=False)
     """The version of the server software."""
@@ -53,17 +60,30 @@ class Server(BaseSqlModel):
     )
     """The timestamp representing when the server was last updated."""
 
-    auto_primaries = relationship('ServerAutoPrimary', back_populates='server', cascade='all, delete, delete-orphan')
+    auto_primaries: Mapped[list['ServerAutoPrimary']] = relationship(
+        'ServerAutoPrimary', back_populates='server', cascade='all, delete, delete-orphan'
+    )
     """A list of auto primary registrations associated with the server."""
 
-    views = relationship('ServerView', back_populates='server', cascade='all, delete, delete-orphan')
+    views: Mapped[list['ServerView']] = relationship(
+        'ServerView', back_populates='server', cascade='all, delete, delete-orphan'
+    )
     """A list of views associated with the server."""
 
-    networks = relationship('ServerNetwork', back_populates='server', cascade='all, delete, delete-orphan')
+    networks: Mapped[list['ServerNetwork']] = relationship(
+        'ServerNetwork', back_populates='server', cascade='all, delete, delete-orphan'
+    )
     """A list of networks associated with the server."""
 
-    tsig_keys = relationship('ServerTsigKey', back_populates='server', cascade='all, delete, delete-orphan')
+    tsig_keys: Mapped[list['ServerTsigKey']] = relationship(
+        'ServerTsigKey', back_populates='server', cascade='all, delete, delete-orphan'
+    )
     """A list of TSIG keys associated with the server."""
+
+    azones: Mapped[list[AZoneServer]] = relationship(
+        'AZoneServer', back_populates='server', cascade='all, delete, delete-orphan'
+    )
+    """A list of authoritative zones associated with the server."""
 
 
 class ServerAutoPrimary(BaseSqlModel):

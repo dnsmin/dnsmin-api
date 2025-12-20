@@ -3,7 +3,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from redis.asyncio import Redis
 
 
@@ -26,27 +26,27 @@ class RedisStreamSyncWorker(ABC):
 
     _redis: Redis
 
-    _db_session: AsyncSession
+    _db: async_sessionmaker[AsyncSession]
 
     @property
     def redis(self) -> Redis:
         return self._redis
 
     @property
-    def db_session(self) -> AsyncSession:
-        return self._db_session
+    def db(self) -> async_sessionmaker[AsyncSession]:
+        return self._db
 
     def __init__(
             self,
             *,
             redis: Redis,
-            db_session: AsyncSession,
+            db: async_sessionmaker[AsyncSession],
             namespace: str,
             consumer_group: str,
             consumer_name: str,
     ):
         self._redis = redis
-        self._db_session = db_session
+        self._db = db
         self.namespace = namespace
         self.consumer_group = consumer_group
         self.consumer_name = consumer_name

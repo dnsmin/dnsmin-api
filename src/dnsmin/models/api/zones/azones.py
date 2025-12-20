@@ -38,11 +38,11 @@ class AZoneInSchema(BaseApiModel):
         title='Zone Kind',
         description='The kind of the zone.',
         examples=[
-            AZoneKindEnum.NATIVE,
-            AZoneKindEnum.MASTER,
-            AZoneKindEnum.SLAVE,
-            AZoneKindEnum.PRODUCER,
-            AZoneKindEnum.CONSUMER,
+            AZoneKindEnum.Native,
+            AZoneKindEnum.Master,
+            AZoneKindEnum.Slave,
+            AZoneKindEnum.Producer,
+            AZoneKindEnum.Consumer,
         ],
     )
     """The kind of the zone."""
@@ -204,11 +204,11 @@ class AZoneOutSchema(BaseApiModel):
         title='Zone Kind',
         description='The kind of the zone.',
         examples=[
-            AZoneKindEnum.NATIVE,
-            AZoneKindEnum.MASTER,
-            AZoneKindEnum.SLAVE,
-            AZoneKindEnum.PRODUCER,
-            AZoneKindEnum.CONSUMER,
+            AZoneKindEnum.Native,
+            AZoneKindEnum.Master,
+            AZoneKindEnum.Slave,
+            AZoneKindEnum.Producer,
+            AZoneKindEnum.Consumer,
         ],
     )
     """The kind of the zone."""

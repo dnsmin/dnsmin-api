@@ -3,9 +3,10 @@ DNS Zone Database Models
 
 This file defines the database models associated with DNS zone functionality.
 """
+from __future__ import annotations
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, DateTime, Integer, String, TEXT, Uuid, text, ForeignKey
@@ -13,7 +14,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from dnsmin.app import DB_PREFIX
 from dnsmin.models.db import BaseSqlModel, JSONType
-from dnsmin.models.enums import AZoneKindEnum, RZoneKindEnum, ZoneRecordTypeEnum, CryptoKeyTypeEnum
+from dnsmin.models.enums import \
+    AZoneKindEnum, RZoneKindEnum, ZoneRecordTypeEnum, CryptoKeyTypeEnum, ZoneServerStateEnum
+
+if TYPE_CHECKING:
+    from dnsmin.models.db.servers import Server
 
 
 class AZone(BaseSqlModel):
@@ -116,6 +121,9 @@ class AZone(BaseSqlModel):
 
     crypto_keys = relationship('AZoneCryptoKey', back_populates='zone', cascade='all, delete, delete-orphan')
     """A list of crypto keys associated with the zone."""
+
+    servers = relationship('AZoneServer', back_populates='zone', cascade='all, delete, delete-orphan')
+    """A list of servers associated with the zone."""
 
 
 class AZoneRecord(BaseSqlModel):
@@ -288,6 +296,47 @@ class AZoneCryptoKey(BaseSqlModel):
 
     zone = relationship('AZone', back_populates='crypto_keys', cascade='expunge')
     """The zone associated with the metadata."""
+
+
+class AZoneServer(BaseSqlModel):
+    """Represents an authoritative zone relationship with a server."""
+
+    __tablename__ = f'{DB_PREFIX}_azone_servers'
+    """Defines the database table name."""
+
+    zone_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_azones.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True
+    )
+    """The unique identifier of the associated authoritative zone."""
+
+    server_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_servers.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True
+    )
+    """The unique identifier of the associated server."""
+
+    tenant_id: Mapped[Optional[UUID]] = mapped_column(
+        Uuid, ForeignKey(f'{DB_PREFIX}_tenants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True
+    )
+    """The unique identifier of the tenant that owns the relationship if any."""
+
+    state: Mapped[ZoneServerStateEnum] = mapped_column(String(12), nullable=False)
+    """The state of the synchronization relationship."""
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the association was created."""
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
+    )
+    """The timestamp representing when the association was last updated."""
+
+    zone: Mapped[AZone] = relationship('AZone', back_populates='servers', cascade='expunge')
+    """The zone of the association."""
+
+    server: Mapped['Server'] = relationship('Server', back_populates='azones', cascade='expunge')
+    """The server of the association."""
 
 
 class RZone(BaseSqlModel):

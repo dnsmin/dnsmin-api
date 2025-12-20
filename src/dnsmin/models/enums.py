@@ -143,14 +143,27 @@ class CryptoKeyTypeEnum(str, Enum):
 class ServerTypeEnum(str, Enum):
     """Defines the different types of DNS servers there can be."""
 
-    AUTHORITATIVE = "AUTHORITATIVE"
+    authoritative = "authoritative"
     """Represents the authoritative DNS server type."""
 
-    RECURSIVE = "RECURSIVE"
+    recursive = "recursive"
     """Represents the recursive DNS server type."""
 
-    PROXY = "PROXY"
+    proxy = "proxy"
     """Represents the load-balancing proxy DNS server type."""
+
+
+class AuthServerModeEnum(str, Enum):
+    """Defines the different authoritative DNS server modes there can be."""
+
+    native = "native"
+    """Represents a stand-alone mode of operation."""
+
+    primary = "primary"
+    """Represents the primary mode of operation."""
+
+    secondary = "secondary"
+    """Represents the secondary mode of operation."""
 
 
 class TaskJobStatusEnum(str, Enum):
@@ -202,29 +215,45 @@ class RZoneRRSetChangeTypeEnum(str, Enum):
 
 class AZoneKindEnum(str, Enum):
     """Defines the different kinds of authoritative zones there can be."""
-    NATIVE = "Native"
+    Native = "Native"
     """A stand-alone zone that does not participate in DNS-based replication."""
 
-    MASTER = "Master"
+    Master = "Master"
     """A source of truth for a zone's data."""
 
-    SLAVE = "Slave"
+    Slave = "Slave"
     """A read-only replica of a zone obtained from a primary server."""
 
-    PRODUCER = "Producer"
+    Producer = "Producer"
     """A source of truth for a zone's data when using catalog zones."""
 
-    CONSUMER = "Consumer"
+    Consumer = "Consumer"
     """A read-only replica of a zone obtained from a primary server when using catalog zones."""
 
 
 class RZoneKindEnum(str, Enum):
     """Defines the different kinds of recursive zones there can be."""
-    NATIVE = "Native"
+    Native = "Native"
     """A zone that a recursive DNS server acts authoritative for."""
 
-    FORWARDED = "Forwarded"
+    Forwarded = "Forwarded"
     """A zone that a recursive DNS server forwards requests for."""
+
+
+class ZoneServerStateEnum(str, Enum):
+    """Defines the different zone server synchronization states."""
+
+    dirty = "dirty"
+    """The zone has changed in the database and needs synchronized."""
+
+    stale = "stale"
+    """The zone has changed on a server and needs synchronized."""
+
+    synchronized = "synchronized"
+    """The zone is fully synchronized."""
+
+    syncing = "syncing"
+    """The zone is actively syncing."""
 
 
 class ZoneRecordTypeEnum(str, Enum):

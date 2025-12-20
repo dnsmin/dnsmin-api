@@ -4,7 +4,8 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
-from dnsmin.models import BaseApiModel, ZoneRecordTypeEnum
+from dnsmin.models import BaseApiModel
+from dnsmin.models.enums import ZoneRecordTypeEnum
 
 
 class AZoneRecordInSchema(BaseApiModel):

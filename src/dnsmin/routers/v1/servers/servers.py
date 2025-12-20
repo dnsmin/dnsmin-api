@@ -103,6 +103,8 @@ async def record_create(
     # Create the record
     record = Server(
         type=server.type,
+        mode=server.mode,
+        server_id=server.server_id,
         version=server.version,
         hostname=server.hostname,
         api_url=server.api_url,
@@ -186,6 +188,8 @@ async def record_update(
 
     # Update the record
     record.type = server.type
+    record.mode = server.mode
+    record.server_id = server.server_id
     record.version = server.version
     record.hostname = server.hostname
     record.api_url = server.api_url
