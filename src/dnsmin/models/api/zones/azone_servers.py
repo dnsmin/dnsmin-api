@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
+from dnsmin.lib.sync.models import ZoneSyncPolicy
 from dnsmin.models import BaseApiModel
 from dnsmin.models.enums import ZoneServerStateEnum
 
@@ -28,9 +29,22 @@ class AZoneServerInSchema(BaseApiModel):
     state: ZoneServerStateEnum = Field(
         title='Synchronization State',
         description='The synchronization state of the relationship.',
-        examples=[uuid4()],
+        examples=[
+            ZoneServerStateEnum.dirty,
+            ZoneServerStateEnum.stale,
+            ZoneServerStateEnum.synchronized,
+            ZoneServerStateEnum.syncing,
+        ],
     )
     """The synchronization state of the relationship."""
+
+    sync_policy: Optional[ZoneSyncPolicy] = Field(
+        title='Synchronization Policy',
+        description='The synchronization policy of the relationship.',
+        default=None,
+        examples=[ZoneSyncPolicy()],
+    )
+    """The synchronization policy of the relationship."""
 
 
 class AZoneServerOutSchema(BaseApiModel):
@@ -53,9 +67,22 @@ class AZoneServerOutSchema(BaseApiModel):
     state: ZoneServerStateEnum = Field(
         title='Synchronization State',
         description='The synchronization state of the relationship.',
-        examples=[uuid4()],
+        examples=[
+            ZoneServerStateEnum.dirty,
+            ZoneServerStateEnum.stale,
+            ZoneServerStateEnum.synchronized,
+            ZoneServerStateEnum.syncing,
+        ],
     )
     """The synchronization state of the relationship."""
+
+    sync_policy: Optional[ZoneSyncPolicy] = Field(
+        title='Synchronization Policy',
+        description='The synchronization policy of the relationship.',
+        default=None,
+        examples=[ZoneSyncPolicy()],
+    )
+    """The synchronization policy of the relationship."""
 
     created_at: datetime = Field(
         title='Created At',

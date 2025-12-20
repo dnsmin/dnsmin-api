@@ -12,7 +12,8 @@ from sqlalchemy import Boolean, DateTime, String, TEXT, Uuid, text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from dnsmin.app import DB_PREFIX
-from dnsmin.models.db import BaseSqlModel
+from dnsmin.lib.sync.models import ServerSyncPolicy
+from dnsmin.models.db import BaseSqlModel, JSONType
 from dnsmin.models.db.zones import AZoneServer
 from dnsmin.models.enums import ServerTypeEnum, AuthServerModeEnum
 
@@ -50,6 +51,9 @@ class Server(BaseSqlModel):
     shared: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     """Indicates whether the server is shared between tenants."""
 
+    sync_policy: Mapped[Optional[ServerSyncPolicy]] = mapped_column(JSONType, nullable=True)
+    """The synchronization policy for the server."""
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
     )

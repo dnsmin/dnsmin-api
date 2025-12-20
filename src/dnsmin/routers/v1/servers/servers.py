@@ -110,6 +110,7 @@ async def record_create(
         api_url=server.api_url,
         api_key=server.api_key,
         shared=server.shared,
+        sync_policy=server.sync_policy,
     )
 
     # Enforce tenancy
@@ -195,6 +196,7 @@ async def record_update(
     record.api_url = server.api_url
     record.api_key = server.api_key
     record.shared = server.shared
+    record.sync_policy = server.sync_policy
 
     # Commit the changes to the database
     session.add(record)

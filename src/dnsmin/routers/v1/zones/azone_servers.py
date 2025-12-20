@@ -108,6 +108,7 @@ async def record_create(
         zone_id=relationship.zone_id,
         server_id=relationship.server_id,
         state=relationship.state,
+        sync_policy=relationship.sync_policy,
     )
 
     # Enforce tenancy
@@ -190,6 +191,7 @@ async def record_update(
 
     # Update the record
     record.state = relationship.state
+    record.sync_policy = relationship.sync_policy
 
     # Commit the changes to the database
     session.add(record)

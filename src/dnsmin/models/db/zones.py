@@ -13,12 +13,14 @@ from sqlalchemy import Boolean, DateTime, Integer, String, TEXT, Uuid, text, For
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from dnsmin.app import DB_PREFIX
+from dnsmin.lib.sync.models import ZoneSyncPolicy
 from dnsmin.models.db import BaseSqlModel, JSONType
 from dnsmin.models.enums import \
     AZoneKindEnum, RZoneKindEnum, ZoneRecordTypeEnum, CryptoKeyTypeEnum, ZoneServerStateEnum
 
 if TYPE_CHECKING:
-    from dnsmin.models.db.servers import Server
+    from dnsmin.models.db.servers import Server, ServerView
+    from dnsmin.models.db.tenants import Tenant
 
 
 class AZone(BaseSqlModel):
@@ -107,22 +109,30 @@ class AZone(BaseSqlModel):
     )
     """The timestamp representing when the zone was last updated."""
 
-    tenant = relationship('Tenant', back_populates='azones', cascade='expunge')
+    tenant: Mapped['Tenant'] = relationship('Tenant', back_populates='azones', cascade='expunge')
     """The tenant associated with the zone."""
 
-    view = relationship('ServerView', back_populates='azones', cascade='expunge')
+    view: Mapped['ServerView'] = relationship('ServerView', back_populates='azones', cascade='expunge')
     """The view associated with the zone."""
 
-    records = relationship('AZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan')
+    records: Mapped[list[AZoneRecord]] = relationship(
+        'AZoneRecord', back_populates='zone', cascade='all, delete, delete-orphan'
+    )
     """A list of resource records associated with the zone."""
 
-    metadata_ = relationship('AZoneMetadata', back_populates='zone', cascade='all, delete, delete-orphan')
+    metadata_: Mapped[list[AZoneMetadata]] = relationship(
+        'AZoneMetadata', back_populates='zone', cascade='all, delete, delete-orphan'
+    )
     """A list of metadata records associated with the zone."""
 
-    crypto_keys = relationship('AZoneCryptoKey', back_populates='zone', cascade='all, delete, delete-orphan')
+    crypto_keys: Mapped[list[AZoneCryptoKey]] = relationship(
+        'AZoneCryptoKey', back_populates='zone', cascade='all, delete, delete-orphan'
+    )
     """A list of crypto keys associated with the zone."""
 
-    servers = relationship('AZoneServer', back_populates='zone', cascade='all, delete, delete-orphan')
+    servers: Mapped[list[AZoneServer]] = relationship(
+        'AZoneServer', back_populates='zone', cascade='all, delete, delete-orphan'
+    )
     """A list of servers associated with the zone."""
 
 
@@ -321,6 +331,9 @@ class AZoneServer(BaseSqlModel):
 
     state: Mapped[ZoneServerStateEnum] = mapped_column(String(12), nullable=False)
     """The state of the synchronization relationship."""
+
+    sync_policy: Mapped[Optional[ZoneSyncPolicy]] = mapped_column(JSONType, nullable=True)
+    """The synchronization policy for the zone."""
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')

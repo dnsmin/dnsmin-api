@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
+from dnsmin.lib.sync.models import ServerSyncPolicy
 from dnsmin.models.api import BaseApiModel
 from dnsmin.models.enums import ServerTypeEnum, AuthServerModeEnum
 
@@ -61,6 +62,14 @@ class ServerInSchema(BaseApiModel):
         default=False,
     )
     """Indicates whether the server is shared between tenants."""
+
+    sync_policy: Optional[ServerSyncPolicy] = Field(
+        title='Synchronization Policy',
+        description='The synchronization policy of the server.',
+        default=None,
+        examples=[ServerSyncPolicy()],
+    )
+    """The synchronization policy of the server."""
 
 
 class ServerOutSchema(BaseApiModel):
@@ -123,6 +132,14 @@ class ServerOutSchema(BaseApiModel):
         default=False,
     )
     """Indicates whether the server is shared between tenants."""
+
+    sync_policy: Optional[ServerSyncPolicy] = Field(
+        title='Synchronization Policy',
+        description='The synchronization policy of the server.',
+        default=None,
+        examples=[ServerSyncPolicy()],
+    )
+    """The synchronization policy of the server."""
 
     created_at: datetime = Field(
         title='Created At',
