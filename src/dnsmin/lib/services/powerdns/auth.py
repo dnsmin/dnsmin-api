@@ -148,7 +148,6 @@ class PowerDNSZonesApi(PowerDNSApiBase):
 
     async def get(
             self,
-            server_id: str,
             zone_id: str,
             rrsets: bool = True,
             rrset_name: Optional[str] = None,
