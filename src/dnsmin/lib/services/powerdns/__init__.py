@@ -1,13 +1,20 @@
+import json
+import requests
 from typing import Any, Optional
+
+import aiohttp
+from loguru import logger
 
 
 class PowerDNSApiConfig:
     """Provides a representation of a PowerDNS server API configuration."""
+    server_id: str
     version: str
     api_url: str
     api_key: str
 
-    def __init__(self, version: str, api_url: str, api_key: str):
+    def __init__(self, server_id: str, version: str, api_url: str, api_key: str):
+        self.server_id = server_id
         self.version = version
         self.api_url = api_url
         self.api_key = api_key
@@ -26,7 +33,7 @@ class PowerDNSApiBase:
     def __init__(self, config: PowerDNSApiConfig):
         self._config = config
 
-    def make_request(
+    async def make_request(
             self,
             endpoint: str,
             method: str = 'GET',
@@ -35,9 +42,6 @@ class PowerDNSApiBase:
             headers: Optional[dict] = None,
     ) -> list[dict] | dict | str:
         """Makes a request to the configured PowerDNS server API."""
-        import json
-        import requests
-        from loguru import logger
 
         request_headers = {
             'Accept': 'application/json',
@@ -46,8 +50,6 @@ class PowerDNSApiBase:
 
         if isinstance(headers, dict):
             request_headers.update(headers)
-
-        request_method = getattr(requests, method.lower())
 
         request_kwargs: dict[str, Any] = {
             'headers': request_headers,
@@ -62,11 +64,14 @@ class PowerDNSApiBase:
         logger.trace(f'Sending request to {self.config.api_url}{endpoint}...')
         logger.trace(json.dumps(request_kwargs, indent=2))
 
-        r = request_method(f'{self.config.api_url}{endpoint}', **request_kwargs)
+        async with aiohttp.ClientSession() as session:
+            request_method = getattr(session, method.lower())
 
-        if r.status_code < 200 or r.status_code >= 300:
-            logger.warning(r.json())
+            async with request_method(f'{self.config.api_url}{endpoint}', **request_kwargs) as res:
 
-        r.raise_for_status()
+                if res.status_code < 200 or res.status_code >= 300:
+                    logger.warning(await res.json())
 
-        return r.json()
+                res.raise_for_status()
+
+                return await res.json()
