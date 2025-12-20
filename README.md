@@ -119,11 +119,7 @@ Please see our
 
 ## License
 
-This project is released under the Attribution-NonCommercial 4.0 International license. Don't worry though, we're working on provisions for both free and paid
-commercial licensing as well!
-
-For additional
-information, [see the full license](https://github.com/dnsmin/dnsmin-api/blob/main/LICENSE).
+This project is released under the MIT license. For additional information, [see the full license](https://github.com/dnsmin/dnsmin-api/blob/main/LICENSE).
 
 ## Donate
 
