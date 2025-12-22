@@ -53,7 +53,7 @@ class Setting(BaseSqlModel):
     )
     """The timestamp representing when the setting was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the setting was last updated."""

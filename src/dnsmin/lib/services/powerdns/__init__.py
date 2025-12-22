@@ -1,5 +1,4 @@
 import json
-import requests
 from typing import Any, Optional
 
 import aiohttp
@@ -69,7 +68,7 @@ class PowerDNSApiBase:
 
             async with request_method(f'{self.config.api_url}{endpoint}', **request_kwargs) as res:
 
-                if res.status_code < 200 or res.status_code >= 300:
+                if res.status < 200 or res.status >= 300:
                     logger.warning(await res.json())
 
                 res.raise_for_status()

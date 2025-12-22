@@ -22,16 +22,16 @@ class JSONType(TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         """Called when saving data to the database (Python -> DB)."""
-        import json
+        import jsonpickle
         if value is not None:
-            return json.dumps(value)
+            return jsonpickle.dumps(value)
         return None
 
     def process_result_value(self, value, dialect):
         """Called when loading data from the database (DB -> Python)."""
-        import json
+        import jsonpickle
         if value is not None:
-            return json.loads(value)
+            return jsonpickle.loads(value)
         return None
 
 

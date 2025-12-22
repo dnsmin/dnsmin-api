@@ -99,12 +99,15 @@ class AZone(BaseSqlModel):
     shared: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     """Indicates whether the zone is shared between tenants."""
 
+    purged: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    """Indicates whether the zone has been queued for purging (false) or purged (true)."""
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now, server_default=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the zone was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the zone was last updated."""
@@ -186,7 +189,7 @@ class AZoneRecord(BaseSqlModel):
     )
     """The timestamp representing when the record was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the record was last updated."""
@@ -233,7 +236,7 @@ class AZoneMetadata(BaseSqlModel):
     )
     """The timestamp representing when the metadata was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the metadata was last updated."""
@@ -299,7 +302,7 @@ class AZoneCryptoKey(BaseSqlModel):
     )
     """The timestamp representing when the crypto key was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the crypto key was last updated."""
@@ -340,10 +343,13 @@ class AZoneServer(BaseSqlModel):
     )
     """The timestamp representing when the association was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the association was last updated."""
+
+    synchronized_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=None)
+    """The timestamp representing when the zone was last synchronized."""
 
     zone: Mapped[AZone] = relationship('AZone', back_populates='servers', cascade='expunge')
     """The zone of the association."""
@@ -386,7 +392,7 @@ class RZone(BaseSqlModel):
     )
     """The timestamp representing when the zone was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the zone was last updated."""
@@ -443,7 +449,7 @@ class RZoneRecord(BaseSqlModel):
     )
     """The timestamp representing when the resource record was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the resource record was last updated."""

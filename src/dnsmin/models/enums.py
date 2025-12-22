@@ -255,6 +255,9 @@ class ZoneServerStateEnum(str, Enum):
     syncing = "syncing"
     """The zone is actively syncing."""
 
+    purged = "purged"
+    """The zone has been purged."""
+
 
 class ZoneRecordTypeEnum(str, Enum):
     """Defines the different types of zone records there can be."""

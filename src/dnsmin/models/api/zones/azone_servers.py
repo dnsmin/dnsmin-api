@@ -26,6 +26,13 @@ class AZoneServerInSchema(BaseApiModel):
     )
     """The unique identifier of the zone associated with the relationship."""
 
+    tenant_id: Optional[UUID] = Field(
+        title='Tenant ID',
+        description='The unique identifier of the tenant associated with the relationship if any.',
+        examples=[uuid4()],
+    )
+    """The unique identifier of the tenant associated with the relationship if any."""
+
     state: ZoneServerStateEnum = Field(
         title='Synchronization State',
         description='The synchronization state of the relationship.',
@@ -64,6 +71,13 @@ class AZoneServerOutSchema(BaseApiModel):
     )
     """The unique identifier of the zone associated with the relationship."""
 
+    tenant_id: Optional[UUID] = Field(
+        title='Tenant ID',
+        description='The unique identifier of the tenant associated with the relationship if any.',
+        examples=[uuid4()],
+    )
+    """The unique identifier of the tenant associated with the relationship if any."""
+
     state: ZoneServerStateEnum = Field(
         title='Synchronization State',
         description='The synchronization state of the relationship.',
@@ -99,6 +113,14 @@ class AZoneServerOutSchema(BaseApiModel):
         examples=[datetime.now()],
     )
     """The timestamp representing when the relationship was last updated."""
+
+    synchronized_at: Optional[datetime] = Field(
+        title='Synchronized At',
+        description='The timestamp representing when the zone was last synchronized.',
+        default=None,
+        examples=[datetime.now()],
+    )
+    """The timestamp representing when the zone was last synchronized."""
 
 
 class AZoneServersSchema(BaseApiModel):

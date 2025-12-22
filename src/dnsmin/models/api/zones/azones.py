@@ -166,6 +166,13 @@ class AZoneInSchema(BaseApiModel):
     )
     """Indicates whether the zone is shared between tenants."""
 
+    purged: Optional[bool] = Field(
+        title='Purged',
+        description='Indicates whether the zone has been queued for purging (false) or purged (true).',
+        default=None,
+    )
+    """Indicates whether the zone has been queued for purging (false) or purged (true)."""
+
 
 class AZoneOutSchema(BaseApiModel):
     """Provides an API response model for representing authoritative zones."""
@@ -331,6 +338,13 @@ class AZoneOutSchema(BaseApiModel):
         default=False,
     )
     """Indicates whether the zone is shared between tenants."""
+
+    purged: Optional[bool] = Field(
+        title='Purged',
+        description='Indicates whether the zone has been queued for purging (false) or purged (true).',
+        default=None,
+    )
+    """Indicates whether the zone has been queued for purging (false) or purged (true)."""
 
     created_at: datetime = Field(
         title='Created At',

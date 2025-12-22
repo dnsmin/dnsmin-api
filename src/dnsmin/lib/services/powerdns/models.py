@@ -676,6 +676,12 @@ class AZone(BaseModel):
     )
     """The ids of the TSIG keys used for slave operation in this zone."""
 
+    @property
+    def fqdn(self) -> str:
+        if self.name.endswith('.'):
+            return self.name[:-1]
+        return self.name
+
 
 class AZoneUpdate(BaseModel):
     """Provides an API input model for updating authoritative zones."""

@@ -59,7 +59,7 @@ class Server(BaseSqlModel):
     )
     """The timestamp representing when the server was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the server was last updated."""
@@ -118,7 +118,7 @@ class ServerAutoPrimary(BaseSqlModel):
     )
     """The timestamp representing when the auto-primary was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the auto-primary was last updated."""
@@ -149,7 +149,7 @@ class ServerView(BaseSqlModel):
     )
     """The timestamp representing when the view was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the view was last updated."""
@@ -197,7 +197,7 @@ class ServerNetwork(BaseSqlModel):
     )
     """The timestamp representing when the network was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the network was last updated."""
@@ -237,7 +237,7 @@ class ServerTsigKey(BaseSqlModel):
     )
     """The timestamp representing when the TSIG key was created."""
 
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True, default=None, onupdate=datetime.now, server_onupdate=text('CURRENT_TIMESTAMP')
     )
     """The timestamp representing when the TSIG key was last updated."""

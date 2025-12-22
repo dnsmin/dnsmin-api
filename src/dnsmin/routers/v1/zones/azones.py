@@ -122,6 +122,7 @@ async def record_create(
         master_tsig_key_ids=zone.master_tsig_key_ids,
         slave_tsig_key_ids=zone.slave_tsig_key_ids,
         shared=zone.shared,
+        purged=zone.purged,
     )
 
     # Enforce tenancy
@@ -219,6 +220,7 @@ async def record_update(
     record.master_tsig_key_ids = zone.master_tsig_key_ids
     record.slave_tsig_key_ids = zone.slave_tsig_key_ids
     record.shared = zone.shared
+    record.purged = zone.purged
 
     # Commit the changes to the database
     session.add(record)
@@ -242,18 +244,23 @@ async def record_delete(
 ):
     """Delete authoritative zone"""
     from fastapi import HTTPException, status
-    from sqlalchemy import delete
+    from sqlalchemy import select
     from dnsmin.models.db.zones import AZone
 
-    # Build a statement to delete the record
-    stmt = delete(AZone).where(AZone.id == zone_id)
+    # Build a statement to retrieve the record
+    stmt = select(AZone).where(AZone.id == zone_id)
 
-    # Delete the record
-    result = (await session.execute(stmt))
-
-    # Commit the changes to the database
-    await session.commit()
+    # Retrieve the record
+    record: AZone | None = (await session.execute(stmt)).scalar_one_or_none()
 
     # Raise an HTTP 404 exception if the record could not be found
-    if not result.rowcount:
+    if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Authoritative zone {zone_id} not found')
+
+    # Mark the zone for purging
+    record.purged = False
+
+    # Commit the changes to the database
+    session.add(record)
+    await session.commit()
+    await session.refresh(record)
