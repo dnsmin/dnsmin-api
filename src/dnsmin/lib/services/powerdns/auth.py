@@ -142,9 +142,19 @@ class PowerDNSNetworksApi(PowerDNSApiBase):
 class PowerDNSZonesApi(PowerDNSApiBase):
     """Provides an API for managing PowerDNS zones via API."""
 
-    async def list(self) -> list[AZone]:
+    async def list(self, zone: Optional[str] = None, dnssec: Optional[bool] = None) -> list[AZone]:
         """Returns a list of zones known to the PowerDNS server."""
-        return [AZone(**z) for z in await self.make_request(f'/v1/servers/{self.config.server_id}/zones', method='GET')]
+        params = {}
+
+        if isinstance(zone, str):
+            params['zone'] = zone
+
+        if isinstance(dnssec, bool):
+            params['dnssec'] = dnssec
+
+        return [AZone(**z) for z in await self.make_request(
+            f'/v1/servers/{self.config.server_id}/zones', method='GET', params=params,
+        )]
 
     async def get(
             self,
@@ -166,7 +176,8 @@ class PowerDNSZonesApi(PowerDNSApiBase):
         if isinstance(rrset_type, str):
             params['rrset_type'] = rrset_type
 
-        data = await self.make_request(f'/v1/servers/{self.config.server_id}/zones/{zone_id}', method='GET', params=params)
+        data = await self.make_request(f'/v1/servers/{self.config.server_id}/zones/{zone_id}', method='GET',
+                                       params=params)
 
         return AZone(**data)
 
@@ -243,7 +254,7 @@ class PowerDNSMetadataApi(PowerDNSApiBase):
     async def delete(self, zone_id: str, metadata_name: str) -> None:
         """Deletes a single metadata kind for the given zone ID and metadata name / kind in the PowerDNS server."""
         await self.make_request(f'/v1/servers/{self.config.server_id}/zones/{zone_id}/metadata/{metadata_name}',
-                          method='DELETE')
+                                method='DELETE')
 
 
 class PowerDNSCryptoKeysApi(PowerDNSApiBase):
@@ -274,7 +285,7 @@ class PowerDNSCryptoKeysApi(PowerDNSApiBase):
     async def activate(self, zone_id: str, crypto_key_id: str) -> None:
         """Activates / deactivates a crypto key for the given zone and crypto key ID in the PowerDNS server."""
         await self.make_request(f'/v1/servers/{self.config.server_id}/zones/{zone_id}/cryptokeys/{crypto_key_id}',
-                          method='PUT')
+                                method='PUT')
 
     async def delete(self, zone_id: str, crypto_key_id: str) -> None:
         """Deletes a crypto key for the given zone and crypto key ID in the PowerDNS server."""
