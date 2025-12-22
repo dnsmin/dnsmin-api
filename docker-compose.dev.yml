@@ -9,8 +9,8 @@ services:
     volumes:
       - redis:/data
     ports:
-      - "${DNSMIN_SERVICE_IP}:6379:6379"
-      - "${DNSMIN_SERVICE_IP}:8002:8001"
+      - "${DNSMIN_PUBLIC_IP}:6379:6379"
+      - "${DNSMIN_PUBLIC_IP}:8002:8001"
     networks:
       - dnsmin
     healthcheck:
