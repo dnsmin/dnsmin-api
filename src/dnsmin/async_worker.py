@@ -11,7 +11,7 @@ from loguru import logger
 from dnsmin.lib import load_environment, load_settings, init_redis, init_sql
 from dnsmin.lib.config import AppConfig
 from dnsmin.lib.sync import RedisStreamSyncWorker
-from dnsmin.lib.sync.zones import ZoneSyncWorker
+from dnsmin.lib.sync.zones import AuthZoneSyncWorker
 
 ZONE_SYNC_WORKER_COUNT = 4
 
@@ -43,7 +43,7 @@ async def main():
     logger.info(f'Worker process starting up...')
 
     for i in range(ZONE_SYNC_WORKER_COUNT):
-        worker = ZoneSyncWorker(
+        worker = AuthZoneSyncWorker(
             redis=redis,
             db=db_session,
             consumer_name=f"sync-worker-{i + 1}-{uuid.uuid4().hex[:6]}",

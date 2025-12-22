@@ -13,7 +13,7 @@ from dnsmin.lib.services.powerdns.models import AZone as SAZone
 from dnsmin.lib.sync.models import ZoneSyncJobActionEnum, ZoneSyncJobMetadata, ServerSyncPolicy, ZoneSyncPolicy
 from dnsmin.models.db.servers import Server
 from dnsmin.models.db.zones import AZone, AZoneServer
-from dnsmin.models.enums import ServerTypeEnum
+from dnsmin.models.enums import ServerTypeEnum, ZoneServerStateEnum
 from . import RedisStreamSyncWorker
 
 
@@ -27,6 +27,10 @@ class ZoneIDInvalidException(Exception):
 
 class ZoneNameInvalidException(Exception):
     """Raised when a zone name is invalid."""
+
+
+class ZoneServerRelationshipInvalidException(Exception):
+    """Raised when a zone server relationship reference is invalid."""
 
 
 class ZoneMissingFromDatabaseException(Exception):
@@ -53,7 +57,7 @@ class AuthZoneSyncManager:
 
     _db: async_sessionmaker[AsyncSession]
 
-    _worker: 'ZoneSyncWorker'
+    _worker: 'AuthZoneSyncWorker | None'
 
     @property
     def redis(self) -> Redis:
@@ -64,13 +68,16 @@ class AuthZoneSyncManager:
         return self._db
 
     @property
-    def worker(self) -> 'ZoneSyncWorker':
+    def worker(self) -> 'AuthZoneSyncWorker | None':
         return self._worker
 
-    def __init__(self, redis: Redis, db: async_sessionmaker[AsyncSession]):
+    def __init__(self, redis: Redis, db: async_sessionmaker[AsyncSession], worker_init: bool = False):
         self._redis = redis
         self._db = db
-        self._worker = ZoneSyncWorker(redis=redis, db=db)
+        if worker_init:
+            self._worker = AuthZoneSyncWorker(redis=redis, db=db)
+        else:
+            self._worker = None
 
     async def check_zone(self, zone_name: str):
         """Checks if the given zone needs to be synchronized and queues zone synchronization accordingly."""
@@ -263,6 +270,7 @@ class AuthZoneSyncManager:
         api_clients: dict[UUID, PowerDNSAuthApi] = {}
         servers: dict[UUID, Server] = {}
         zones: dict[str, AuthSyncZone] = {}
+        server_zones: dict[str, dict[UUID, SAZone]] = {}
 
         for server in db_servers:
             servers[server.id] = server
@@ -278,8 +286,6 @@ class AuthZoneSyncManager:
 
             api_clients[server.id] = api
 
-            server_zones = await api.zones.list()
-
             for relationship in server.azones:
                 if not relationship.zone.fqdn in zones:
                     zones[relationship.zone.fqdn] = AuthSyncZone(fqdn=relationship.zone.fqdn, zone=relationship.zone)
@@ -292,9 +298,14 @@ class AuthZoneSyncManager:
                 if not isinstance(zones[relationship.zone.fqdn].sync_policies[server.id], ZoneSyncPolicy):
                     zones[relationship.zone.fqdn].sync_policies[server.id] = server.sync_policy
 
-            for server_zone in server_zones:
+            for server_zone in await api.zones.list():
+                if not server_zone.fqdn in server_zones:
+                    server_zones[server_zone.fqdn] = {}
+
                 if not server_zone.fqdn in zones:
                     zones[server_zone.fqdn] = AuthSyncZone(fqdn=server_zone.fqdn)
+
+                server_zones[server_zone.fqdn][server.id] = server_zone
                 zones[server_zone.fqdn].deployed_servers[server.id] = server_zone
 
         new_db_zones: dict[str, tuple[UUID, SAZone]] = {}
@@ -303,8 +314,6 @@ class AuthZoneSyncManager:
         update_server_zones: dict[str, dict[UUID, AZone]] = {}
         purge_db_zones: list[str] = []
         purge_server_zones: dict[str, dict[UUID, AZone]] = {}
-
-        # TODO: Implement purge detection
 
         for fqdn, sync_zone in zones.items():
             logger.trace(f'Checking Zone {fqdn}')
@@ -346,6 +355,15 @@ class AuthZoneSyncManager:
                 # Skip zones that don't have a zone or server sync policy
                 if not sync_policy:
                     logger.trace(f'Skipping DB zone {fqdn} with no sync policy for server {server_id}.')
+                    continue
+
+                # Check for zones that should be deleted from servers and queue accordingly if policy allows
+                if sync_zone.zone.purged is not None:
+                    if sync_zone.zone.fqdn in server_zones and sync_policy.purge_missing_zones_in_server:
+                        logger.trace(f'Purging server zone {fqdn} in server {server_id}.')
+                        purge_server_zones[sync_zone.zone.fqdn][server_id] = sync_zone.zone
+                    logger.trace(f'Purging DB zone {fqdn} in server {server_id}.')
+                    purge_db_zones.append(sync_zone.zone.fqdn)
                     continue
 
                 # Zone missing from assigned server
@@ -445,8 +463,10 @@ class AuthZoneSyncManager:
                 fqdn, ZoneSyncJobMetadata(resource_id=fqdn, action=ZoneSyncJobActionEnum.purge_db)
             )
 
-    async def sync_zone(self, zone_name: str) -> None:
-        """Performs authoritative zone synchronization using a zone ID."""
+    async def update_zone_server_state(
+            self, zone_name: str, server_id: UUID | Mapped[UUID] | str, state: ZoneServerStateEnum
+    ) -> None:
+        """Updates the state of a zone's server relationship."""
 
         if not isinstance(zone_name, str) or not len(zone_name := zone_name.strip()):
             raise ZoneNameInvalidException
@@ -457,82 +477,37 @@ class AuthZoneSyncManager:
         if not len(zone_name):
             raise ZoneNameInvalidException
 
-        stmt = (select(AZone)
-                .options(selectinload(AZone.servers).selectinload(AZoneServer.server))
-                .where(AZone.fqdn == zone_name))
+        if isinstance(server_id, str):
+            try:
+                server_id = UUID(server_id)
+            except ValueError:
+                raise ServerIDInvalidException
+
+        stmt = (select(AZone).join(AZone.servers).options(selectinload(AZone.servers))
+                .where(AZone.fqdn == zone_name, AZoneServer.server_id == server_id))
 
         async with self.db() as session:
             zone: AZone | None = (await session.execute(stmt)).scalar_one_or_none()
 
-        # TODO: Verify server sync policy before raising exception
+            if not isinstance(zone, AZone):
+                raise ZoneServerRelationshipInvalidException
 
-        if zone is None:
-            # TODO: Create zone in database if policy allows or raise exception
-            raise ZoneMissingFromDatabaseException
+            zone.servers[0].state = state
+            session.add(zone.servers[0])
+            await session.commit()
 
-        if not zone.servers:
-            return
 
-        for sr in zone.servers:
-            sp = sr.sync_policy
-            sync_flags = (
-                sp.create_missing_zones_in_server,
-                sp.create_missing_records_in_db,
-                sp.create_missing_records_in_server,
-                sp.update_zones_in_db,
-                sp.update_zones_in_server,
-                sp.update_records_in_db,
-                sp.update_records_in_server,
-                sp.purge_missing_zones_in_db,
-                sp.purge_missing_zones_in_server,
-                sp.purge_missing_records_in_db,
-                sp.purge_missing_records_in_server
-            )
-
-            # Skip processing if policy prohibits the following actions
-            if not any(sync_flags):
-                continue
-
-            api_config: PowerDNSApiConfig = PowerDNSApiConfig(
-                server_id=sr.server.server_id,
-                version=sr.server.version,
-                api_url=sr.server.api_url,
-                api_key=sr.server.api_key,
-            )
-
-            api: PowerDNSAuthApi = PowerDNSAuthApi(api_config)
-
-            szone = await api.zones.get(zone_id=f'{zone.fqdn}.', rrsets=False)
-
-            if szone is None:
-                if not sp.create_missing_zones_in_server:
-                    raise ZoneMissingFromServerException
-                # TODO: Create the zone in the DNS server
-                continue
-
-            # Compare zone serial numbers to determine which direction to sync if any
-            if zone.serial > szone.serial:
-                # Database zone is newer, push zone to server
-                if sp.update_zones_in_server or sp.update_records_in_server:
-                    await self.push_zone_to_server(zone.id, sr.server.id)
-                continue
-
-            elif zone.serial < szone.serial:
-                # Database zone is older, pull zone from server
-                if sp.update_zones_in_db or sp.update_records_in_db:
-                    await self.pull_zone_from_server(zone.id, sr.server.id)
-                continue
-
-    async def push_zone_to_server(
-            self, zone_id: UUID | Mapped[UUID] | str, server_id: UUID | Mapped[UUID] | str,
-    ) -> None:
+    async def push_zone_to_server(self, zone_name: str, server_id: UUID | Mapped[UUID] | str) -> None:
         """Pushes zone data to a DNS server."""
 
-        if isinstance(zone_id, str):
-            try:
-                zone_id = UUID(zone_id)
-            except ValueError:
-                raise ZoneIDInvalidException
+        if not isinstance(zone_name, str) or not len(zone_name := zone_name.strip()):
+            raise ZoneNameInvalidException
+
+        if zone_name.endswith('.'):
+            zone_name = zone_name[:-1]
+
+        if not len(zone_name):
+            raise ZoneNameInvalidException
 
         if isinstance(server_id, str):
             try:
@@ -540,16 +515,20 @@ class AuthZoneSyncManager:
             except ValueError:
                 raise ServerIDInvalidException
 
-    async def pull_zone_from_server(
-            self, zone_id: UUID | Mapped[UUID] | str, server_id: UUID | Mapped[UUID] | str,
-    ) -> None:
+        logger.trace(f'Pushing zone {zone_name} to server {server_id}.')
+        # TODO
+
+    async def pull_zone_from_server(self, zone_name: str, server_id: UUID | Mapped[UUID] | str) -> None:
         """Pulls zone data from a DNS server."""
 
-        if isinstance(zone_id, str):
-            try:
-                zone_id = UUID(zone_id)
-            except ValueError:
-                raise ZoneIDInvalidException
+        if not isinstance(zone_name, str) or not len(zone_name := zone_name.strip()):
+            raise ZoneNameInvalidException
+
+        if zone_name.endswith('.'):
+            zone_name = zone_name[:-1]
+
+        if not len(zone_name):
+            raise ZoneNameInvalidException
 
         if isinstance(server_id, str):
             try:
@@ -557,25 +536,35 @@ class AuthZoneSyncManager:
             except ValueError:
                 raise ServerIDInvalidException
 
-    async def remove_zone_from_db(self, zone_id: UUID | Mapped[UUID] | str) -> None:
+        logger.trace(f'Pulling zone {zone_name} from server {server_id}.')
+        # TODO
+
+    async def remove_zone_from_db(self, zone_name: str) -> None:
         """Removes a zone from the database."""
 
-        if isinstance(zone_id, str):
-            try:
-                zone_id = UUID(zone_id)
-            except ValueError:
-                raise ZoneIDInvalidException
+        if not isinstance(zone_name, str) or not len(zone_name := zone_name.strip()):
+            raise ZoneNameInvalidException
 
-    async def remove_zone_from_server(
-            self, zone_id: UUID | Mapped[UUID] | str, server_id: UUID | Mapped[UUID] | str
-    ) -> None:
+        if zone_name.endswith('.'):
+            zone_name = zone_name[:-1]
+
+        if not len(zone_name):
+            raise ZoneNameInvalidException
+
+        logger.trace(f'Removing zone {zone_name} from DB.')
+        # TODO
+
+    async def remove_zone_from_server(self, zone_name: str, server_id: UUID | Mapped[UUID] | str) -> None:
         """Removes a zone from a DNS server."""
 
-        if isinstance(zone_id, str):
-            try:
-                zone_id = UUID(zone_id)
-            except ValueError:
-                raise ZoneIDInvalidException
+        if not isinstance(zone_name, str) or not len(zone_name := zone_name.strip()):
+            raise ZoneNameInvalidException
+
+        if zone_name.endswith('.'):
+            zone_name = zone_name[:-1]
+
+        if not len(zone_name):
+            raise ZoneNameInvalidException
 
         if isinstance(server_id, str):
             try:
@@ -583,8 +572,11 @@ class AuthZoneSyncManager:
             except ValueError:
                 raise ServerIDInvalidException
 
+        logger.trace(f'Removing zone {zone_name} from server {server_id}.')
+        # TODO
 
-class ZoneSyncWorker(RedisStreamSyncWorker):
+
+class AuthZoneSyncWorker(RedisStreamSyncWorker):
     LOCK_TTL_SECONDS = 300
 
     def __init__(
@@ -606,11 +598,30 @@ class ZoneSyncWorker(RedisStreamSyncWorker):
             metadata_class=ZoneSyncJobMetadata,
         )
 
+        self.manager = AuthZoneSyncManager(redis=redis, db=db, worker_init=False)
+
     async def sync_resource(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Performs zone synchronization"""
-        logger.warning(f'Synchronizing: Consumer: {self.consumer_name}, Zone: {resource_id}, Metadata: {metadata}')
-        # TODO: perform zone sync
+        logger.warning(f'Consumer {self.consumer_name} Synchronizing: Zone: {resource_id}, Action: {metadata.action.value}')
+
+        if metadata.action in (ZoneSyncJobActionEnum.create_db, ZoneSyncJobActionEnum.update_db):
+            await self.manager.pull_zone_from_server(resource_id, metadata.server_id)
+        elif metadata.action in (ZoneSyncJobActionEnum.create_server, ZoneSyncJobActionEnum.update_server):
+            await self.manager.push_zone_to_server(resource_id, metadata.server_id)
+        elif metadata.action == ZoneSyncJobActionEnum.purge_db:
+            await self.manager.remove_zone_from_db(resource_id)
+        elif metadata.action == ZoneSyncJobActionEnum.purge_server:
+            await self.manager.remove_zone_from_server(resource_id, metadata.server_id)
+        else:
+            logger.error(f'Consumer {self.consumer_name} Unknown Action Received: Zone: {resource_id}, Action: {metadata.action.value}, Server ID: {metadata.server_id}')
 
     async def mark_clean(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Updates zone server relationship status in database"""
-        # TODO
+        if metadata.action == ZoneSyncJobActionEnum.purge_server:
+            await self.manager.update_zone_server_state(
+                resource_id, metadata.server_id, ZoneServerStateEnum.purged
+            )
+        elif not metadata.action == ZoneSyncJobActionEnum.purge_db:
+            await self.manager.update_zone_server_state(
+                resource_id, metadata.server_id, ZoneServerStateEnum.synchronized
+            )
