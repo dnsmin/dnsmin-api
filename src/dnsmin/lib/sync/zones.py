@@ -427,11 +427,12 @@ class ZoneSyncWorker(RedisStreamSyncWorker):
             metadata_class=ZoneSyncJobMetadata,
         )
 
-    def sync_resource(self, resource_id: str, metadata: ZoneSyncJobMetadata):
+    async def sync_resource(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Performs zone synchronization"""
         logger.warning(f'Synchronizing Zone {resource_id}, Metadata: {metadata}')
         # TODO: perform zone sync
+        # await self.redis.delete(self._dirty_key(resource_id))
 
-    def mark_clean(self, resource_id: str, metadata: ZoneSyncJobMetadata):
+    async def mark_clean(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Updates zone server relationship status in database"""
         # TODO

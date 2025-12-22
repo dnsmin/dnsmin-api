@@ -3,6 +3,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
+from loguru import logger
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -93,7 +94,7 @@ class RedisStreamSyncWorker(ABC):
 
         await self.redis.xadd(
             self._stream_key(),
-            metadata.model_dump(mode='json'),
+            metadata.model_dump(mode='json', exclude_none=True),
             maxlen=self.STREAM_MAXLEN,
             approximate=True,
         )
@@ -116,6 +117,16 @@ class RedisStreamSyncWorker(ABC):
     async def shutdown(self):
         from loguru import logger
         logger.info(f'Shutting down synchronization worker {self.consumer_name} for {self.namespace}:{self.consumer_group}.')
+
+        # Withdraw consumer from Redis group
+        try:
+            await self.redis.xgroup_delconsumer(
+                self._stream_key(),
+                self.consumer_group,
+                self.consumer_name,
+            )
+        except Exception:
+            pass
 
     # ------------------------------------------------------------------
     # Core message handling
@@ -160,7 +171,7 @@ class RedisStreamSyncWorker(ABC):
         dirty_key = self._dirty_key(resource_id)
         inflight_key = self._inflight_key(resource_id)
 
-        dirty_before = self.redis.get(dirty_key)
+        dirty_before = await self.redis.get(dirty_key)
 
         await self.redis.set(inflight_key, time.time(), ex=self.LOCK_TTL_SECONDS)
 
@@ -171,6 +182,7 @@ class RedisStreamSyncWorker(ABC):
 
         if dirty_before == dirty_after:
             await self.redis.delete(dirty_key)
+            await self.redis.delete(inflight_key)
             await self.mark_clean(resource_id, metadata)
         else:
             # Changed during sync → requeue

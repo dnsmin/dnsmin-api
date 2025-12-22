@@ -6,6 +6,8 @@ import uuid
 from signal import Signals
 from typing import Literal
 
+from loguru import logger
+
 from dnsmin.lib import load_environment, load_settings, init_redis, init_sql
 from dnsmin.lib.config import AppConfig
 from dnsmin.lib.sync import RedisStreamSyncWorker
@@ -17,13 +19,13 @@ ZONE_SYNC_WORKER_COUNT = 4
 async def run_worker(worker: RedisStreamSyncWorker):
     try:
         await worker.run_forever()
+    except asyncio.CancelledError:
+        await worker.shutdown()
     finally:
         await worker.shutdown()
 
 
 async def main():
-    from loguru import logger
-
     env_prefix = AppConfig.EnvironmentConfig.model_fields['prefix'].default
 
     load_environment(env_prefix)
@@ -49,8 +51,7 @@ async def main():
 
         await worker.init()
 
-        task = asyncio.create_task(run_worker(worker))
-        tasks.append(task)
+        tasks.append(asyncio.create_task(run_worker(worker)))
 
     # Graceful shutdown
     stop_event = asyncio.Event()
