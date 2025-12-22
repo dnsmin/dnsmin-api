@@ -44,8 +44,6 @@ async def main():
         worker = ZoneSyncWorker(
             redis=redis,
             db=db_session,
-            namespace="dns",
-            consumer_group="dns-sync",
             consumer_name=f"sync-worker-{i + 1}-{uuid.uuid4().hex[:6]}",
         )
 

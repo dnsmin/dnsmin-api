@@ -1,14 +1,16 @@
+from typing import Any, Optional
 from uuid import UUID
 
 from loguru import logger
 from pydantic import BaseModel, ConfigDict
+from redis.asyncio.client import Redis
 from sqlalchemy import select, ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import Mapped, selectinload
 
 from dnsmin.lib.services.powerdns.auth import PowerDNSApiConfig, PowerDNSAuthApi
 from dnsmin.lib.services.powerdns.models import AZone as SAZone
-from dnsmin.lib.sync.models import ServerSyncPolicy, ZoneSyncPolicy
+from dnsmin.lib.sync.models import ZoneSyncJobActionEnum, ZoneSyncJobMetadata, ServerSyncPolicy, ZoneSyncPolicy
 from dnsmin.models.db.servers import Server
 from dnsmin.models.db.zones import AZone, AZoneServer
 from dnsmin.models.enums import ServerTypeEnum
@@ -47,14 +49,28 @@ class AuthSyncZone(BaseModel):
 class AuthZoneSyncManager:
     """Provides an interface for performing zone synchronization between the app and a DNS server."""
 
+    _redis: Redis
+
     _db: async_sessionmaker[AsyncSession]
+
+    _worker: 'ZoneSyncWorker'
+
+    @property
+    def redis(self) -> Redis:
+        return self._redis
 
     @property
     def db(self) -> async_sessionmaker[AsyncSession]:
         return self._db
 
-    def __init__(self, db: async_sessionmaker[AsyncSession]):
+    @property
+    def worker(self) -> 'ZoneSyncWorker':
+        return self._worker
+
+    def __init__(self, redis: Redis, db: async_sessionmaker[AsyncSession]):
+        self._redis = redis
         self._db = db
+        self._worker = ZoneSyncWorker(redis=redis, db=db)
 
     async def check_zones(self) -> None:
         """
@@ -106,12 +122,14 @@ class AuthZoneSyncManager:
                     zones[server_zone.fqdn] = AuthSyncZone(fqdn=server_zone.fqdn)
                 zones[server_zone.fqdn].deployed_servers[server.id] = server_zone
 
-        new_db_zones: dict[str, SAZone] = {}
+        new_db_zones: dict[str, tuple[UUID, SAZone]] = {}
         new_server_zones: dict[str, dict[UUID, AZone]] = {}
-        update_db_zones: dict[str, SAZone] = {}
+        update_db_zones: dict[str, tuple[UUID, SAZone]] = {}
         update_server_zones: dict[str, dict[UUID, AZone]] = {}
-        purge_db_zones: dict[str, SAZone] = {}
+        purge_db_zones: list[str] = []
         purge_server_zones: dict[str, dict[UUID, AZone]] = {}
+
+        # TODO: Implement purge detection
 
         for fqdn, sync_zone in zones.items():
             logger.trace(f'Checking Zone {fqdn}')
@@ -134,9 +152,9 @@ class AuthZoneSyncManager:
 
                     # If the zone is found in multiple DNS servers, use the one with the highest serial
                     if server_zone.fqdn not in new_db_zones:
-                        new_db_zones[server_zone.fqdn] = server_zone
-                    elif new_db_zones[server_zone.fqdn].serial > server_zone.serial:
-                        new_db_zones[server_zone.fqdn] = server_zone
+                        new_db_zones[server_zone.fqdn] = server_id, server_zone
+                    elif new_db_zones[server_zone.fqdn][1].serial > server_zone.serial:
+                        new_db_zones[server_zone.fqdn] = server_id, server_zone
                     else:
                         logger.trace(f'Skipping server zone {fqdn} ({server_id}) with lower serial {server_zone.serial}.')
                         continue
@@ -192,18 +210,61 @@ class AuthZoneSyncManager:
                 if sync_policy.update_zones_in_db and sync_zone.zone.serial < server_zone.serial:
                     # Skip updates where a higher serial has already been queued
 
-                    if sync_zone.fqdn in update_db_zones and update_db_zones[sync_zone.fqdn].serial >= server_zone.serial:
-                        match = update_db_zones[sync_zone.fqdn].serial == server_zone.serial
+                    if sync_zone.fqdn in update_db_zones and update_db_zones[sync_zone.fqdn][1].serial >= server_zone.serial:
+                        match = update_db_zones[sync_zone.fqdn][1].serial == server_zone.serial
                         logger.trace(f'Skipping DB zone {fqdn} with lower serial {sync_zone.zone.serial} / '
                                      + f'{server_zone.serial} from {'matching' if match else 'stale'} server {server_id}.')
                         continue
 
-                    update_db_zones[sync_zone.fqdn] = server_zone
+                    update_db_zones[sync_zone.fqdn] = server_id, server_zone
                     logger.trace(f'Updating DB zone {fqdn} with lower serial {sync_zone.zone.serial} / '
                                  + f'{server_zone.serial} from server {server_id}.')
                     continue
 
-        # TODO: Queue zone changes
+        # Queue DB zone updates
+        for fqdn, meta in update_db_zones.items():
+            await self.worker.mark_dirty(
+                fqdn, ZoneSyncJobMetadata(resource_id=fqdn, action=ZoneSyncJobActionEnum.update_db, server_id=meta[0])
+            )
+
+        # Queue server zone updates
+        for fqdn, servers in update_server_zones.items():
+            for server_id, server in servers.items():
+                await self.worker.mark_dirty(
+                    fqdn, ZoneSyncJobMetadata(
+                        resource_id=fqdn, action=ZoneSyncJobActionEnum.update_server, server_id=server_id
+                    )
+                )
+
+        # Queue DB zone creation
+        for fqdn, meta in new_db_zones.items():
+            await self.worker.mark_dirty(
+                fqdn, ZoneSyncJobMetadata(resource_id=fqdn, action=ZoneSyncJobActionEnum.create_db, server_id=meta[0])
+            )
+
+        # Queue server zone creation
+        for fqdn, servers in new_server_zones.items():
+            for server_id, server in servers.items():
+                await self.worker.mark_dirty(
+                    fqdn, ZoneSyncJobMetadata(
+                        resource_id=fqdn, action=ZoneSyncJobActionEnum.create_server, server_id=server_id
+                    )
+                )
+
+        # Queue server zone purges
+        for fqdn, servers in purge_server_zones.items():
+            for server_id, server in servers.items():
+                await self.worker.mark_dirty(
+                    fqdn, ZoneSyncJobMetadata(
+                        resource_id=fqdn, action=ZoneSyncJobActionEnum.purge_server, server_id=server_id
+                    )
+                )
+
+        # Queue DB zone purges
+        for fqdn in purge_db_zones:
+            await self.worker.mark_dirty(
+                fqdn, ZoneSyncJobMetadata(resource_id=fqdn, action=ZoneSyncJobActionEnum.purge_db)
+            )
 
     async def sync_zone(self, zone_name: str) -> None:
         """Performs authoritative zone synchronization using a zone ID."""
@@ -347,12 +408,30 @@ class AuthZoneSyncManager:
 class ZoneSyncWorker(RedisStreamSyncWorker):
     LOCK_TTL_SECONDS = 300
 
-    def load_resource(self, zone_id: str):
-        """Loads zone data from database"""
+    def __init__(
+            self,
+            *,
+            redis: Redis,
+            db: async_sessionmaker[AsyncSession],
+            consumer_name: Optional[str] = None,
+    ):
+        if not isinstance(consumer_name, str):
+            consumer_name = 'sync-worker'
 
-    def sync_resource(self, zone_id: str, zone):
+        super().__init__(
+            redis=redis,
+            db=db,
+            namespace='dns',
+            consumer_group='dns-sync',
+            consumer_name=consumer_name,
+            metadata_class=ZoneSyncJobMetadata,
+        )
+
+    def sync_resource(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Performs zone synchronization"""
+        logger.warning(f'Synchronizing Zone {resource_id}, Metadata: {metadata}')
         # TODO: perform zone sync
 
-    def mark_clean(self, zone_id: str):
-        """Updates zone status in database"""
+    def mark_clean(self, resource_id: str, metadata: ZoneSyncJobMetadata):
+        """Updates zone server relationship status in database"""
+        # TODO

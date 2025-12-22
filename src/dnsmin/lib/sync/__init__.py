@@ -3,8 +3,10 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from dnsmin.lib.sync.models import SyncJobMetadata
 
 
 class RedisStreamSyncWorker(ABC):
@@ -13,7 +15,6 @@ class RedisStreamSyncWorker(ABC):
 
     Subclass this and override:
       - sync_resource(...)
-      - optionally load_resource(...)
     """
 
     # ---- Tunables (override in subclass if needed) ----
@@ -44,13 +45,14 @@ class RedisStreamSyncWorker(ABC):
             namespace: str,
             consumer_group: str,
             consumer_name: str,
+            metadata_class: type[SyncJobMetadata] = SyncJobMetadata,
     ):
         self._redis = redis
         self._db = db
         self.namespace = namespace
         self.consumer_group = consumer_group
         self.consumer_name = consumer_name
-
+        self.metadata_class = metadata_class
         self._last_reclaim = 0
 
     # ------------------------------------------------------------------
@@ -76,20 +78,22 @@ class RedisStreamSyncWorker(ABC):
     async def init(self):
         await self._ensure_consumer_group()
 
-    async def mark_dirty(self, resource_id: str, metadata: Optional[Dict[str, Any]] = None):
+    async def mark_dirty(self, resource_id: str, metadata: Optional[SyncJobMetadata] = None):
         """
         Mark a resource as changed and enqueue it for sync.
         """
         ts = int(time.time())
         await self.redis.set(self._dirty_key(resource_id), ts)
 
-        payload = {"resource_id": resource_id, "ts": ts}
-        if metadata:
-            payload.update(metadata)
+        if not isinstance(metadata, SyncJobMetadata):
+            metadata = self.metadata_class(resource_id=resource_id, ts=ts)
+        else:
+            metadata.resource_id = resource_id
+            metadata.ts = ts
 
         await self.redis.xadd(
             self._stream_key(),
-            payload,
+            metadata.model_dump(mode='json'),
             maxlen=self.STREAM_MAXLEN,
             approximate=True,
         )
@@ -135,26 +139,24 @@ class RedisStreamSyncWorker(ABC):
 
         _, messages = entries[0]
         for msg_id, data in messages:
-            await self._handle_message(msg_id, data)
+            await self._handle_message(msg_id, self.metadata_class(**data))
 
-    async def _handle_message(self, msg_id: str, data: Dict[str, Any]):
-        resource_id = data["resource_id"]
-
-        token = await self._acquire_lock(resource_id)
+    async def _handle_message(self, msg_id: str, metadata: SyncJobMetadata):
+        token = await self._acquire_lock(metadata.resource_id)
         if not token:
             await self._ack(msg_id)
             return
 
         try:
-            await self._process_resource(resource_id)
+            await self._process_resource(metadata.resource_id, metadata)
             await self._ack(msg_id)
         except Exception:
             # Leave pending for retry
             raise
         finally:
-            await self._release_lock(resource_id, token)
+            await self._release_lock(metadata.resource_id, token)
 
-    async def _process_resource(self, resource_id: str):
+    async def _process_resource(self, resource_id: str, metadata: SyncJobMetadata):
         dirty_key = self._dirty_key(resource_id)
         inflight_key = self._inflight_key(resource_id)
 
@@ -162,20 +164,18 @@ class RedisStreamSyncWorker(ABC):
 
         await self.redis.set(inflight_key, time.time(), ex=self.LOCK_TTL_SECONDS)
 
-        # Load desired state (subclass may override)
-        resource = await self.load_resource(resource_id)
-
         # Perform actual sync (SUBCLASS MUST IMPLEMENT)
-        await self.sync_resource(resource_id, resource)
+        await self.sync_resource(resource_id, metadata)
 
         dirty_after = await self.redis.get(dirty_key)
 
         if dirty_before == dirty_after:
             await self.redis.delete(dirty_key)
-            await self.mark_clean(resource_id)
+            await self.mark_clean(resource_id, metadata)
         else:
             # Changed during sync → requeue
-            await self.mark_dirty(resource_id, {"reason": "changed_during_sync"})
+            metadata.reason = "changed_during_sync"
+            await self.mark_dirty(resource_id, metadata)
 
     # ------------------------------------------------------------------
     # Locking
@@ -252,14 +252,7 @@ class RedisStreamSyncWorker(ABC):
     # Hooks for subclasses
     # ------------------------------------------------------------------
 
-    async def load_resource(self, resource_id: str):
-        """
-        Load desired state from SQL.
-        Override if needed.
-        """
-        return None
-
-    async def mark_clean(self, resource_id: str):
+    async def mark_clean(self, resource_id: str, metadata: SyncJobMetadata):
         """
         Persist clean state to SQL if desired.
         Optional override.
@@ -267,7 +260,7 @@ class RedisStreamSyncWorker(ABC):
         pass
 
     @abstractmethod
-    async def sync_resource(self, resource_id: str, resource):
+    async def sync_resource(self, resource_id: str, metadata: SyncJobMetadata):
         """
         Perform the expensive external sync.
         MUST be idempotent.
