@@ -354,7 +354,9 @@ class AZoneServer(BaseSqlModel):
     zone: Mapped[AZone] = relationship('AZone', back_populates='servers', cascade='expunge')
     """The zone of the association."""
 
-    server: Mapped['Server'] = relationship('Server', back_populates='azones', cascade='expunge')
+    server: Mapped['Server'] = relationship(
+        'Server', back_populates='azones', cascade='expunge', order_by='Server.mode',
+    )
     """The server of the association."""
 
 

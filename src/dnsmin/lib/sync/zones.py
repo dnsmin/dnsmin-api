@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 from uuid import UUID
 
 from loguru import logger
@@ -72,23 +72,198 @@ class AuthZoneSyncManager:
         self._db = db
         self._worker = ZoneSyncWorker(redis=redis, db=db)
 
+    async def check_zone(self, zone_name: str):
+        """Checks if the given zone needs to be synchronized and queues zone synchronization accordingly."""
+
+        if not isinstance(zone_name, str):
+            raise ZoneNameInvalidException()
+
+        if zone_name.endswith('.'):
+            zone_name = zone_name[:-1]
+
+        zone_stmt = (select(AZone).options(selectinload(AZone.servers).selectinload(AZoneServer.server))
+                     .where(AZone.fqdn == zone_name))
+
+        servers_stmt = select(Server).where(Server.type == ServerTypeEnum.authoritative).order_by(Server.mode)
+
+        async with self.db() as session:
+            db_zone: AZone | None = (await session.execute(zone_stmt)).scalar_one_or_none()
+            db_servers_result: ScalarResult[Server] = (await session.execute(servers_stmt)).scalars()
+
+        api_clients: dict[UUID, PowerDNSAuthApi] = {}
+        db_servers: dict[UUID, Server] = {}
+        server_zones: dict[UUID, SAZone] = {}
+
+        for server in db_servers_result:
+            db_servers[server.id] = server
+            api_clients[server.id] = PowerDNSAuthApi(PowerDNSApiConfig(
+                server_id=server.server_id,
+                version=server.version,
+                api_url=server.api_url,
+                api_key=server.api_key,
+            ))
+
+            if (zones := await api_clients[server.id].zones.list(zone=f'{zone_name}.')):
+                server_zones[server.id] = zones[0]
+
+        # Discontinue processing if the zone doesn't exist in the DB or any registered servers
+        if not isinstance(db_zone, AZone) and not server_zones:
+            logger.trace(f'Zone {zone_name} not found in database or registered servers.')
+            return
+
+        # Zone doesn't exist in DB, queue it for creation if server policy permits
+        if not isinstance(db_zone, AZone):
+            zone: SAZone | None = None
+            selected_server_id: UUID | None = None
+
+            for server_id, szone in server_zones.items():
+                server = db_servers[server_id]
+
+                if not server.sync_policy:
+                    logger.trace(f'Skipping zone server {server_id} for zone {zone_name} due to missing sync policy.')
+                    continue
+
+                if not server.sync_policy.create_missing_zones_in_db:
+                    logger.trace(f'Skipping zone server {server_id} for zone {zone_name} due to no creation policy.')
+                    continue
+
+                if isinstance(zone, SAZone) and zone.serial >= szone.serial:
+                    logger.trace(f'Skipping zone server {server_id} for zone {zone_name} due to lower or equal serial.')
+                    continue
+
+                logger.trace(f'Selecting zone server {server_id} for zone {zone_name}.')
+                zone = szone
+                selected_server_id = server_id
+
+            if selected_server_id is None:
+                logger.trace(f'Skipping zone {zone_name} as no server sync policies allowed for creation.')
+                return
+
+            await self.worker.mark_dirty(zone_name, ZoneSyncJobMetadata(
+                resource_id=zone_name, action=ZoneSyncJobActionEnum.create_db, server_id=selected_server_id
+            ))
+
+            return
+
+        # Zone doesn't have any servers associated with it
+        if not db_zone.servers:
+            logger.trace(f'Zone {zone_name} not associated with any servers.')
+            return
+
+        # Zone exists in DB, check if it needs to be created or updated in associated servers and queue accordingly
+
+        # Zone doesn't exist in any servers so queue it to be created if policy allows
+        if not server_zones:
+            for relationship in db_zone.servers:
+                sync_policy = relationship.sync_policy
+
+                # Fallback to server-level sync policy if relationship did not have one defined
+                if not sync_policy:
+                    sync_policy = db_servers[relationship.server.id].sync_policy
+
+                # Skip server as no sync policy was found
+                if not sync_policy:
+                    logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to missing sync policy.')
+                    continue
+
+                # Skip server as sync policy does not allow for server zone creation
+                if not sync_policy.create_missing_zones_in_server:
+                    logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to no creation policy.')
+                    continue
+
+                # Queue the zone for creation on the server
+                await self.worker.mark_dirty(zone_name, ZoneSyncJobMetadata(
+                    resource_id=zone_name, action=ZoneSyncJobActionEnum.create_server, server_id=relationship.server_id
+                ))
+
+            return
+
+        # Zone exists in some servers, determine where it needs to be created, updated, or removed
+
+        assigned_servers = set(r.server.id for r in db_zone.servers)
+        deployed_servers = set(server_zones.keys())
+        purge_servers = deployed_servers - assigned_servers
+
+        # Zone exists on servers it's not assigned to, queue purge if policy allows
+        if purge_servers:
+            for server_id in purge_servers:
+                # Skip server for having no sync policy defined
+                if not db_servers[server_id].sync_policy:
+                    logger.trace(f'Skipping server {server_id} for zone {zone_name} purge due to missing sync policy.')
+                    continue
+
+                # Skip server for having a no purge policy
+                if not db_servers[server_id].sync_policy.purge_missing_zones_in_server:
+                    logger.trace(f'Skipping server {server_id} for zone {zone_name} purge due to no purge policy.')
+                    continue
+
+                # Queue zone for purge from the server
+                await self.worker.mark_dirty(zone_name, ZoneSyncJobMetadata(
+                    resource_id=zone_name, action=ZoneSyncJobActionEnum.purge_server, server_id=server_id
+                ))
+
+        for relationship in db_zone.servers:
+            sync_policy = relationship.sync_policy
+
+            # Fallback to server-level sync policy if relationship did not have one defined
+            if not sync_policy:
+                sync_policy = relationship.server.sync_policy
+
+            # Skip server as no sync policy was found
+            if not sync_policy:
+                logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to missing sync policy.')
+                continue
+
+            # Zone doesn't exist on an assigned server, queue for creation if policy allows
+            if relationship.server_id not in server_zones:
+                # Skip server as policy does not allow creation
+                if not sync_policy.create_missing_zones_in_server:
+                    logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to no creation policy.')
+                    continue
+
+                # Queue zone creation for server
+                await self.worker.mark_dirty(zone_name, ZoneSyncJobMetadata(
+                    resource_id=zone_name, action=ZoneSyncJobActionEnum.create_server, server_id=relationship.server_id
+                ))
+
+                continue
+
+            # Zone exists on assigned server, determine which side needs updated if any and queue accordingly
+
+            # Skip server as zone serials match
+            if db_zone.serial == server_zones[relationship.server_id].serial:
+                logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to matching serial.')
+                continue
+
+            # Queue server update if zone serial is higher in DB
+            if db_zone.serial > server_zones[relationship.server_id].serial:
+                await self.worker.mark_dirty(zone_name, ZoneSyncJobMetadata(
+                    resource_id=zone_name, action=ZoneSyncJobActionEnum.update_server, server_id=relationship.server_id
+                ))
+                continue
+
+            # Queue DB update as zone serial is higher on server
+            await self.worker.mark_dirty(zone_name, ZoneSyncJobMetadata(
+                resource_id=zone_name, action=ZoneSyncJobActionEnum.update_db, server_id=relationship.server_id
+            ))
+
     async def check_zones(self) -> None:
         """
         Compares the list of zones in the database to the zones available on DNS servers and queues zone
-        synchronization as needed.
+        synchronization accordingly.
         """
-        
-        servers_stmt = (select(Server).options(selectinload(Server.azones).selectinload(AZoneServer.zone))
-                        .where(Server.type == ServerTypeEnum.authoritative)
-                        .order_by(Server.mode))
-        
+
+        stmt = (select(Server).options(selectinload(Server.azones).selectinload(AZoneServer.zone))
+                .where(Server.type == ServerTypeEnum.authoritative)
+                .order_by(Server.mode))
+
         async with self.db() as session:
-            db_servers: ScalarResult[Server] = (await session.execute(servers_stmt)).scalars()
-        
+            db_servers: ScalarResult[Server] = (await session.execute(stmt)).scalars()
+
         api_clients: dict[UUID, PowerDNSAuthApi] = {}
         servers: dict[UUID, Server] = {}
         zones: dict[str, AuthSyncZone] = {}
-        
+
         for server in db_servers:
             servers[server.id] = server
 
@@ -156,7 +331,8 @@ class AuthZoneSyncManager:
                     elif new_db_zones[server_zone.fqdn][1].serial > server_zone.serial:
                         new_db_zones[server_zone.fqdn] = server_id, server_zone
                     else:
-                        logger.trace(f'Skipping server zone {fqdn} ({server_id}) with lower serial {server_zone.serial}.')
+                        logger.trace(
+                            f'Skipping server zone {fqdn} ({server_id}) with lower serial {server_zone.serial}.')
                         continue
 
                     logger.trace(f'Creating server zone {fqdn} ({server_zone.serial}) in DB.')
@@ -197,20 +373,23 @@ class AuthZoneSyncManager:
 
                 # Skip zones where serials match on the deployed server
                 if sync_zone.zone.serial == server_zone.serial:
-                    logger.trace(f'Skipping DB zone {fqdn} with matching serial {sync_zone.zone.serial} for server {server_id}.')
+                    logger.trace(
+                        f'Skipping DB zone {fqdn} with matching serial {sync_zone.zone.serial} for server {server_id}.')
                     continue
 
                 # Zone serial is higher in DB than assigned server, queue update
                 if sync_policy.update_zones_in_server and sync_zone.zone.serial > server_zone.serial:
                     update_server_zones[sync_zone.fqdn][server_id] = sync_zone.zone
-                    logger.trace(f'Updating DB zone {fqdn} with higher serial {sync_zone.zone.serial} / {server_zone.serial} in server {server_id}.')
+                    logger.trace(
+                        f'Updating DB zone {fqdn} with higher serial {sync_zone.zone.serial} / {server_zone.serial} in server {server_id}.')
                     continue
 
                 # Zone serial is higher in assigned server than DB, queue update
                 if sync_policy.update_zones_in_db and sync_zone.zone.serial < server_zone.serial:
                     # Skip updates where a higher serial has already been queued
 
-                    if sync_zone.fqdn in update_db_zones and update_db_zones[sync_zone.fqdn][1].serial >= server_zone.serial:
+                    if sync_zone.fqdn in update_db_zones and update_db_zones[sync_zone.fqdn][
+                        1].serial >= server_zone.serial:
                         match = update_db_zones[sync_zone.fqdn][1].serial == server_zone.serial
                         logger.trace(f'Skipping DB zone {fqdn} with lower serial {sync_zone.zone.serial} / '
                                      + f'{server_zone.serial} from {'matching' if match else 'stale'} server {server_id}.')
@@ -429,9 +608,8 @@ class ZoneSyncWorker(RedisStreamSyncWorker):
 
     async def sync_resource(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Performs zone synchronization"""
-        logger.warning(f'Synchronizing Zone {resource_id}, Metadata: {metadata}')
+        logger.warning(f'Synchronizing: Consumer: {self.consumer_name}, Zone: {resource_id}, Metadata: {metadata}')
         # TODO: perform zone sync
-        # await self.redis.delete(self._dirty_key(resource_id))
 
     async def mark_clean(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Updates zone server relationship status in database"""
