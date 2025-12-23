@@ -1,7 +1,8 @@
+from fastapi import WebSocket
 from fastapi.requests import Request
 
 
-def get_client_ip(request: Request) -> str:
+def get_client_ip(request: Request | WebSocket) -> str:
     client_ip = request.headers.get('X-Forwarded-For', None)
 
     if client_ip is None:

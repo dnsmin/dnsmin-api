@@ -1,11 +1,11 @@
 from typing import AsyncGenerator, Callable, Optional
 from uuid import UUID
 
-from fastapi import Depends, Request, Form, HTTPException, status
+from fastapi import WebSocket, Depends, Request, Form, HTTPException, status
 from fastapi.security import HTTPBasicCredentials
 from redis.asyncio.client import Redis
 from sqlalchemy.orm import Mapped
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from dnsmin.lib.api.oauth import oauth2_scheme, http_basic_scheme
 from dnsmin.lib.permissions.manager import PermissionsManager
@@ -165,6 +165,55 @@ async def get_session_user(
     if isinstance(db_session.user.tenant_id, UUID) and not isinstance(tenant_id, UUID) \
             or not isinstance(db_session.user.tenant_id, UUID) and isinstance(tenant_id, UUID) \
             or db_session.user.tenant_id != tenant_id:
+        return None
+
+    return UserOutSchema.model_validate(db_session.user)
+
+
+async def get_websocket_user(ws: WebSocket, session: AsyncSession) -> Optional[UserOutSchema]:
+    from datetime import datetime
+    from typing import Optional
+    from dnsmin.lib.api import get_client_ip
+    from dnsmin.lib.settings import SettingsManager
+    from dnsmin.lib.settings.definitions import sd
+    from dnsmin.lib.tenants import TenantManager
+    from dnsmin.models.db.auth import Session
+
+    tenant_id: Optional[UUID] = await TenantManager.get_request_tenant_id(session, ws)
+
+    cookie_name = (await SettingsManager.get(
+        session=session, key=sd.auth_session_cookie_name.key, tenant_id=tenant_id
+    )).value
+
+    # Check for session token
+    session_token = ws.cookies.get(cookie_name)
+
+    if not session_token:
+        await ws.close(code=status.WS_1008_POLICY_VIOLATION)
+        return None
+
+    db_session = await Session.get_by_token(session, session_token)
+
+    if not db_session or db_session.expires_at < datetime.now():
+        await ws.close(code=status.WS_1008_POLICY_VIOLATION)
+        return None
+
+    session_ip_lock = (await SettingsManager.get(
+        session=session, key=sd.auth_session_ip_lock.key, tenant_id=tenant_id
+    )).value
+
+    # Mitigate session hijacking by requiring the same IP address for the session or destroy otherwise
+    if (session_ip_lock and isinstance(db_session.client_ip, str)
+            and db_session.client_ip != get_client_ip(ws)):
+        await Session.destroy_session(session, db_session.id)
+        await ws.close(code=status.WS_1008_POLICY_VIOLATION)
+        return None
+
+    # Verify that the associated user matches the tenant associated with the request if any
+    if isinstance(db_session.user.tenant_id, UUID) and not isinstance(tenant_id, UUID) \
+            or not isinstance(db_session.user.tenant_id, UUID) and isinstance(tenant_id, UUID) \
+            or db_session.user.tenant_id != tenant_id:
+        await ws.close(code=status.WS_1008_POLICY_VIOLATION)
         return None
 
     return UserOutSchema.model_validate(db_session.user)

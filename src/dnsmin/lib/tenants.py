@@ -1,6 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
+from fastapi import WebSocket
 from fastapi.requests import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,7 +49,9 @@ class TenantManager:
         return (await session.execute(stmt)).scalar_one_or_none()
 
     @staticmethod
-    async def validate_tenant_request(session: AsyncSession, request: Request, tenant_id: UUID | str) -> bool:
+    async def validate_tenant_request(
+            session: AsyncSession, request: Request | WebSocket, tenant_id: UUID | str
+    ) -> bool:
         """Validates a tenant request to ensure the request host matches the tenant configuration."""
 
         if tenant_id is None:
@@ -62,7 +65,7 @@ class TenantManager:
         return found_id == tenant_id
 
     @staticmethod
-    async def get_request_tenant_id(session: AsyncSession, request: Request) -> Optional[UUID]:
+    async def get_request_tenant_id(session: AsyncSession, request: Request | WebSocket) -> Optional[UUID]:
         """Retrieves a tenant ID based on information available in a FastAPI request."""
         from fastapi import HTTPException, status
         from dnsmin.lib.security import TENANT_HEADER_NAME
