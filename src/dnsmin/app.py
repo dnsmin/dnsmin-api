@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from dnsmin.lib import AppSettings
+from dnsmin.lib.api.websockets import ConnectionManager, redis_listener
 from dnsmin.lib.config import Config
 from dnsmin.lib.config.app import AppConfig
 from dnsmin.lib.config.tasks import TaskSchedule
@@ -33,6 +34,7 @@ AsyncSessionLocal: Optional[async_sessionmaker[AsyncSession]] = None
 SessionLocal: Optional[sessionmaker[Session]] = None
 redis: Optional[Redis] = None
 zabbix: Optional[ZabbixReporter] = None
+ws_cm: Optional[ConnectionManager] = None
 
 
 def app_startup(use_sync: bool = False):
@@ -41,7 +43,7 @@ def app_startup(use_sync: bool = False):
     from dnsmin.lib.jinja import JinjaFilters
 
     global settings, config, notifications, schedules, redis, db_engine, db_engine_sync, AsyncSessionLocal, \
-        SessionLocal, j2, zabbix
+        SessionLocal, ws_cm, j2, zabbix
 
     # Initialize logging configuration with defaults
     init_logging()
@@ -77,6 +79,9 @@ def app_startup(use_sync: bool = False):
     db_engine, AsyncSessionLocal = init_sql(config=config, use_sync=False)
     if use_sync:
         db_engine_sync, SessionLocal = init_sql(config=config, use_sync=True)
+
+    # Set up websocket connection manager
+    ws_cm = ConnectionManager()
 
     # Set up Jinja2 template rendering
     j2 = Environment(
@@ -115,13 +120,15 @@ async def app_shutdown(use_sync: bool = False):
 STARTUP_TASKS = []
 RUNNING_TASKS = []
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import asyncio
     from dnsmin.routers import install_routers
 
     config = app_startup()
+
+    # Create the redis listener for websockets as a background task
+    STARTUP_TASKS.append(lambda: redis_listener(redis, ws_cm))
 
     # Initialize all tasks defined in STARTUP_TASKS list
     for task in STARTUP_TASKS:
