@@ -1,5 +1,5 @@
 aiohttp==3.13.2
-aiosqlite==0.22.0
+aiosqlite==0.22.1
 asyncio==4.0.0
 asyncmy==0.2.10
 celery[redis]==5.6.0
