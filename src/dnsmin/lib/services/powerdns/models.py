@@ -2,9 +2,9 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from dnsmin.lib.services.powerdns.enums import AZoneRRSetChangeTypeEnum, RZoneRRSetChangeTypeEnum
 from dnsmin.models.enums import (
     ZoneRecordTypeEnum, SOAEditTypeEnum,
-    AZoneRRSetChangeTypeEnum, RZoneRRSetChangeTypeEnum,
     AZoneKindEnum, RZoneKindEnum, CryptoKeyTypeEnum
 )
 

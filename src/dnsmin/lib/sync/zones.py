@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -7,14 +8,15 @@ from pydantic import BaseModel, ConfigDict
 from redis.asyncio.client import Redis
 from sqlalchemy import select, ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from sqlalchemy.orm import Mapped, selectinload
+from sqlalchemy.orm import Mapped, selectinload, with_loader_criteria
 
 from dnsmin.lib.services.powerdns.auth import PowerDNSApiConfig, PowerDNSAuthApi
-from dnsmin.lib.services.powerdns.models import AZone as SAZone
+from dnsmin.lib.services.powerdns.models import AZone as SAZone, AZoneUpdate
 from dnsmin.lib.sync.models import ZoneSyncJobActionEnum, ZoneSyncJobMetadata, ServerSyncPolicy, ZoneSyncPolicy
+from dnsmin.lib.sync.util import create_rrsets_from_db_azone
 from dnsmin.models.db.servers import Server
 from dnsmin.models.db.zones import AZone, AZoneServer
-from dnsmin.models.enums import ServerTypeEnum, ZoneServerStateEnum
+from dnsmin.models.enums import ServerTypeEnum, ZoneServerStateEnum, ZoneRecordTypeEnum, AZoneKindEnum, SOAEditTypeEnum
 from . import RedisStreamSyncWorker
 
 
@@ -521,8 +523,12 @@ class AuthZoneSyncManager:
             except ValueError:
                 raise ServerIDInvalidException
 
-        zone_stmt = (select(AZone).join(AZoneServer)
-                     .options(selectinload(AZone.servers).selectinload(AZoneServer.server))
+        zone_stmt = (select(AZone).join(AZoneServer, AZoneServer.server_id == server_id)
+                     .options(
+            selectinload(AZone.servers).selectinload(AZoneServer.server),
+            with_loader_criteria(AZoneServer, AZoneServer.server_id == server_id),
+        )
+                     .options(selectinload(AZone.records))
                      .where(AZone.fqdn == zone_name, AZoneServer.server_id == server_id))
 
         async with self.db() as session:
@@ -550,23 +556,75 @@ class AuthZoneSyncManager:
             return
 
         try:
-            szone: SAZone | None = await api_client.zones.get(db_zone.fqdn + '.',  rrsets=True)
+            szone: SAZone | None = await api_client.zones.get(db_zone.fqdn + '.', rrsets=False)
         except ClientResponseError as err:
             if err.status != 404:
                 raise
             szone = None
             logger.trace(f'Zone {db_zone.fqdn} missing from server {server_id}.')
 
+        rrsets = create_rrsets_from_db_azone(db_zone)
+        nameservers = []
+
+        for rrset in rrsets:
+            if rrset.type != ZoneRecordTypeEnum.NS:
+                continue
+            if rrset.name != f'{zone_name}.':
+                continue
+            nameservers = [r.content for r in rrset.records]
+            break
+
         if szone is None:
             if not sync_policy.create_missing_zones_in_server:
                 logger.trace(f'Skipping zone {db_zone.fqdn} for server {server_id} due to no create policy.')
                 return
 
-            # TODO: Create the zone on the server
+            serial: int = int(datetime.now().strftime('%Y%m%d01'))
+
+            szone = SAZone(
+                name=f'{db_zone.fqdn}.',
+                kind=db_zone.kind,
+                serial=serial,
+                soa_edit_api=SOAEditTypeEnum.DEFAULT,
+                api_rectify=True,
+                nameservers=nameservers,
+                account='',
+                rrsets=rrsets,
+            )
+
+            # TODO: Add additional zone fields as applicable
+
+            await api_client.zones.create(szone)
+
+            logger.trace(f'Created zone {db_zone.fqdn} for server {server_id}.')
 
             return
 
-        # TODO: Update zone on the server based on sync policy
+        if not sync_policy.update_zones_in_server:
+            logger.trace(f'Skipping zone {db_zone.fqdn} for server {server_id} due to no update policy.')
+            return
+
+        szone.rrsets = rrsets
+
+        szone_updated = AZoneUpdate(
+            kind=db_zone.kind,
+            soa_edit=db_zone.soa_edit,
+            soa_edit_api=db_zone.soa_edit_api,
+            api_rectify=db_zone.api_rectify,
+            dnssec=db_zone.dnssec,
+            nsec3param=db_zone.nsec3param,
+            catalog=db_zone.catalog,
+            account=db_zone.account,
+        )
+
+        if db_zone.kind == AZoneKindEnum.Slave or db_zone.kind == AZoneKindEnum.Consumer:
+            szone_updated.masters = db_zone.masters
+
+        await api_client.zones.update(f'{db_zone.fqdn}.', szone_updated)
+
+        await api_client.zones.update_records(f'{db_zone.fqdn}.', szone)
+
+        logger.trace(f'Updated zone {db_zone.fqdn} for server {server_id}.')
 
     async def pull_zone_from_server(self, zone_name: str, server_id: UUID | Mapped[UUID] | str) -> None:
         """Pulls zone data from a DNS server."""

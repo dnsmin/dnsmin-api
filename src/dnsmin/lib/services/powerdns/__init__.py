@@ -39,7 +39,7 @@ class PowerDNSApiBase:
             params: Optional[dict[str, Any]] = None,
             payload: Optional[dict[str, Any] | tuple | bytes] = None,
             headers: Optional[dict] = None,
-    ) -> list[dict] | dict | str:
+    ) -> list[dict] | dict | str | None:
         """Makes a request to the configured PowerDNS server API."""
 
         request_headers = {
@@ -60,7 +60,7 @@ class PowerDNSApiBase:
         if method.lower() in ['post', 'put', 'patch']:
             request_kwargs['json'] = payload
 
-        logger.trace(f'Sending request to {self.config.api_url}{endpoint}...')
+        logger.trace(f'Sending {method} request to {self.config.api_url}{endpoint}...')
         logger.trace(json.dumps(request_kwargs, indent=2))
 
         async with aiohttp.ClientSession() as session:
@@ -72,5 +72,8 @@ class PowerDNSApiBase:
                     logger.warning(await res.json())
 
                 res.raise_for_status()
+
+                if res.status == 204:
+                    return None
 
                 return await res.json()
