@@ -1,6 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
+from aiohttp.client_exceptions import ClientResponseError
 from loguru import logger
 from pydantic import BaseModel, ConfigDict
 from redis.asyncio.client import Redis
@@ -170,12 +171,14 @@ class AuthZoneSyncManager:
 
                 # Skip server as no sync policy was found
                 if not sync_policy:
-                    logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to missing sync policy.')
+                    logger.trace(
+                        f'Skipping server {relationship.server_id} for zone {zone_name} due to missing sync policy.')
                     continue
 
                 # Skip server as sync policy does not allow for server zone creation
                 if not sync_policy.create_missing_zones_in_server:
-                    logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to no creation policy.')
+                    logger.trace(
+                        f'Skipping server {relationship.server_id} for zone {zone_name} due to no creation policy.')
                     continue
 
                 # Queue the zone for creation on the server
@@ -218,14 +221,16 @@ class AuthZoneSyncManager:
 
             # Skip server as no sync policy was found
             if not sync_policy:
-                logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to missing sync policy.')
+                logger.trace(
+                    f'Skipping server {relationship.server_id} for zone {zone_name} due to missing sync policy.')
                 continue
 
             # Zone doesn't exist on an assigned server, queue for creation if policy allows
             if relationship.server_id not in server_zones:
                 # Skip server as policy does not allow creation
                 if not sync_policy.create_missing_zones_in_server:
-                    logger.trace(f'Skipping server {relationship.server_id} for zone {zone_name} due to no creation policy.')
+                    logger.trace(
+                        f'Skipping server {relationship.server_id} for zone {zone_name} due to no creation policy.')
                     continue
 
                 # Queue zone creation for server
@@ -496,9 +501,10 @@ class AuthZoneSyncManager:
             session.add(zone.servers[0])
             await session.commit()
 
-
     async def push_zone_to_server(self, zone_name: str, server_id: UUID | Mapped[UUID] | str) -> None:
         """Pushes zone data to a DNS server."""
+
+        logger.trace(f'Pushing zone {zone_name} to server {server_id}.')
 
         if not isinstance(zone_name, str) or not len(zone_name := zone_name.strip()):
             raise ZoneNameInvalidException
@@ -515,8 +521,52 @@ class AuthZoneSyncManager:
             except ValueError:
                 raise ServerIDInvalidException
 
-        logger.trace(f'Pushing zone {zone_name} to server {server_id}.')
-        # TODO
+        zone_stmt = (select(AZone).join(AZoneServer)
+                     .options(selectinload(AZone.servers).selectinload(AZoneServer.server))
+                     .where(AZone.fqdn == zone_name, AZoneServer.server_id == server_id))
+
+        async with self.db() as session:
+            db_zone: AZone | None = (await session.execute(zone_stmt)).scalar_one_or_none()
+
+        if not isinstance(db_zone, AZone):
+            raise ZoneMissingFromDatabaseException
+
+        relationship: AZoneServer = db_zone.servers[0]
+        server: Server = relationship.server
+
+        api_client: PowerDNSAuthApi = PowerDNSAuthApi(PowerDNSApiConfig(
+            server_id=server.server_id,
+            version=server.version,
+            api_url=server.api_url,
+            api_key=server.api_key,
+        ))
+
+        sync_policy = relationship.sync_policy
+
+        if sync_policy is None:
+            sync_policy = server.sync_policy
+
+        if sync_policy is None:
+            return
+
+        try:
+            szone: SAZone | None = await api_client.zones.get(db_zone.fqdn + '.',  rrsets=True)
+        except ClientResponseError as err:
+            if err.status != 404:
+                raise
+            szone = None
+            logger.trace(f'Zone {db_zone.fqdn} missing from server {server_id}.')
+
+        if szone is None:
+            if not sync_policy.create_missing_zones_in_server:
+                logger.trace(f'Skipping zone {db_zone.fqdn} for server {server_id} due to no create policy.')
+                return
+
+            # TODO: Create the zone on the server
+
+            return
+
+        # TODO: Update zone on the server based on sync policy
 
     async def pull_zone_from_server(self, zone_name: str, server_id: UUID | Mapped[UUID] | str) -> None:
         """Pulls zone data from a DNS server."""
@@ -602,7 +652,8 @@ class AuthZoneSyncWorker(RedisStreamSyncWorker):
 
     async def sync_resource(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Performs zone synchronization"""
-        logger.warning(f'Consumer {self.consumer_name} Synchronizing: Zone: {resource_id}, Action: {metadata.action.value}')
+        logger.warning(
+            f'Consumer {self.consumer_name} Synchronizing: Zone: {resource_id}, Action: {metadata.action.value}')
 
         if metadata.action in (ZoneSyncJobActionEnum.create_db, ZoneSyncJobActionEnum.update_db):
             await self.manager.pull_zone_from_server(resource_id, metadata.server_id)
@@ -613,7 +664,8 @@ class AuthZoneSyncWorker(RedisStreamSyncWorker):
         elif metadata.action == ZoneSyncJobActionEnum.purge_server:
             await self.manager.remove_zone_from_server(resource_id, metadata.server_id)
         else:
-            logger.error(f'Consumer {self.consumer_name} Unknown Action Received: Zone: {resource_id}, Action: {metadata.action.value}, Server ID: {metadata.server_id}')
+            logger.error(
+                f'Consumer {self.consumer_name} Unknown Action Received: Zone: {resource_id}, Action: {metadata.action.value}, Server ID: {metadata.server_id}')
 
     async def mark_clean(self, resource_id: str, metadata: ZoneSyncJobMetadata):
         """Updates zone server relationship status in database"""
