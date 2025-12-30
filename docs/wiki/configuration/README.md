@@ -2,7 +2,7 @@
 
 ## Configuration Guide
 
-### Getting Started
+### Introduction
 
 The application provides a lot of fluidity in how it can be configured. This remains true for both environment
 and runtime configuration. The application is designed to be flexible and allow for a wide variety of
@@ -43,7 +43,54 @@ To get an in-depth understanding of the many application settings available, see
 To view the alphabetical list of environment configuration settings, see the
 [Environment Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/environment-settings.md).
 
-#### Runtime Configuration
+### Getting Started
 
-To view the alphabetical list of environment configuration settings, see the
-[Runtime Configuration Guide](https://github.com/dnsmin/dnsmin-api/blob/main/docs/wiki/configuration/settings/runtime-settings.md).
+To get an environment set up for running the API server and associated processes, you'll need to start by creating the
+appropriate configuration files. The first of these files is the environment configuration file.
+
+To create a local development environment, run the following command from the application root directory:
+
+```bash
+cp .env.local.tpl .env
+```
+
+To create a production environment, run the following command from the application root directory:
+
+```bash
+cp .env.tpl .env
+```
+
+Once you have created the environment file, you'll need to update some of the variables in it. Start by setting the
+`DNSMIN_SERVICE_IP` variable to an IP address that is actively assigned to the network interface that you'll use to
+access the application. This should **not be set** to any local loopback address such as `127.0.0.1` if you're running
+the application inside of containers. Additionally, a secure password should be set for the `MYSQL_PASSWORD` variable
+which will be used for the local MySQL database.
+
+You are free to exclude MySQL in favor of Postgres or SQLite if desired.
+
+The next step is creating the configuration files for the application which can be done with the following commands
+from the application root directory:
+
+```bash
+cp config/config.tpl.yml config/config.yml
+cp config/notifications.tpl.yml config/notifications.yml
+cp config/schedules.tpl.yml config/schedules.yml
+```
+
+At this point you'll need to update some configuration settings in the `config/config.yml` file depending on your
+environment. This guide will assume you're running the application in containers so a minimalistic approach will be
+taken. Two settings that will need updated to reflect your database configuration are `db.sql_async_url`
+and `db.sql_sync_url`.
+
+If you're using the default approach with a MySQL database, then you'll use the following values with the password
+updated accordingly to what you previously set in the `.env` file.
+
+```yaml
+db:
+  sql_async_url: mysql+asyncmy://root:YOUR-MYSQL-PASSWORD@mysql/dnsmin
+  sql_sync_url: mysql+pymysql://root:YOUR-MYSQL-PASSWORD@mysql/dnsmin
+```
+
+You'll likely also want to update the `logging.level` setting to either `debug` or `trace` to provide enhanced
+logging detail during development. There are many other settings in this file that you might also want to update
+depending on your use case such as mail server settings.
